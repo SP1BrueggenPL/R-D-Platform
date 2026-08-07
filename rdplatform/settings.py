@@ -1,5 +1,5 @@
 """
-Django settings for the Brüggen R&D Platform.
+Django settings for Brüggen Digital R&D.
 """
 
 import os
