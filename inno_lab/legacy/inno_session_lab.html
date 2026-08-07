@@ -1,0 +1,858 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#661C31">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Inno Session">
+<title>Inno Session Lab</title>
+<style>
+:root{--coral:#FF4143;--claret:#661C31;--gold:#E2BC54;--pink:#CC6884;--char:#514B51;--steel:#7885A2;--line:#EEE8EA}
+*{box-sizing:border-box;font-style:normal!important}
+html,body{margin:0;background:#fff;color:var(--claret);font-family:"Franklin Gothic Book","Franklin Gothic Medium",Arial,sans-serif}
+h1,h2,h3,.hd{font-family:"Franklin Gothic Demi","Arial Narrow",Arial,sans-serif;font-weight:700;margin:0}
+.top{background:var(--claret);color:#fff;padding:18px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.mono{width:42px;height:42px;border-radius:12px;background:var(--coral);display:grid;place-items:center;font-family:"Franklin Gothic Demi",Arial;font-size:25px;color:#fff;flex:none}
+.tabs{display:flex;gap:6px;padding:10px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{border:0;border-radius:20px;padding:9px 16px;cursor:pointer;font-family:"Franklin Gothic Demi",Arial;font-size:14px;background:#F7F3F4;color:var(--claret)}
+.tab.on{background:var(--coral);color:#fff}
+.body{padding:20px;display:grid;gap:18px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{border:1px solid var(--line);border-radius:20px;padding:18px}
+.eyebrow{font-size:11px;letter-spacing:1.4px;color:var(--char);margin-bottom:8px;font-family:"Franklin Gothic Demi",Arial}
+label{display:block;font-size:12px;color:var(--char);margin:10px 0 4px}
+input,select,textarea{width:100%;border:1px solid #DED6D9;border-radius:12px;padding:9px 11px;font-size:14px;font-family:inherit;color:var(--claret);background:#fff}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--coral);outline-offset:1px}
+textarea{min-height:78px;resize:vertical}
+.btn{border:0;border-radius:14px;padding:11px 18px;cursor:pointer;font-family:"Franklin Gothic Demi",Arial;font-size:14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:var(--coral);color:#fff}.dark{background:var(--claret);color:#fff}
+.ghost{background:#fff;color:var(--claret);border:1px solid var(--claret)}
+.mini{padding:6px 9px;font-size:11px;background:#F7F3F4;color:var(--claret);border-radius:10px;border:0;cursor:pointer}
+.chip{border:0;border-radius:999px;padding:5px 10px;font-size:11px;font-family:"Franklin Gothic Demi",Arial;color:#fff;cursor:pointer}
+.drop{border:2px dashed var(--pink);border-radius:18px;min-height:210px;display:grid;place-items:center;text-align:center;padding:16px;color:var(--char);font-size:13px;cursor:pointer}
+.shot{width:100%;max-height:300px;object-fit:contain;border-radius:14px;background:#FAF7F8}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
+.thumb{border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff}
+.thumb img{width:100%;height:104px;object-fit:contain;border-radius:9px;background:#FAF7F8;cursor:zoom-in}
+.thumb select{padding:5px 7px;font-size:11px;border-radius:9px;margin-top:6px}
+.thumb .x{width:100%;margin-top:5px;border:1px solid #DED6D9;background:#fff;color:var(--char);border-radius:9px;padding:4px;font-size:11px;cursor:pointer}
+.tmini{width:52px;height:52px;object-fit:cover;border-radius:9px;background:#FAF7F8}
+a.nolocal{display:grid;place-items:center;border:1px dashed var(--pink);color:var(--coral);text-decoration:none;font-family:"Franklin Gothic Demi",Arial;font-size:11px}
+.slots{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.slot{border:1px solid var(--line);border-radius:12px;padding:7px 11px;font-size:11px;font-family:"Franklin Gothic Demi",Arial}
+.lightbox{position:fixed;inset:0;background:rgba(102,28,49,.92);display:grid;place-items:center;z-index:9;padding:24px;cursor:zoom-out}
+.lightbox img{max-width:100%;max-height:88vh;border-radius:14px}
+.pill{display:inline-block;border-radius:999px;padding:4px 10px;font-size:11px;font-family:"Franklin Gothic Demi",Arial;color:#fff}
+.scorerow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #F3EEF0;font-size:13px}
+.dot{width:30px;height:30px;border-radius:50%;border:1px solid #D9D2D5;background:#fff;color:var(--char);cursor:pointer;font-family:"Franklin Gothic Demi",Arial;font-size:12px}
+.dot.on{background:var(--coral);border-color:var(--coral);color:#fff}
+.kpi{font-family:"Franklin Gothic Demi",Arial;font-size:38px;line-height:1}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-family:"Franklin Gothic Demi",Arial;font-size:11px;color:var(--char);padding:8px 6px;border-bottom:2px solid var(--claret)}
+td{padding:9px 6px;border-bottom:1px solid #F3EEF0;vertical-align:top}
+.hl{background:#FBF4E9;border-left:4px solid var(--gold);border-radius:12px;padding:12px 14px;font-family:Georgia,serif;font-weight:700;font-size:13px}
+.note{font-size:12px;color:var(--char)}
+.weekhead{background:var(--claret);color:#fff;border-radius:12px 12px 0 0;padding:8px 12px;font-family:"Franklin Gothic Demi",Arial;font-size:13px;display:flex;justify-content:space-between;gap:8px}
+.weekbox{border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;padding:12px}
+.weeks{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:12px;margin-top:16px}
+.bar{height:8px;border-radius:999px;background:#F1E9EC;overflow:hidden}.bar>i{display:block;height:100%;background:var(--coral)}
+.msg{margin:14px 20px 0;padding:11px 14px;border-radius:14px;font-size:13px;background:#F2F6EF;border-left:4px solid var(--steel)}
+.msg.bad{background:#FDEDED;border-left-color:var(--coral)}
+.foot{padding:18px 20px 28px;background:var(--claret);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+@media(max-width:820px){.g2{grid-template-columns:1fr}}
+@media(max-width:640px){
+ .top{padding:14px 16px;gap:12px}
+ .top h1{font-size:18px}
+ .top .btn,.top label.btn{padding:8px 12px;font-size:12px;border-radius:12px}
+ .tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding:10px 12px;gap:5px}
+ .tab{flex:none;padding:10px 14px}
+ .body{padding:12px;gap:12px}
+ .card{padding:14px;border-radius:16px}
+ .dot{width:42px;height:42px;font-size:14px}
+ .scorerow{flex-direction:column;align-items:flex-start;gap:6px;padding:10px 0}
+ .btn{padding:13px 18px;width:100%;justify-content:center}
+ .row>.btn{width:auto;flex:1 1 auto;min-width:44%}
+ .thumbs{grid-template-columns:1fr 1fr;gap:8px}
+ .thumb img{height:120px}
+ table,thead,tbody,tr,td{display:block;width:100%}
+ thead{display:none}
+ tr{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px}
+ td{border:0;padding:5px 0;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+ td>.bar{flex:1 1 100%}
+ .mlabel{display:inline;color:var(--char);font-size:11px;font-family:"Franklin Gothic Demi",Arial;min-width:74px}
+ .thumb img{height:150px}
+ .weekhead{flex-wrap:wrap}
+ .weeks{grid-template-columns:1fr}
+ .kpi{font-size:30px}
+ .foot{padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+ .sticky{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 0 calc(6px + env(safe-area-inset-bottom));margin-top:6px;z-index:5}
+}
+@media(min-width:641px){.camonly{display:none}}
+@media print{.tabs,.top .btn,.btn,.foot{display:none}.card{break-inside:avoid}}
+</style>
+<div class="top">
+  <div class="mono">B</div>
+  <div><h1 style="font-size:21px">Inno Session Lab</h1>
+  <div style="font-size:12px;color:var(--gold)">Skanuj — oceniaj — przenoś na własne linie</div></div>
+  <div class="row" style="margin-left:auto">
+    <span class="pill" style="background:var(--coral)">#TheCerealFamily</span>
+    <span class="pill" id="tryb" style="background:var(--steel)">tryb: sprawdzam…</span>
+    <span class="row" id="lang" style="gap:4px"></span>
+    <button class="btn ghost" style="background:transparent;color:#fff;border-color:#fff" data-act="csv">Eksport CSV</button>
+    <button class="btn ghost" style="background:transparent;color:#fff;border-color:#fff" data-act="json">Kopia JSON</button>
+    <button class="btn ghost" style="background:transparent;color:#fff;border-color:#fff" data-act="burn">Wypal wspólną bazę</button>
+    <label class="btn ghost" style="background:transparent;color:#fff;border-color:#fff;margin:0">Scal z kopią JSON<input type="file" id="imp" accept=".json" style="display:none"></label>
+    <button class="btn ghost" style="background:transparent;color:#fff;border-color:#fff" data-act="print">Drukuj / PDF</button>
+  </div>
+</div>
+<div class="tabs" id="tabs"></div>
+<div id="msg"></div>
+<div id="view"></div>
+<div class="foot">
+  <div class="hd" style="font-size:13px;color:var(--gold)">Wspierane przez AI</div>
+  <p class="note" style="color:#fff;max-width:780px;margin-top:6px">Odczyt etykiet i uszczegółowienie planów generuje model AI — treści wymagają weryfikacji przez człowieka przed użyciem w decyzjach, dokumentacji i publikacjach. Nie wprowadzaj do narzędzia własnych receptur, kosztów surowców ani danych osobowych. Materiały pochodne oznaczaj jako „Wsparte przez AI”. Dane zapisują się wyłącznie w tej przeglądarce — rób kopię JSON po sesji.</p>
+</div>
+<script>
+var SEED = [{"nr": 1,"data": "2026-03-10","nazwa": "Cini Minis Protein","foto": "CiniMinis Protein.jpg","kat": "Ekstrudaty","nowe": "Nowy produkt Nestle, protein","ocena": 4,"insight": "Możliwość projektowania produktów z napisem \"protein\" na opakowaniu przy zawartości białka odpowiadającej claimowi \"źródło białka\"","file": "CiniMinis Protein.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/10.03.2026/CiniMinis%20Protein.jpg?csf=1&amp;web=1&amp;e=nXmJbN"},{"nr": 2,"data": "","nazwa": "Dobra kaloria proteina lemon cheesecake","foto": "Dobra Kaloria lemon cheesecake.jpg","kat": "Batony","nowe": "Niski IG i wersja smakowa","ocena": 1.5,"insight": "Piaszczysta konsystencja","file": "Dobra Kaloria lemon cheesecake.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/10.03.2026/Dobra%20Kaloria%20lemon%20cheesecake.jpg?csf=1&amp;web=1&amp;e=GcqooY"},{"nr": 3,"data": "","nazwa": "Daton dobra kaloria proteina","foto": "Dobra Kaloria banoffee.jpg","kat": "Batony","nowe": "Niski IG i wersja smakowa","ocena": 1.5,"insight": "Piaszczysta konsystencja","file": "Dobra Kaloria banoffee.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/10.03.2026/Dobra%20Kaloria%20banoffee.jpg?csf=1&amp;web=1&amp;e=egNAgL"},{"nr": 4,"data": "","nazwa": "Protein Bar Dzik Peanut butter","foto": "WK DZIK Peanut Butter.jpg","kat": "Batony","nowe": "-","ocena": 2,"insight": "","file": "WK DZIK Peanut Butter.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/10.03.2026/WK%20DZIK%20Peanut%20Butter.jpg?csf=1&amp;web=1&amp;e=yEy8i2"},{"nr": 5,"data": "","nazwa": "Moonsy high protein smak papryka","foto": "Moonsy papryka.jpg","kat": "Ekstrudaty","nowe": "Chipsy z soczewicy","ocena": 4,"insight": "dobra alternatywa dla chipsów ziemniaczanych - dużo białka, mało tłuszczu","file": "Moonsy papryka.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/10.03.2026/Moonsy%20papryka.jpg?csf=1&amp;web=1&amp;e=ZZLcIn"},{"nr": 6,"data": "","nazwa": "Foods By Ann Choco Bar pomarańcza","foto": "Foods By Ann czeko-pomarańcza.jpg","kat": "Batony","nowe": "Konsystencja galaretki i połączenie smakowe czekolada-pomarańcza wraca na rynek","ocena": 5,"insight": "Podejmiemy próbę odwzorowania i zweryfikujemy możliwości technologiczne pełnego oblania czekoladą za pomocą walców dociskowych w oblewarce","file": "Foods By Ann czeko-pomarańcza.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/10.03.2026/Foods%20By%20Ann%20czeko-pomara%C5%84cza.jpg?csf=1&amp;web=1&amp;e=IrkEiV"},{"nr": 7,"data": "2026-04-14","nazwa": "Czekolada z ube","foto": "Czekolada Ube.jpg","kat": "Czekolada","nowe": "pierwsze produkty z ube na rynku","ocena": 3,"insight": "Smak niecharakterystyczny, mango słabo wyczuwalne, smak czekolady przypominający jogurtowy; Kolor nieatrakcyjny, wpadający w szarości – efekt ten sam jak po wypieczeniu cruncha z ube","file": "Czekolada Ube.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/Czekolada%20Ube.jpg?csf=1&amp;web=1&amp;e=Wfn5ee"},{"nr": 8,"data": "","nazwa": "Jelly Shot magnez","foto": "Jelly Shot magnez.jpg","kat": "Inne","nowe": "galaretka konjac w szaszetce z suplementami","ocena": 1,"insight": "Odrzucający wygląd i konsystencja, nierównomiernie rozłożony barwnik, w smaku mocno wyczuwalna sukraloza","file": "Jelly Shot magnez.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/Jelly%20Shot%20magnez.jpg?csf=1&amp;web=1&amp;e=smxsP4"},{"nr": 9,"data": "","nazwa": "Jelly shot kolagen","foto": "Jelly Shot kolagen.jpg","kat": "-","nowe": "galaretka konjac w szaszetce z suplementami","ocena": 1,"insight": "Odrzucający wygląd i konsystencja, nierównomiernie rozłożony barwnik, w smaku mocno wyczuwalna sukraloza","file": "Jelly Shot kolagen.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/Jelly%20Shot%20kolagen.jpg?csf=1&amp;web=1&amp;e=HrcRmx"},{"nr": 10,"data": "","nazwa": "Sondey ciastka","foto": "Sondey ciastka.jpg","kat": "-","nowe": "nowe połączenie smakowe - malina i orzech ziemny","ocena": 4,"insight": "Połączenie smaku orzecha ziemnego i maliny – zaskakująco dobre; inspiracja do batona","file": "Sondey ciastka.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/Sondey%20ciastka.jpg?csf=1&amp;web=1&amp;e=cis0Jb"},{"nr": 11,"data": "","nazwa": "Baton piernikowy","foto": "Baton piernikowy.jpg","kat": "Batony","nowe": "-","ocena": 5,"insight": "Bardzo dobry! Kremowy, piernikowy w stylu lotus biscoff","file": "Baton piernikowy.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/Baton%20piernikowy.jpg?csf=1&amp;web=1&amp;e=MrYSi5"},{"nr": 12,"data": "","nazwa": "Baton matcha truskawka","foto": "Baton matcha truskawka.jpg","kat": "Batony","nowe": "matcha","ocena": 1,"insight": "bardzo sztuczny","file": "Baton matcha truskawka.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/Baton%20matcha%20truskawka.jpg?csf=1&amp;web=1&amp;e=iDqsL6"},{"nr": 13,"data": "","nazwa": "Dobra kaloria babka cytrynowa","foto": "Dobra Kaloria babka cytrynowa.jpg","kat": "Batony","nowe": "wariant smakowy","ocena": 4,"insight": "interesujące połączenie smakowe - inspiracja do batona","file": "Dobra Kaloria babka cytrynowa.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/Dobra%20Kaloria%20babka%20cytrynowa.jpg?csf=1&amp;web=1&amp;e=gWwCGq"},{"nr": 14,"data": "","nazwa": "Dobra Kaloria rogal poznański","foto": "Dobra Kaloria rogal poznański.jpg","kat": "Batony","nowe": "wariant smakowy","ocena": 4,"insight": "interesujące połączenie smakowe - inspiracja do batona","file": "Dobra Kaloria rogal poznański.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/Dobra%20Kaloria%20rogal%20pozna%C5%84ski.jpg?csf=1&amp;web=1&amp;e=uEuKEI"},{"nr": 15,"data": "","nazwa": "Matcha cookie","foto": "FrankOli matcha cookie.jpg","kat": "Wyroby cukiernicze","nowe": "matcha","ocena": 1,"insight": "słabe - mączne, piaszczyste ciastko, gorzki smak matchy","file": "FrankOli matcha cookie.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/FrankOli%20matcha%20cookie.jpg?csf=1&amp;web=1&amp;e=eO7nIa"},{"nr": 16,"data": "","nazwa": "Smoothie cookie","foto": "FrankOli smoothie cookie.jpg","kat": "Wyroby cukiernicze","nowe": "wersja smakowa pinacolada","ocena": 1,"insight": "słabe - mączne, piaszczyste ciastko, mało wyrazisty smak pina-colada","file": "FrankOli smoothie cookie.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/FrankOli%20smoothie%20cookie.jpg?csf=1&amp;web=1&amp;e=Nn11Pl"},{"nr": 17,"data": "","nazwa": "Nocciola cookie","foto": "FrankOli nocciola cookie.jpg","kat": "Wyroby cukiernicze","nowe": "-","ocena": 2,"insight": "słabe - mączne, piaszczyste, gorzkie","file": "FrankOli nocciola cookie.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/FrankOli%20nocciola%20cookie.jpg?csf=1&amp;web=1&amp;e=PkkiuY"},{"nr": 18,"data": "","nazwa": "Mini paluchy musztarda-miód","foto": "Lajkonik mini paluchy musztarda-miód.jpg","kat": "Przekąski wytrawne","nowe": "przekąska musztardowa","ocena": 5,"insight": "inspiracja do cruncha wytrawnego; smak wyrazisty, lekko octowy, dobra chrupkość","file": "Lajkonik mini paluchy musztarda-miód.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/Lajkonik%20mini%20paluchy%20musztarda-mi%C3%B3d.jpg?csf=1&amp;web=1&amp;e=h3ZSbR"},{"nr": 19,"data": "","nazwa": "Mini bagle prowansalskie","foto": "Lajkonik mini bajgle prowansalskie.jpg","kat": "Przekąski wytrawne","nowe": "kształt","ocena": 4,"insight": "zwykłe","file": "Lajkonik mini bajgle prowansalskie.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.04.2026/Lajkonik%20mini%20bajgle%20prowansalskie.jpg?csf=1&amp;web=1&amp;e=a5moJ1"},{"nr": 20,"data": "12.05.2026","nazwa": "Chipsy Creamy Cheese & Basil","foto": "Chipsy Creamy Cheeses & Basil","kat": "Przekąski wytrawne","nowe": "smak","ocena": 3,"insight": "smak serowy zbyt intensywny","file": "GetImage (2).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(2).jpeg?csf=1&amp;web=1&amp;e=frtSsz"},{"nr": 21,"data": "","nazwa": "Krekersy wielozbożowe o smaku warzywa z zieloną cebulką","foto": "Krekersy wielozbożowe o smaku warzywa z zieloną cebulką","kat": "Przekąski wytrawne","nowe": "smak","ocena": 5,"insight": "bardzo dobre, mocny smak cebuli","file": "GetImage (3).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(3).jpeg?csf=1&amp;web=1&amp;e=hNZGT4"},{"nr": 22,"data": "","nazwa": "Krekersy wielozbożowe o smaku pomidor z bazylią","foto": "Krekersy wielozbożowe o smaku pomidor z bazylią","kat": "Przekąski wytrawne","nowe": "smak","ocena": 5,"insight": "bardzo dobre, naturalnie rozchodzący się smak bazylii","file": "GetImage (4).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(4).jpeg?csf=1&amp;web=1&amp;e=r5w57m"},{"nr": 23,"data": "","nazwa": "Krekersy wielozbożowe o smaku czerowna papryka w ziołach","foto": "Krekersy wielozbożowe o smaku czerowna papryka w ziołach","kat": "Przekąski wytrawne","nowe": "smak","ocena": 4,"insight": "dobre","file": "GetImage (5).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(5).jpeg?csf=1&amp;web=1&amp;e=bfLKvA"},{"nr": 24,"data": "","nazwa": "Long Chips smak Crab","foto": "Long Chips smak Crab","kat": "Przekąski wytrawne","nowe": "smak i forma","ocena": 2,"insight": "forma ciekawa, smak bardzo rybny słaby","file": "GetImage (6).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(6).jpeg?csf=1&amp;web=1&amp;e=EKrQuI"},{"nr": 25,"data": "","nazwa": "Long Chips smak Bacon","foto": "Long Chips smak Bacon","kat": "Przekąski wytrawne","nowe": "smak i forma","ocena": 4,"insight": "forma ciekawa, smak dobry lekko pikantny podobny do prażynek","file": "GetImage (7).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(7).jpeg?csf=1&amp;web=1&amp;e=w3GqF1"},{"nr": 26,"data": "","nazwa": "Baton Crush Raspberry & almonds","foto": "Baton Crush Raspberry & almonds","kat": "Batony","nowe": "forma - czekolada z dodatkami w formie batona","ocena": 3,"insight": "mocno owocowe, bardzo słoskie, malina za mocna i sztuczna","file": "GetImage (8).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(8).jpeg?csf=1&amp;web=1&amp;e=fYYWN9"},{"nr": 27,"data": "","nazwa": "Baton Crush caramel white chocolate popcorn","foto": "Baton Crush caramel white chocolate popcorn","kat": "Batony","nowe": "forma - czekolada z dodatkami w formie batona, smak - popcorn","ocena": 5,"insight": "bardzo dobre, ciekawy smak popcornu","file": "GetImage (9).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(9).jpeg?csf=1&amp;web=1&amp;e=unXnrM"},{"nr": 28,"data": "","nazwa": "Kulki owsiane z czekoladą","foto": "Kulki owsiane z czekoladą","kat": "Wyroby cukiernicze","nowe": "forma - kulki","ocena": 1,"insight": "bardzo słabe, mączyste w smaku","file": "GetImage (10).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(10).jpeg?csf=1&amp;web=1&amp;e=q6uEhn"},{"nr": 29,"data": "","nazwa": "Dobra kaloria baton orzeszki & czekolada","foto": "Dobra kaloria baton orzeszki & czekolada","kat": "Batony","nowe": "inna wersja batonu owocowego","ocena": 3,"insight": "dobre, mocno brzoskwiniowe, kruche, smak brzoskwini jak ice tea","file": "GetImage (11).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(11).jpeg?csf=1&amp;web=1&amp;e=HFlq4O"},{"nr": 30,"data": "","nazwa": "Xinglixing Mini chipsy kakaowe","foto": "Xinglixing Mini chipsy kakaowe","kat": "Wyroby cukiernicze","nowe": "smak i forma","ocena": 3,"insight": "nic ciekawego, brak czegoś charakterystycznego w smaku","file": "GetImage (12).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(12).jpeg?csf=1&amp;web=1&amp;e=x10Ox2"},{"nr": 31,"data": "","nazwa": "BE raw baton pure peanut butter","foto": "BE raw baton pure peanut butter","kat": "Batony","nowe": "inna wersja batonu owocowego","ocena": 3,"insight": "nic ciekawego, brak czegoś charakterystycznego w smaku, nie czuć peanut butter","file": "GetImage (13).jpeg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/12.05.2026/GetImage%20(13).jpeg?csf=1&amp;web=1&amp;e=9d0ojS"},{"nr": 32,"data": "2026-10-06","nazwa": "Vitanella super balls","foto": "Vitanella Super balls.jpg","kat": "Przekąski słodkie","nowe": "Kształt w formie kulki, claim no added sugar","ocena": 4,"insight": "Smakuje podobnie jak baton owocowy, opinie smaku są podzielone-możliwa inspiracja do batonów","file": "Vitanella Super balls.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Vitanella%20Super%20balls.jpg?csf=1&amp;web=1&amp;e=7k9Z7m"},{"nr": 33,"data": "","nazwa": "Go on Collagen","foto": "Go on Collagen.jpg","kat": "Batony","nowe": "Dodatek kolagenu do batona","ocena": 2,"insight": "Wyczuwalne mocno białko, smak słaby,","file": "Go on Collagen.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Go%20on%20Collagen.jpg?csf=1&amp;web=1&amp;e=9jRPLM"},{"nr": 34,"data": "","nazwa": "Ube chocolate","foto": "Ube chocolate.jpg","kat": "Czekolada","nowe": "Smak Ube mango kokos","ocena": 3,"insight": "Bardzo słodki produkt, mało wyczuwalne ube","file": "Ube chocolate.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Ube%20chocolate.jpg?csf=1&amp;web=1&amp;e=U58hdZ"},{"nr": 35,"data": "","nazwa": "Ube almonds","foto": "Ube almonds.jpg","kat": "Przekąski słodkie","nowe": "Migdały oblane w czekoladzie z ube","ocena": 2,"insight": "Bardzo słodki smak, mało wyczuwalne ube, mało innowacyjny produtk","file": "Ube almonds.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Ube%20almonds.jpg?csf=1&amp;web=1&amp;e=7eQePz"},{"nr": 36,"data": "","nazwa": "Kulki z czekoladą ube","foto": "Ube balls.jpg","kat": "Przekąski słodkie","nowe": "forma kulki, smak ube","ocena": 3,"insight": "Bardzo słodki smak, wyczuwalne ube, chrupiące, ciekawy smak","file": "Ube balls.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Ube%20balls.jpg?csf=1&amp;web=1&amp;e=qgXTYK"},{"nr": 37,"data": "","nazwa": "Vitanella  mini bars","foto": "Mini bars.jpg","kat": "Batony","nowe": "Nowa forma małych batonów","ocena": 4,"insight": "Opinie podzielone w obu smakach, kształt i forma ciekawe- możliwa inspiracja","file": "Mini bars.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Mini%20bars.jpg?csf=1&amp;web=1&amp;e=34zcJm"},{"nr": 38,"data": "","nazwa": "Cashews coconut","foto": "Nerkowce kokosowe.jpg","kat": "Przekąski słodkie","nowe": "Oblanie nerkowca polewą z wiórkami kokosowymi","ocena": 4,"insight": "Opinie pozytywne, ciekawy smak, możliwość zastosowania do granoli","file": "Nerkowce kokosowe.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Nerkowce%20kokosowe.jpg?csf=1&amp;web=1&amp;e=zQDGbo"},{"nr": 39,"data": "","nazwa": "Deser o smaku sernik z brzoskwieniami/ malinami","foto": "deser sernik.jpg","kat": "Przekąski słodkie","nowe": "Smaki deserów","ocena": 4,"insight": "Smaki deserowe bardzo ciekawe, możliwość inspiracji w owsiance/ batonach","file": "deser sernik.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/deser%20sernik.jpg?csf=1&amp;web=1&amp;e=nUJXnP"},{"nr": 40,"data": "","nazwa": "Ciasteczka zbożowe kupiec","foto": "Ciastka zbożowe.jpg","kat": "Przekąski słodkie","nowe": "Kształt","ocena": 2,"insight": "Zykłe ciastka, mało innowacyjny produkt","file": "Ciastka zbożowe.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Ciastka%20zbo%C5%BCowe.jpg?csf=1&amp;web=1&amp;e=gN30fb"},{"nr": 41,"data": "","nazwa": "Dream bar","foto": "Dream bar.jpg","kat": "Batony","nowe": "Połączenie smaku matcha z białą brzoskwinią","ocena": 4,"insight": "Smak matchy średni, ale posmak brzoskwini wyczuwalny- możliwa inspiracja produktów o smaku brzoskwini","file": "Dream bar.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Dream%20bar.jpg?csf=1&amp;web=1&amp;e=rNbcFw"},{"nr": 42,"data": "","nazwa": "Dream bar","foto": "Dream bar 2.jpg","kat": "Batony","nowe": "Smak sakura","ocena": 3,"insight": "Ciekawa koncepcja smaku sakura, który jest ostatnio w trendach, baton w smaku niedobry","file": "Dream bar 2.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Dream%20bar%202.jpg?csf=1&amp;web=1&amp;e=IJJ43i"},{"nr": 43,"data": "","nazwa": "Baton WW","foto": "Baton WW sakura.jpg","kat": "Batony","nowe": "Smak sakura","ocena": 2,"insight": "Ciekawa koncepcja smaku sakura, który jest ostatnio w trendach, baton w smaku niedobry","file": "Baton WW sakura.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Baton%20WW%20sakura.jpg?csf=1&amp;web=1&amp;e=LwLbHz"},{"nr": 44,"data": "","nazwa": "Peanut cups","foto": "Peanut cups.jpg","kat": "Przekąski słodkie","nowe": "Forma krążków","ocena": 3,"insight": "Smak dobry, natomiast mało innowacyjny produkt","file": "Peanut cups.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Peanut%20cups.jpg?csf=1&amp;web=1&amp;e=fNIDQU"},{"nr": 45,"data": "","nazwa": "Popcorn chupa chups","foto": "Vitanella Super balls.jpg","kat": "Przekąski słodkie","nowe": "Popcorn o smaku jabłka","ocena": 1,"insight": "Smak kiepski, dodatek jabłka mało innowacyjny"},{"nr": 46,"data": "","nazwa": "Beskidzkie precelki","foto": "Precle kurki w śmietanie.jpg","kat": "Przekąski wytrawne","nowe": "Smak kurki w śmietanie","ocena": 4,"insight": "Mało wyczuwalne kurki, ale smak bardzo dobry- moźliwa inspiracja do granoli","file": "Precle kurki w śmietanie.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Precle%20kurki%20w%20%C5%9Bmietanie.jpg?csf=1&amp;web=1&amp;e=v3Uww1"},{"nr": 47,"data": "","nazwa": "Beskidzkie bajgle","foto": "Bajgle karmelowe.jpg","kat": "Przekąski wytrawne","nowe": "smak karmelowy w wytrawnej przekąsce","ocena": 2,"insight": "Smak kiepski","file": "Bajgle karmelowe.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Bajgle%20karmelowe.jpg?csf=1&amp;web=1&amp;e=0QIJp9"},{"nr": 48,"data": "","nazwa": "Mini krakersy","foto": "Krakersy chakalaka.jpg","kat": "Przekąski wytrawne","nowe": "Smak chakalaka","ocena": 4,"insight": "Bardzo  ciekawy smak- możliwa inspiracja do wytrawnych produktów np. granoli","file": "Krakersy chakalaka.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Krakersy%20chakalaka.jpg?csf=1&amp;web=1&amp;e=4H5V8u"},{"nr": 49,"data": "","nazwa": "Pizzetta chips","foto": "Pizzetta.jpg","kat": "Przekąski wytrawne","nowe": "smak margherita, ciekawa forma","ocena": 3,"insight": "Opinie dotyczące smaku podzielone, ciekawa forma- możliwa inspiracja smaku do granoli","file": "Pizzetta.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Pizzetta.jpg?csf=1&amp;web=1&amp;e=nDvbmf"},{"nr": 50,"data": "","nazwa": "Owsiane serduszka musli","foto": "Owsiane serduszka.jpg","kat": "Przekąski słodkie","nowe": "kształt serduszek","ocena": 3,"insight": "Poza kształtem produkt mało innowacyjny, smak jabłkowy dobrze znany","file": "Owsiane serduszka.jpg","url": "https://brueggen.sharepoint.com/:i:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/09.06/Owsiane%20serduszka.jpg?csf=1&amp;web=1&amp;e=ynQJOU"},{"nr": 51,"data": "2026-10-07","nazwa": "Wytłaczane paluszki z czerwonej soczewicy o smaku pikantnych pikli","foto": "Paluszki o smaku pikli","kat": "Przekąski wytrawne","nowe": "smak pikli w chrupkach","ocena": 4,"insight": "ciekawy smak, pikantne,trend wytrawny","file": "0e732fb8-3f44-43d3-b2bd-aecf9a078af3.webp","url": "https://brueggen.sharepoint.com/:u:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.07.2026/0e732fb8-3f44-43d3-b2bd-aecf9a078af3.webp?csf=1&amp;web=1&amp;e=59Ug9d"},{"nr": 52,"data": "","nazwa": "Ring mix Alesto - Mieszanka orzeszków ziemnych, krakersów ryżowych, orzeszków ziemnych w panierce, przekąsek ziemniaczanych","foto": "Ring mix","kat": "Przekąski wytrawne","nowe": "połączenie różnych chrupek z orzechami","ocena": 5,"insight": "bardzo dobry smak, ciekawa konsystencja, wciągające","file": "341fcb00-382f-4b21-b674-34cb92ccf91d.webp","url": "https://brueggen.sharepoint.com/:u:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.07.2026/341fcb00-382f-4b21-b674-34cb92ccf91d.webp?csf=1&amp;web=1&amp;e=Z6his7"},{"nr": 53,"data": "","nazwa": "Sour yuzu gummy sweets","foto": "yuzu gummy","kat": "Przekąski słodkie","nowe": "trend na yuzu","ocena": 2,"insight": "przesłodzone","file": "1ff07f74-e950-441a-a6b2-45eb5eb68154.webp","url": "https://brueggen.sharepoint.com/:u:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.07.2026/1ff07f74-e950-441a-a6b2-45eb5eb68154.webp?csf=1&amp;web=1&amp;e=ZnSVWY"},{"nr": 54,"data": "","nazwa": "freeze crunchy - liofilizowane żelki o smaku owocowym","foto": "Liofilizowane żelki","kat": "Przekąski słodkie","nowe": "liofilizowany żelek","ocena": 3,"insight": "nowa forma żelków, smak bardzo słodki owowocwy","file": "4194513e-0bd7-4ede-ae70-7845b8e6b7fe.webp","url": "https://brueggen.sharepoint.com/:u:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.07.2026/4194513e-0bd7-4ede-ae70-7845b8e6b7fe.webp?csf=1&amp;web=1&amp;e=unraZ9"},{"nr": 55,"data": "","nazwa": "Crispy pillows Minions z nadzieniem o smaku orzechów laskowych","foto": "Pillows orzech laskowy","kat": "Ekstrudat","nowe": "nadzienie z orzechów laskowych","ocena": 3,"insight": "kolaboracja z bajką, konsystencja poduszek dosyć twarda","file": "ea91f670-f152-4da5-8413-678ff19ad0a5.webp","url": "https://brueggen.sharepoint.com/:u:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.07.2026/ea91f670-f152-4da5-8413-678ff19ad0a5.webp?csf=1&amp;web=1&amp;e=0qOyXM"},{"nr": 56,"data": "","nazwa": "Czekolada o smaku MISO karmel Wedel","foto": "Czekolada miso","kat": "Przekąski słodkie","nowe": "smak miso w czekoladzie","ocena": 2,"insight": "słodka, mało wyczuwalny smak miso","file": "0e8c0b9c-4512-4158-96b2-fd060e8e43a3.webp","url": "https://brueggen.sharepoint.com/:u:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.07.2026/0e8c0b9c-4512-4158-96b2-fd060e8e43a3.webp?csf=1&amp;web=1&amp;e=Rm7pfP"},{"nr": 57,"data": "","nazwa": "PrincePolo Oreo","foto": "Prince Polo - Oreo","kat": "Batony","nowe": "smak oreo w batonie","ocena": 4,"insight": "kolaboracja dwóch firm - baton-ciasteczka oreo","file": "c207de00-4a3b-4b26-906c-28dfff8d6324.webp","url": "https://brueggen.sharepoint.com/:u:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.07.2026/c207de00-4a3b-4b26-906c-28dfff8d6324.webp?csf=1&amp;web=1&amp;e=lWRyYA"},{"nr": 58,"data": "","nazwa": "Protein bar Dzik creamy coconut","foto": "baton dzik creamy coconut","kat": "Batony","nowe": "30 g białka","ocena": 3,"insight": "piaszczyste białko","file": "e36c6e9e-07c3-4ad2-8a92-52e74c86b105.webp","url": "https://brueggen.sharepoint.com/:u:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.07.2026/e36c6e9e-07c3-4ad2-8a92-52e74c86b105.webp?csf=1&amp;web=1&amp;e=WYu90r"},{"nr": 59,"data": "","nazwa": "Salted pretzel with cookies","foto": "Precle","kat": "Przekąski słodkie","nowe": "nowy produkt, precel w słodkim wydaniu","ocena": 4,"insight": "ciekawy produkt, smakczy delikatnie przesłodzony","file": "b9ba29bb-63f4-4273-bb9d-7f35f6e7a45a.webp","url": "https://brueggen.sharepoint.com/:u:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.07.2026/b9ba29bb-63f4-4273-bb9d-7f35f6e7a45a.webp?csf=1&amp;web=1&amp;e=lNVgIQ"},{"nr": 60,"data": "","nazwa": "Koktajl wieloowocowy z białkiem grochu o smaku wiśniowo-czekoladowego ciastka z dodatkiem witamin D i B 12","foto": "napój białkowy","kat": "Napój","nowe": "Napój proteinowy","ocena": 1,"insight": "bardzo niedobre, odrzucający smak","file": "db925474-6af7-4394-a21c-9340ebe08342.webp","url": "https://brueggen.sharepoint.com/:u:/r/sites/TEAM_G-RD-6.4Wilga-Productsdevelopments/Shared%20Documents/6.4%20Wilga%20-%20Product%20development/1.%20PROJEKTY/InnoSession%20-%20nasze%20wewn%C4%99trzne/14.07.2026/db925474-6af7-4394-a21c-9340ebe08342.webp?csf=1&amp;web=1&amp;e=876PmX"}];
+var C={coral:'#FF4143',claret:'#661C31',gold:'#E2BC54',pink:'#CC6884',char:'#514B51',steel:'#7885A2'};
+var LINES=['Płatki kukurydziane i wielozbożowe','Granola','Ekstrudaty','Poduszki','Musli','Owsianki','Batony'];
+var KATS=['Batony','Granola','Musli','Owsianki','Płatki śniadaniowe','Ekstrudaty','Poduszki','Przekąski słodkie','Przekąski wytrawne','Czekolada','Wyroby cukiernicze','Napój','Inne'];
+var CRIT=[{k:'wyglad_ocena',l:'Wygląd',w:.10},{k:'zapach',l:'Zapach',w:.10},{k:'smak',l:'Smak',w:.25},{k:'konsystencja',l:'Konsystencja',w:.15},{k:'innowacyjnosc',l:'Innowacyjność',w:.15},{k:'transfer',l:'Możliwość przeniesienia',w:.25}];
+var NUTRI=[['energia_kcal','Energia','kcal'],['tluszcz','Tłuszcz','g'],['nasycone','w tym kwasy nasycone','g'],['weglowodany','Węglowodany','g'],['cukry','w tym cukry','g'],['blonnik','Błonnik','g'],['bialko','Białko','g'],['sol','Sól','g']];
+var ROLES=['R&D Manager','Technolog R&D','Specjalista sensoryki','Zakupy / Sourcing','Produkcja / Linia','Jakość (QA)','Marketing','Sales'];
+var TRIAL={
+'Płatki kukurydziane i wielozbożowe':'Próba na linii płatków: parametry prażenia i tostowania, grubość płatka po walcowaniu, chrupkość i zachowanie w mleku',
+'Granola':'Próba na linii granoli: prażenie w piecu taśmowym, dozowanie syropu i dodatków, kruszenie i sitowanie frakcji',
+'Ekstrudaty':'Próba na ekstruderze: profil temperatur, wilgotność masy, stopień ekspansji, oblewanie i dosuszanie',
+'Poduszki':'Próba koekstruzji: stabilność nadzienia, proporcja nadzienie do otoczki, szczelność zamknięcia, dosuszanie',
+'Musli':'Próba w mieszalni suchej: proporcja płatków i dodatków, homogeniczność mieszanki, kontrola pylenia i segregacji frakcji',
+'Owsianki':'Próba w mieszalni: homogeniczność premiksu, rozpuszczalność i czas zalewania, saszetkowanie i waga porcji',
+'Batony':'Próba na linii batonów: formowanie masy, oblewanie (walce dociskowe), kontrola wagi sztuki'};
+
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+var PTYPES=['Front opakowania','Tył / etykieta','Produkt (środek)','Detal / przekrój'];
+function emptyDraft(){var d={photos:[],nazwa:'',marka:'',kat:'Batony',sklad:'',alergeny:'',claims:'',nowe:'',wyglad:'',komentarz:'',nutri:{},scores:{},targets:[]};
+ NUTRI.forEach(function(n){d.nutri[n[0]]='';});CRIT.forEach(function(c){d.scores[c.k]=3;});return d;}
+function indexOf(s){var t=0;CRIT.forEach(function(c){t+=(Number(s[c.k])||0)*c.w;});return t;}
+function verdict(v){return v>=4?{t:'Do transferu',c:C.coral}:v>=3?{t:'Obserwuj',c:C.gold}:{t:'Odrzuć',c:C.steel};}
+function ymd(d){return d.toISOString().slice(0,10);}
+function plDate(v){if(!v)return '';var p=String(v).split('-');return p.length===3?p[2]+'.'+p[1]+'.'+p[0]:v;}
+function addDays(dateStr,n){var d=new Date(dateStr+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return ymd(d);}
+function spread(p,startStr){p.weeks.forEach(function(w,i){w.date=addDays(startStr,i*7);delete w.kw;});}
+function plan8(line,prod,fl){return trPlan([
+ [1,'Brief i benchmark','R&D Manager','Karta briefu dla kierunku „'+fl+'”, zakup 3–5 produktów referencyjnych, cel sensoryczny i ramy kosztowe dla linii '+line],
+ [2,'Surowce i dostawcy','Zakupy / Sourcing','Zapytania do dostawców o aromaty i dodatki, próbki surowców, wstępny koszt na 100 kg, sprawdzenie statusu clean label'],
+ [3,'Receptury laboratoryjne','Technolog R&D','3 warianty receptury w skali laboratoryjnej, dobór poziomu aromatu i słodkości, notatki technologiczne'],
+ [4,'Panel sensoryczny','Specjalista sensoryki','Test 5-punktowy (smak, zapach, konsystencja), panel 8–10 osób, porównanie z referencją rynkową, wybór 1–2 wariantów'],
+ [5,'Korekta i kalkulacja','Technolog R&D','Poprawa wybranego wariantu, kalkulacja kosztu i wartości odżywczych, projekt deklaracji składu'],
+ [6,'Próba technologiczna','Produkcja / Linia',TRIAL[line]||'Próba technologiczna na linii docelowej'],
+ [7,'Shelf-life i specyfikacja','Jakość (QA)','Start testu przechowalniczego (0 / 1 / 3 mies.), analizy mikro i fizykochemiczne, projekt specyfikacji i etykiety'],
+ [8,'Gate i przekazanie','Marketing','Prezentacja próbek dla Sales i Marketingu, rekomendacja go / no-go, wpis do pipeline NPD dla '+prod]
+]).map(function(w){return {nr:w[0],title:w[1],role:w[2],tasks:w[3],initials:''};});}
+
+/* --- stan i zapis --- */
+var S={tab:'scan',draft:emptyDraft(),items:[],plans:[],dec:{},imgs:{},open:null,q:'',kat:'Wszystkie',decf:'Wszystkie',busy:false};
+var NOPE='Bez Transferu';
+var NP={product:'',line:'Batony',flavour:'',start:'',tmpl:true,dec:[]};
+var NS={};
+var DF={crit:'wyglad_ocena',min:4};
+var RENAME={'Granola / Musli':'Granola','Owsianka':'Owsianki','Crunch / Ekstrudaty':'Ekstrudaty','Bez transferu':'Bez Transferu'};
+function decOf(p){var v=S.dec[p.id];
+ if(v!=null)return (typeof v==='string')?(v?[v]:[]):v.slice();
+ return (p.targets&&p.targets.length)?p.targets.slice():[];}
+function setDec(id,arr){S.dec[id]=arr;save();S.keepScroll=true;render();}
+function curTargets(id){var it=S.items.filter(function(x){return x.id===id;})[0];return it&&it.targets?it.targets:[];}
+function mergeState(src,tryb){var n={i:0,p:0,d:0,g:0};
+ (src.items||[]).forEach(function(it){
+  if(!S.items.some(function(x){return x.id===it.id||(x.nazwa===it.nazwa&&x.data===it.data);})){S.items.push(it);n.i++;}});
+ (src.plans||[]).forEach(function(pl){
+  var ex=S.plans.filter(function(x){return x.product===pl.product;})[0];
+  if(!ex){S.plans.push(pl);n.p++;}
+  else if(tryb==='nadrzedna'&&(Number(pl.progress)||0)>(Number(ex.progress)||0)){
+   S.plans=S.plans.map(function(x){return x.product===pl.product?pl:x;});n.p++;}});
+ Object.keys(src.dec||{}).forEach(function(k){if(S.dec[k]==null){S.dec[k]=src.dec[k];n.d++;}});
+ Object.keys(src.imgs||{}).forEach(function(k){var arr=photosFor(k);
+  (src.imgs[k]||[]).forEach(function(x){if(arr.length<6&&!arr.some(function(y){return y.src===x.src;})){arr.push(x);n.g++;}});});
+ S.items.sort(function(a,b){return String(b.data||'').localeCompare(String(a.data||''));});
+ return n;}
+
+var ONLINE=!!(window.storage&&window.storage.get);
+var SYNC={rev:0,busy:false,pending:false,last:''};
+
+function stGet(k){if(ONLINE)return window.storage.get(k,true).then(function(r){return r&&r.value?r.value:null;}).catch(function(){return null;});
+ return Promise.resolve(localStorage.getItem(k));}
+function stSet(k,v){if(ONLINE)return window.storage.set(k,v,true).then(function(){return true;}).catch(function(){return false;});
+ try{localStorage.setItem(k,v);return Promise.resolve(true);}catch(e){return Promise.resolve(false);}}
+
+function pack(){return {items:S.items,plans:S.plans,dec:S.dec,rev:SYNC.rev};}
+function apply(o){if(!o)return;
+ S.items=o.items||[];S.plans=o.plans||[];S.dec=o.dec||{};SYNC.rev=Number(o.rev)||0;}
+
+function pull(cichy){
+ return Promise.all([stGet('inno:core'),stGet('inno:imgs')]).then(function(r){
+  var core=null;try{core=r[0]?JSON.parse(r[0]):null;}catch(e){}
+  var imgs=null;try{imgs=r[1]?JSON.parse(r[1]):null;}catch(e){}
+  if(imgs)S.imgs=imgs;
+  if(!core)return false;
+  if(core.rev===SYNC.rev&&cichy)return false;
+  var przed=S.items.length+S.plans.length;
+  var lokalne={items:S.items,plans:S.plans,dec:S.dec,imgs:{}};
+  apply(core);
+  var n=mergeState(lokalne,'scal');            // wpisy zrobione offline nie przepadają
+  if(n.i+n.p+n.d>0)push();
+  if(!cichy||S.items.length+S.plans.length!==przed)return true;
+  return false;});}
+
+function push(){
+ if(!ONLINE){return stSet('inno:core',JSON.stringify(pack())).then(function(){return stSet('inno:imgs',JSON.stringify(S.imgs));});}
+ if(SYNC.busy){SYNC.pending=true;return Promise.resolve();}
+ SYNC.busy=true;
+ return stGet('inno:core').then(function(raw){
+  var zdalne=null;try{zdalne=raw?JSON.parse(raw):null;}catch(e){}
+  if(zdalne)mergeState(zdalne,'scal');          // scalamy cudze zmiany przed zapisem
+  SYNC.rev=Math.max(SYNC.rev,(zdalne&&Number(zdalne.rev))||0)+1;
+  return stSet('inno:core',JSON.stringify(pack()));})
+ .then(function(){return stSet('inno:imgs',JSON.stringify(S.imgs));})
+ .then(function(ok){
+  if(!ok)flash('Nie udało się zapisać do wspólnej bazy. Zrób Kopię JSON, żeby nie stracić danych.',1);
+  SYNC.busy=false;
+  if(SYNC.pending){SYNC.pending=false;return push();}})
+ .catch(function(){SYNC.busy=false;flash('Wspólna baza chwilowo nieosiągalna — pracujesz na kopii lokalnej.',1);});}
+
+function load(){
+ if(!ONLINE){try{
+   var c=localStorage.getItem('inno:core'),g=localStorage.getItem('inno:imgs');
+   if(c)apply(JSON.parse(c));
+   if(g)S.imgs=JSON.parse(g);
+   if(!c){var i=localStorage.getItem('inno:items'),pp=localStorage.getItem('inno:plans'),dd=localStorage.getItem('inno:dec');
+    if(i)S.items=JSON.parse(i);if(pp)S.plans=JSON.parse(pp);if(dd)S.dec=JSON.parse(dd);}
+  }catch(e){}}
+ if(window.PRELOAD){var mm=mergeState(window.PRELOAD,'nadrzedna');
+  if(mm.i+mm.p+mm.d+mm.g>0)setTimeout(function(){flash('Wczytano wspólną bazę działu: '+mm.i+' ocen, '+mm.p+' planów, '+mm.g+' zdjęć. Twoje wpisy zostały zachowane.');},60);
+  try{save();}catch(e){}}
+ S.items.forEach(function(it){if(!it.photos)it.photos=it.photo?[{src:it.photo,type:'Front opakowania'}]:[];delete it.photo;
+  if(it.targets)it.targets=it.targets.map(function(t){return RENAME[t]||t;});});
+ Object.keys(S.dec).forEach(function(k){var v=S.dec[k];
+  if(typeof v==='string')v=v?[v]:[];
+  S.dec[k]=v.map(function(x){return RENAME[x]||x;});});
+ S.plans.forEach(function(p){if(RENAME[p.line])p.line=RENAME[p.line];});}
+
+/* wgrywanie zdjęć: skalowanie do 1400 px, żeby zapis i odczyt AI były szybkie */
+function addPhotos(files,arr){
+ arr=arr||S.draft.photos;
+ var free=6-arr.length;
+ if(free<=0)return flash('Limit 6 zdjęć na produkt. Usuń jedno, żeby dodać kolejne.',1);
+ var list=Array.prototype.slice.call(files,0,free),left=list.length;
+ if(files.length>free)flash('Dodano '+free+' z '+files.length+' zdjęć — limit to 6 na produkt.',1);
+ list.forEach(function(f,i){
+  var fr=new FileReader();
+  fr.onload=function(){
+   var added=false,push=function(src){if(added)return;added=true;
+    arr.push({src:src,type:PTYPES[Math.min(arr.length,PTYPES.length-1)],name:f.name||''});
+    if(--left===0){save();render();}};
+   setTimeout(function(){push(fr.result);},6000);
+   var img=new Image();
+   img.onload=function(){
+    var mx=1400,s=Math.min(1,mx/Math.max(img.width,img.height)),cv=document.createElement('canvas');
+    cv.width=Math.round(img.width*s);cv.height=Math.round(img.height*s);
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    var src;try{src=cv.toDataURL('image/jpeg',.82);}catch(e){src=fr.result;}
+    push(src);
+   };
+   img.onerror=function(){push(fr.result);};
+   img.src=fr.result;
+  };
+  fr.onerror=function(){if(--left===0)render();};
+  fr.readAsDataURL(f);
+ });
+}
+var saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(function(){push();},400);}
+function flash(t,bad){var el=document.getElementById('msg');
+ el.innerHTML=t?('<div class="msg'+(bad?' bad':'')+'">'+esc(t)+'</div>'):'';
+ if(t)trDOM(el);}
+function itemByName(n){return S.items.filter(function(x){return x.nazwa===n;})[0];}
+function photosFor(n){var it=itemByName(n);if(it){if(!it.photos)it.photos=[];return it.photos;}
+ if(!S.imgs[n])S.imgs[n]=[];return S.imgs[n];}
+function planFor(n){return S.plans.filter(function(x){return x.product===n;})[0];}
+function progOf(p){var pl=planFor(p.nazwa);return pl?(Number(pl.progress)||0):null;}
+function stepsDone(p){var t=0,dn=0;p.weeks.forEach(function(w){t++;if(w.done)dn++;});return {t:t,d:dn};}
+function switchLine(pl,nl){var old=pl.line;if(old===nl)return false;
+ pl.weeks.forEach(function(w){if(w.tasks===TRIAL[old])w.tasks=TRIAL[nl]||w.tasks;});
+ pl.line=nl;S.plans=[pl].concat(S.plans.filter(function(x){return x.id!==pl.id;}));return true;}
+function openPlan(nazwa,dec){S.open=nazwa;NP.product=nazwa;NP.dec=dec||[];
+ NP.line=(NP.dec.filter(function(l){return l!==NOPE;})[0])||LINES[0];S.tab='plan';render();}
+function plProd(n){var t=n%10,d2=n%100;
+ if(n===1)return '1 produkt spełnia warunek';
+ if(t>=2&&t<=4&&(d2<12||d2>14))return n+' produkty spełniają warunek';
+ return n+' produktów spełnia warunek';}
+
+function all(){return S.items.concat(SEED.map(function(s){return {id:'s'+s.nr,data:s.data,nazwa:s.nazwa,kat:s.kat,ocena:s.ocena,nowe:s.nowe,komentarz:s.insight,source:'archiwum',file:s.file||'',url:s.url||''};}));}
+function fileMap(){var m={};SEED.forEach(function(s){if(s.file)m[s.file.toLowerCase()]=s.nazwa;});return m;}
+function linkOf(n){var s=SEED.filter(function(x){return x.nazwa===n;})[0];return s&&s.url?s:null;}
+function shown(){var q=S.q.toLowerCase();return all().filter(function(p){return S.kat==='Wszystkie'||p.kat===S.kat;})
+ .filter(function(p){return !q||((p.nazwa+' '+(p.komentarz||'')+' '+(p.nowe||'')).toLowerCase().indexOf(q)>-1);})
+ .filter(function(p){var dv=decOf(p),lines=dv.filter(function(x){return x!==NOPE;});
+  return S.decf==='Wszystkie'||(S.decf==='Bez decyzji'&&!dv.length)||(S.decf===NOPE&&dv.indexOf(NOPE)>-1)||(S.decf==='Wybrana linia'&&lines.length>0);})
+ .sort(function(a,b){return (b.ocena||0)-(a.ocena||0);});}
+
+var DICT={"en": {"x": {"Skanuj — oceniaj — przenoś na własne linie": "Scan — rate — transfer to our own lines", "Eksport CSV": "CSV export", "Kopia JSON": "JSON backup", "Wypal wspólną bazę": "Publish shared database", "Scal z kopią JSON": "Merge JSON backup", "Wczytaj paczkę zdjęć (JSON)": "Load photo package (JSON)", "Wgraj zdjęcia z SharePointu": "Upload photos from SharePoint", "Drukuj / PDF": "Print / PDF", "Wspierane przez AI": "Supported by AI", "tryb: sprawdzam…": "mode: checking…", "baza lokalna w tej przeglądarce": "local database in this browser", "wspólna baza · aktualna": "shared database · up to date", "wspólna baza · zapisuję…": "shared database · saving…", "Odczyt etykiet i uszczegółowienie planów generuje model AI — treści wymagają weryfikacji przez człowieka przed użyciem w decyzjach, dokumentacji i publikacjach. Nie wprowadzaj do narzędzia własnych receptur, kosztów surowców ani danych osobowych. Materiały pochodne oznaczaj jako „Wsparte przez AI”. Dane zapisują się wyłącznie w tej przeglądarce — rób kopię JSON po sesji.": "Label reading and task detailing are generated by an AI model — content must be reviewed by a human before use in decisions, documentation or publications. Do not enter own recipes, raw material costs or personal data. Mark derived materials as “Supported by AI”. Data is stored in this browser only — make a JSON backup after each session.", "Skaner produktu": "Product scanner", "Baza ({n})": "Database ({n})", "Dashboard": "Dashboard", "KROK {n} — ZDJĘCIA ({n}/{n})": "STEP {n} — PHOTOS ({n}/{n})", "Wgraj zdjęcia produktu": "Upload product photos", "Możesz wybrać kilka plików naraz": "You can select several files at once", "Front opakowania": "Pack front", "Tył / etykieta": "Back / label", "Produkt (środek)": "Product (inside)", "Detal / przekrój": "Detail / cross-section", "Zrób zdjęcie": "Take a photo", "Dodaj z galerii": "Add from gallery", "Odczytaj skład i wartości (AI)": "Read ingredients and nutrition (AI)", "Odczytuję etykiety…": "Reading labels…", "Usuń wszystkie": "Remove all", "Usuń": "Remove", "Na telefonie „Zrób zdjęcie” otwiera aparat — zrób front, tył z etykietą i produkt wyjęty z opakowania, po jednym ujęciu.": "On a phone “Take a photo” opens the camera — shoot the front, the back with the label and the product taken out of the pack, one shot each.", "Sprawdź opis pod każdym zdjęciem — AI czyta skład i tabelę z „Tył / etykieta”, a wygląd i konsystencję z „Produkt (środek)”.": "Check the caption under each photo — the AI reads ingredients and the nutrition table from “Back / label”, and appearance and texture from “Product (inside)”.", "Odczyt AI to wsparcie, nie źródło prawdy. Skład i wartości odżywcze potwierdź na opakowaniu przed użyciem w dokumentacji.": "AI reading is support, not a source of truth. Confirm ingredients and nutrition on the pack before using them in documentation.", "KROK 2 — DANE PRODUKTU (EDYTOWALNE)": "STEP 2 — PRODUCT DATA (EDITABLE)", "Nazwa produktu": "Product name", "Marka": "Brand", "Kategoria": "Category", "Skład": "Ingredients", "Alergeny": "Allergens", "Deklaracje na opakowaniu": "On-pack claims", "Co jest nowe lub ciekawe": "What is new or interesting", "Wygląd produktu i obserwacje wizualne": "Product appearance and visual observations", "WARTOŚCI ODŻYWCZE NA 100 G": "NUTRITION PER 100 G", "Energia": "Energy", "Tłuszcz": "Fat", "w tym kwasy nasycone": "of which saturates", "Węglowodany": "Carbohydrate", "w tym cukry": "of which sugars", "Błonnik": "Fibre", "Białko": "Protein", "Sól": "Salt", "KROK 3 — OCENA W SKALI 1–5": "STEP 3 — RATING ON A 1–5 SCALE", "Sześć kryteriów, wagi sumują się do 100%.": "Six criteria, weights add up to 100%.", "Wygląd": "Appearance", "Zapach": "Aroma", "Smak": "Taste", "Konsystencja": "Texture", "Innowacyjność": "Innovativeness", "Możliwość przeniesienia": "Transferability", "INDEKS TRANSFERU": "TRANSFER INDEX", "Do transferu": "For transfer", "Obserwuj": "Watch", "Odrzuć": "Reject", "KROK 4 — WNIOSEK I KIERUNEK TRANSFERU": "STEP 4 — CONCLUSION AND TRANSFER DIRECTION", "Wniosek z degustacji (co konkretnie chcemy odtworzyć)": "Tasting conclusion (what exactly we want to recreate)", "Linie docelowe (albo decyzja o braku transferu)": "Target lines (or a no-transfer decision)", "Zapisz ocenę w bazie": "Save rating to database", "Wyczyść formularz": "Clear form", "Indeks od 4,0 rekomenduje utworzenie action planu w zakładce Baza.": "An index of 4.0 or higher recommends creating an action plan in the Database tab.", "Płatki kukurydziane i wielozbożowe": "Corn and multigrain flakes", "Granola": "Granola", "Ekstrudaty": "Extrudates", "Poduszki": "Filled pillows", "Musli": "Muesli", "Owsianki": "Porridges", "Batony": "Bars", "Bez Transferu": "No transfer", "Płatki śniadaniowe": "Breakfast cereals", "Przekąski słodkie": "Sweet snacks", "Przekąski wytrawne": "Savoury snacks", "Czekolada": "Chocolate", "Wyroby cukiernicze": "Confectionery", "Napój": "Beverage", "Inne": "Other", "Szukaj w nazwach i wnioskach": "Search names and conclusions", "Wszystkie": "All", "Bez decyzji": "No decision", "Wybrana linia": "Line selected", "{n} pozycji, sortowanie od najwyższej oceny": "{n} items, sorted by highest rating", "Pobierz folder InnoSession z SharePointu i wskaż pliki — narzędzie dopasuje je do produktów po nazwie pliku z kolumny D.": "Download the InnoSession folder from SharePoint and select the files — the tool matches them to products by the file name from column D.", "Produkt": "Product", "Ocena": "Rating", "Postęp projektu": "Project progress", "Postęp": "Progress", "Co nowe / wniosek": "What is new / conclusion", "Co nowe": "What is new", "Transfer na linię": "Transfer to line", "Transfer": "Transfer", "Usuń ocenę": "Delete rating", "Bez transferu — pasek postępu niepotrzebny": "No transfer — progress bar not needed", "Brak action planu": "No action plan", "Realizacja": "Completion", "Nie wybrano w Skanerze": "Not selected in Scanner", "← Wróć do Bazy": "← Back to Database", "Wróć do Bazy": "Back to Database", "Wybierz produkt w Bazie": "Select a product in the Database", "Action plany otwierasz, klikając nazwę produktu w zakładce Baza.": "Open action plans by clicking a product name in the Database tab.", "Ten produkt nie ma jeszcze action planu. Utwórz go w formularzu pod spodem.": "This product has no action plan yet. Create one in the form below.", "ZDJĘCIA PRODUKTU ({n}/{n})": "PRODUCT PHOTOS ({n}/{n})", "W Skanerze nie dodano zdjęć tego produktu. Możesz je dorobić teraz — zapiszą się razem z projektem.": "No photos were added for this product in the Scanner. You can add them now — they will be saved with the project.", "UTWÓRZ ACTION PLAN": "CREATE ACTION PLAN", "Produkt lub inspiracja": "Product or inspiration", "Linia docelowa": "Target line", "Kierunek do odtworzenia": "Direction to recreate", "Start projektu — data (opcjonalnie)": "Project start — date (optional)", "Start projektu — data": "Project start — date", "Harmonogram": "Schedule", "Szablon 8 kroków": "8-step template", "Pusty — dodam kroki sam": "Empty — I will add steps myself", "Jeden produkt = jeden action plan.": "One product = one action plan.", "Utwórz plan": "Create plan", "Uszczegółowij zadania (AI)": "Detail the tasks (AI)", "Pracuję…": "Working…", "Usuń plan": "Delete plan", "Przelicz z kroków ({n}/{n})": "Recalculate from steps ({n}/{n})", "Podaj datę startu — kolejne kroki rozpiszą się co tydzień. Termin każdego kroku możesz zmienić osobno.": "Enter the start date — the following steps are scheduled weekly. Each step date can be changed separately.", "Nazwa kroku": "Step name", "Termin kroku — wybierz datę": "Step date — pick a date", "− tydzień": "− one week", "+ tydzień": "+ one week", "dziś": "today", "termin nieustalony": "no date set", "Zadania": "Tasks", "Rola odpowiedzialna": "Responsible role", "Inicjały": "Initials", "Krok zrobiony": "Step completed", "↑ wyżej": "↑ up", "↓ niżej": "↓ down", "Usuń krok": "Delete step", "dodaj własny": "add your own", "Tytuł kroku": "Step title", "Dodaj krok": "Add step", "Krok trafia na koniec harmonogramu, termin tydzień po poprzednim. Kolejność zmienisz strzałkami.": "The step is added at the end, one week after the previous one. Use the arrows to reorder.", "Zadania i terminy zatwierdza właściciel projektu. Wpisuj wyłącznie inicjały, bez pełnych danych osobowych.": "Tasks and dates are approved by the project owner. Enter initials only, no full personal data.", "R&D Manager": "R&D Manager", "Technolog R&D": "R&D technologist", "Specjalista sensoryki": "Sensory specialist", "Zakupy / Sourcing": "Purchasing / sourcing", "Produkcja / Linia": "Production / line", "Jakość (QA)": "Quality (QA)", "Marketing": "Marketing", "Sales": "Sales", "Brief i benchmark": "Brief and benchmark", "Surowce i dostawcy": "Raw materials and suppliers", "Receptury laboratoryjne": "Laboratory recipes", "Panel sensoryczny": "Sensory panel", "Korekta i kalkulacja": "Adjustment and costing", "Próba technologiczna": "Technological trial", "Shelf-life i specyfikacja": "Shelf life and specification", "Gate i przekazanie": "Gate and handover", "Zapytania do dostawców o aromaty i dodatki, próbki surowców, wstępny koszt na 100 kg, sprawdzenie statusu clean label": "Supplier enquiries for flavours and additives, raw material samples, preliminary cost per 100 kg, clean label status check", "3 warianty receptury w skali laboratoryjnej, dobór poziomu aromatu i słodkości, notatki technologiczne": "3 recipe variants at laboratory scale, adjustment of flavour and sweetness levels, technological notes", "Test 5-punktowy (smak, zapach, konsystencja), panel 8–10 osób, porównanie z referencją rynkową, wybór 1–2 wariantów": "5-point test (taste, aroma, texture), panel of 8–10 people, comparison with the market reference, selection of 1–2 variants", "Poprawa wybranego wariantu, kalkulacja kosztu i wartości odżywczych, projekt deklaracji składu": "Refinement of the selected variant, cost and nutrition calculation, draft ingredient declaration", "Start testu przechowalniczego (0 / 1 / 3 mies.), analizy mikro i fizykochemiczne, projekt specyfikacji i etykiety": "Start of storage test (0 / 1 / 3 months), micro and physicochemical analyses, draft specification and label", "Próba na linii płatków: parametry prażenia i tostowania, grubość płatka po walcowaniu, chrupkość i zachowanie w mleku": "Flake line trial: roasting and toasting parameters, flake thickness after rolling, crispness and behaviour in milk", "Próba na linii granoli: prażenie w piecu taśmowym, dozowanie syropu i dodatków, kruszenie i sitowanie frakcji": "Granola line trial: belt oven roasting, syrup and inclusion dosing, crushing and fraction sieving", "Próba na ekstruderze: profil temperatur, wilgotność masy, stopień ekspansji, oblewanie i dosuszanie": "Extruder trial: temperature profile, dough moisture, expansion ratio, coating and drying", "Próba koekstruzji: stabilność nadzienia, proporcja nadzienie do otoczki, szczelność zamknięcia, dosuszanie": "Co-extrusion trial: filling stability, filling to shell ratio, seal tightness, drying", "Próba w mieszalni suchej: proporcja płatków i dodatków, homogeniczność mieszanki, kontrola pylenia i segregacji frakcji": "Dry blending trial: flake to inclusion ratio, blend homogeneity, dust and fraction segregation control", "Próba w mieszalni: homogeniczność premiksu, rozpuszczalność i czas zalewania, saszetkowanie i waga porcji": "Blending trial: premix homogeneity, solubility and hydration time, sachet filling and portion weight", "Próba na linii batonów: formowanie masy, oblewanie (walce dociskowe), kontrola wagi sztuki": "Bar line trial: mass forming, coating (pressure rollers), unit weight control", "Próba technologiczna na linii docelowej": "Technological trial on the target line", "PRZETESTOWANE PRODUKTY": "PRODUCTS TESTED", "WYBRANE DO TRANSFERU": "SELECTED FOR TRANSFER", "BEZ TRANSFERU": "NO TRANSFER", "PROJEKTY W FAZIE ON-GOING": "PROJECTS ON-GOING", "ZAKOŃCZONE SUKCESEM": "COMPLETED SUCCESSFULLY", "w sesjach: {n} · z archiwum: {n}": "from sessions: {n} · from archive: {n}", "{n}% bazy": "{n}% of the database", "decyzja: nie przenosimy": "decision: not transferring", "w realizacji, postęp poniżej 100%": "in progress, below 100%", "plany z postępem 100%": "plans at 100% progress", "FILTR PROJEKTÓW WEDŁUG OCENY CECHY": "FILTER PROJECTS BY ATTRIBUTE RATING", "Ocena łączna": "Overall rating", "co najmniej {n}": "at least {n}", "1 produkt spełnia warunek": "1 product meets the criterion", "{n} produkty spełniają warunek": "{n} products meet the criterion", "{n} produktów spełnia warunek": "{n} products meet the criterion", "Pokazano 25 z {n} — zawęź kryterium.": "Showing 25 of {n} — narrow the criterion.", "Żaden produkt nie ma oceny {n} lub wyżej dla tej cechy.": "No product scores {n} or higher for this attribute.", "{n} pozycji nie ma oceny cząstkowej (archiwum z Excela) — filtruj je przez „Ocena łączna”.": "{n} items have no attribute rating (Excel archive) — filter them with “Overall rating”.", "OVERVIEW — OD DEGUSTACJI DO WDROŻENIA": "OVERVIEW — FROM TASTING TO IMPLEMENTATION", "Przetestowane": "Tested", "Wybrane do transferu": "Selected for transfer", "Projekty w fazie on-going": "Projects on-going", "Zakończone sukcesem": "Completed successfully", "Kandydaci z oceną 4,0 i wyżej: {n} · bez decyzji: {n} · zajęta pamięć: {n} KB": "Candidates rated 4.0 and above: {n} · without decision: {n} · storage used: {n} KB", "ŚREDNIA OCENA WEDŁUG KATEGORII": "AVERAGE RATING BY CATEGORY", "HISTORIA ACTION PLANÓW": "ACTION PLAN HISTORY", "Plany otwierasz, klikając nazwę produktu w Bazie. On-going: {n} · zakończone sukcesem: {n}.": "Open plans by clicking a product name in the Database. On-going: {n} · completed successfully: {n}.", "Usuń wszystkie plany ({n})": "Delete all plans ({n})", "TOP 10 INSPIRACJI DO PRZENIESIENIA": "TOP 10 INSPIRATIONS TO TRANSFER", "brak": "none", "bez transferu": "no transfer", "brak planu": "no plan", "Najpierw wgraj co najmniej jedno zdjęcie.": "Upload at least one photo first.", "Analizuję {n} zdjęć…": "Analysing {n} photos…", "Odczyt gotowy. Sprawdź i popraw pola — dane pochodzą z AI i mogą być niepełne.": "Reading complete. Check and correct the fields — the data comes from AI and may be incomplete.", "Odczyt AI niedostępny w tym trybie (plik otwarty lokalnie, bez połączenia z modelem). Wpisz skład i wartości ręcznie — reszta narzędzia działa normalnie.": "AI reading is unavailable in this mode (file opened locally, no model connection). Enter ingredients and values manually — the rest of the tool works normally.", "Wpisz nazwę produktu przed zapisem.": "Enter the product name before saving.", "Zapisuję ocenę i zmniejszam zdjęcia…": "Saving the rating and resizing photos…", "Wpisz nazwę produktu lub inspiracji.": "Enter the product or inspiration name.", "Wpisz tytuł kroku przed dodaniem.": "Enter a step title before adding.", "Plan nie ma jeszcze kroków.": "The plan has no steps yet.", "Plan usunięty.": "Plan deleted.", "Usunąć action plan tego produktu?": "Delete the action plan for this product?", "Usunąć ocenę tego produktu?": "Delete the rating for this product?", "Usunąć wszystkie plany ({n})? Tego nie da się cofnąć — najpierw zrób Kopię JSON.": "Delete all plans ({n})? This cannot be undone — make a JSON backup first.", "Historia action planów wyczyszczona. Nowy plan utworzysz, klikając produkt w Bazie.": "Action plan history cleared. Create a new plan by clicking a product in the Database.", "Ten produkt nie ma jeszcze action planu — utwórz go w formularzu poniżej.": "This product has no action plan yet — create one in the form below.", "Postęp przeliczony z kroków: {n}% ({n} z {n}).": "Progress recalculated from steps: {n}% ({n} of {n}).", "Plan uszczegółowiony przez AI. Zweryfikuj zadania przed wysłaniem do zespołu.": "Plan detailed by AI. Verify the tasks before sending them to the team.", "Uszczegóławiam harmonogram…": "Detailing the schedule…", "Uszczegółowienie AI niedostępne w tym trybie. Zostaje wersja szablonowa — edytuj zadania ręcznie w kartach kroków.": "AI detailing is unavailable in this mode. The template version stays — edit the tasks manually in the step cards.", "Limit 6 zdjęć na produkt. Usuń jedno, żeby dodać kolejne.": "Limit of 6 photos per product. Remove one to add another.", "Nie udało się przygotować pliku.": "The file could not be prepared.", "Nie udało się zapisać do wspólnej bazy. Zrób Kopię JSON, żeby nie stracić danych.": "Saving to the shared database failed. Make a JSON backup so nothing is lost.", "Wspólna baza chwilowo nieosiągalna — pracujesz na kopii lokalnej.": "The shared database is temporarily unreachable — you are working on a local copy.", "Plik nie jest poprawną kopią JSON.": "The file is not a valid JSON backup.", "Plik nie jest poprawną paczką zdjęć JSON.": "The file is not a valid JSON photo package.", "Terminy wyczyszczone.": "Dates cleared.", "Data startu zapisana.": "Start date saved.", "Linia docelowa zmieniona na {n}. Krok próby technologicznej dopasowano do linii.": "Target line changed. The technological trial step was adapted to the line."}, "f": [["Prezentacja próbek dla Sales i Marketingu, rekomendacja go / no-go, wpis do pipeline NPD dla ", "Sample presentation for Sales and Marketing, go / no-go recommendation, entry in the NPD pipeline for "], ["”, zakup 3–5 produktów referencyjnych, cel sensoryczny i ramy kosztowe dla linii ", "”, purchase of 3–5 reference products, sensory target and cost frame for the line "], [" projektów. Zmiany innych osób pojawiają się automatycznie.", " projects. Changes made by others appear automatically."], [" planów. Wrzuć go na SharePoint zamiast poprzedniej wersji.", " plans. Upload it to SharePoint in place of the previous version."], ["Ten produkt ma już plan — linia docelowa zmieniona na ", "This product already has a plan — target line changed to "], [" zdjęć z paczki i przypisano do produktów.", " photos from the package and assigned them to products."], [" zdjęć. Twoje wpisy zostały zachowane.", " photos. Your entries were kept."], [". Dodaj kroki w karcie „Nowy krok”.", ". Add steps in the “New step” card."], [" zdjęć. Nic nie zostało nadpisane.", " photos. Nothing was overwritten."], ["Ten produkt ma już plan na linii ", "This product already has a plan on line "], ["Wczytano wspólną bazę działu: ", "Department shared database loaded: "], ["Gotowe: plik z wpisaną bazą (", "Done: file with embedded database ("], [". Jeden produkt = jeden plan.", ". One product = one plan."], ["Karta briefu dla kierunku „", "Brief sheet for the direction “"], ["ACTION PLAN · UTWORZONY ", "ACTION PLAN · CREATED "], ["Harmonogram rozpisany: ", "Schedule set: "], ["Oryginał w SharePoint: ", "Original in SharePoint: "], ["Scalono kopię: dodano ", "Backup merged: added "], ["Wspólna baza online: ", "Shared database online: "], [" zdjęć do produktów.", " photos to products."], [" Bez dopasowania (", " Unmatched ("], ["Plan utworzony: ", "Plan created: "], ["Właściciele: ", "Owners: "], ["Dodano krok ", "Step added: "], ["Przypisano ", "Assigned "], ["Nowy krok ", "New step "], ["Kierunek: ", "Direction: "], [" planów, ", " plans, "], ["Wczytuję ", "Loading "], ["Wczytano ", "Loaded "], [" plików…", " files…"], ["Postęp: ", "Progress: "], ["bez daty", "no date"], ["archiwum", "archive"], [" ocen, ", " ratings, "], [" MB) — ", " MB) — "], ["Linia: ", "Line: "], ["Kroki: ", "Steps: "], ["(waga ", "(weight "], ["Krok ", "Step "], ["sesja", "session"], [" zdj.", " photos"]]}, "de": {"x": {"Skanuj — oceniaj — przenoś na własne linie": "Scannen — bewerten — auf eigene Linien übertragen", "Eksport CSV": "CSV-Export", "Kopia JSON": "JSON-Sicherung", "Wypal wspólną bazę": "Gemeinsame Datenbank erzeugen", "Scal z kopią JSON": "JSON-Sicherung zusammenführen", "Wczytaj paczkę zdjęć (JSON)": "Fotopaket laden (JSON)", "Wgraj zdjęcia z SharePointu": "Fotos aus SharePoint hochladen", "Drukuj / PDF": "Drucken / PDF", "Wspierane przez AI": "KI-unterstützt", "tryb: sprawdzam…": "Modus: prüfe…", "baza lokalna w tej przeglądarce": "lokale Datenbank in diesem Browser", "wspólna baza · aktualna": "gemeinsame Datenbank · aktuell", "wspólna baza · zapisuję…": "gemeinsame Datenbank · speichere…", "Odczyt etykiet i uszczegółowienie planów generuje model AI — treści wymagają weryfikacji przez człowieka przed użyciem w decyzjach, dokumentacji i publikacjach. Nie wprowadzaj do narzędzia własnych receptur, kosztów surowców ani danych osobowych. Materiały pochodne oznaczaj jako „Wsparte przez AI”. Dane zapisują się wyłącznie w tej przeglądarce — rób kopię JSON po sesji.": "Etikettenauslesung und Aufgabenkonkretisierung werden von einem KI-Modell erzeugt — Inhalte müssen vor der Nutzung in Entscheidungen, Dokumentation oder Veröffentlichungen durch einen Menschen geprüft werden. Keine eigenen Rezepturen, Rohstoffkosten oder personenbezogenen Daten eingeben. Abgeleitete Materialien als „KI-unterstützt“ kennzeichnen. Daten werden nur in diesem Browser gespeichert — nach der Sitzung eine JSON-Sicherung erstellen.", "Skaner produktu": "Produktscanner", "Baza ({n})": "Datenbank ({n})", "Dashboard": "Dashboard", "KROK {n} — ZDJĘCIA ({n}/{n})": "SCHRITT {n} — FOTOS ({n}/{n})", "Wgraj zdjęcia produktu": "Produktfotos hochladen", "Możesz wybrać kilka plików naraz": "Mehrere Dateien gleichzeitig möglich", "Front opakowania": "Packungsvorderseite", "Tył / etykieta": "Rückseite / Etikett", "Produkt (środek)": "Produkt (innen)", "Detal / przekrój": "Detail / Querschnitt", "Zrób zdjęcie": "Foto aufnehmen", "Dodaj z galerii": "Aus Galerie hinzufügen", "Odczytaj skład i wartości (AI)": "Zutaten und Nährwerte auslesen (KI)", "Odczytuję etykiety…": "Etiketten werden gelesen…", "Usuń wszystkie": "Alle entfernen", "Usuń": "Entfernen", "Na telefonie „Zrób zdjęcie” otwiera aparat — zrób front, tył z etykietą i produkt wyjęty z opakowania, po jednym ujęciu.": "Am Telefon öffnet „Foto aufnehmen“ die Kamera — je eine Aufnahme von Vorderseite, Rückseite mit Etikett und ausgepacktem Produkt.", "Sprawdź opis pod każdym zdjęciem — AI czyta skład i tabelę z „Tył / etykieta”, a wygląd i konsystencję z „Produkt (środek)”.": "Prüfen Sie die Beschriftung unter jedem Foto — die KI liest Zutaten und Nährwerttabelle aus „Rückseite / Etikett“ sowie Aussehen und Textur aus „Produkt (innen)“.", "Odczyt AI to wsparcie, nie źródło prawdy. Skład i wartości odżywcze potwierdź na opakowaniu przed użyciem w dokumentacji.": "Die KI-Auslesung ist eine Unterstützung, keine Quelle der Wahrheit. Zutaten und Nährwerte vor der Nutzung in Dokumenten auf der Packung prüfen.", "KROK 2 — DANE PRODUKTU (EDYTOWALNE)": "SCHRITT 2 — PRODUKTDATEN (BEARBEITBAR)", "Nazwa produktu": "Produktname", "Marka": "Marke", "Kategoria": "Kategorie", "Skład": "Zutaten", "Alergeny": "Allergene", "Deklaracje na opakowaniu": "Angaben auf der Packung", "Co jest nowe lub ciekawe": "Was ist neu oder interessant", "Wygląd produktu i obserwacje wizualne": "Produktaussehen und visuelle Beobachtungen", "WARTOŚCI ODŻYWCZE NA 100 G": "NÄHRWERTE PRO 100 G", "Energia": "Energie", "Tłuszcz": "Fett", "w tym kwasy nasycone": "davon gesättigte Fettsäuren", "Węglowodany": "Kohlenhydrate", "w tym cukry": "davon Zucker", "Błonnik": "Ballaststoffe", "Białko": "Protein", "Sól": "Salz", "KROK 3 — OCENA W SKALI 1–5": "SCHRITT 3 — BEWERTUNG VON 1 BIS 5", "Sześć kryteriów, wagi sumują się do 100%.": "Sechs Kriterien, Gewichtungen ergeben 100%.", "Wygląd": "Aussehen", "Zapach": "Geruch", "Smak": "Geschmack", "Konsystencja": "Textur", "Innowacyjność": "Innovationsgrad", "Możliwość przeniesienia": "Übertragbarkeit", "INDEKS TRANSFERU": "TRANSFER-INDEX", "Do transferu": "Für Transfer", "Obserwuj": "Beobachten", "Odrzuć": "Ablehnen", "KROK 4 — WNIOSEK I KIERUNEK TRANSFERU": "SCHRITT 4 — FAZIT UND TRANSFERRICHTUNG", "Wniosek z degustacji (co konkretnie chcemy odtworzyć)": "Fazit der Degustation (was genau wir nachbilden wollen)", "Linie docelowe (albo decyzja o braku transferu)": "Ziellinien (oder Entscheidung gegen Transfer)", "Zapisz ocenę w bazie": "Bewertung in Datenbank speichern", "Wyczyść formularz": "Formular leeren", "Indeks od 4,0 rekomenduje utworzenie action planu w zakładce Baza.": "Ab einem Index von 4,0 empfiehlt sich ein Action Plan im Reiter Datenbank.", "Płatki kukurydziane i wielozbożowe": "Mais- und Mehrkornflakes", "Granola": "Granola", "Ekstrudaty": "Extrudate", "Poduszki": "Gefüllte Kissen", "Musli": "Müsli", "Owsianki": "Porridges", "Batony": "Riegel", "Bez Transferu": "Kein Transfer", "Płatki śniadaniowe": "Frühstückscerealien", "Przekąski słodkie": "Süße Snacks", "Przekąski wytrawne": "Salzige Snacks", "Czekolada": "Schokolade", "Wyroby cukiernicze": "Süßwaren", "Napój": "Getränk", "Inne": "Sonstiges", "Szukaj w nazwach i wnioskach": "In Namen und Fazits suchen", "Wszystkie": "Alle", "Bez decyzji": "Ohne Entscheidung", "Wybrana linia": "Linie gewählt", "{n} pozycji, sortowanie od najwyższej oceny": "{n} Positionen, nach höchster Bewertung sortiert", "Pobierz folder InnoSession z SharePointu i wskaż pliki — narzędzie dopasuje je do produktów po nazwie pliku z kolumny D.": "Laden Sie den InnoSession-Ordner aus SharePoint herunter und wählen Sie die Dateien — das Tool ordnet sie über den Dateinamen aus Spalte D den Produkten zu.", "Produkt": "Produkt", "Ocena": "Bewertung", "Postęp projektu": "Projektfortschritt", "Postęp": "Fortschritt", "Co nowe / wniosek": "Was ist neu / Fazit", "Co nowe": "Was ist neu", "Transfer na linię": "Transfer auf Linie", "Transfer": "Transfer", "Usuń ocenę": "Bewertung löschen", "Bez transferu — pasek postępu niepotrzebny": "Kein Transfer — Fortschrittsbalken nicht nötig", "Brak action planu": "Kein Action Plan", "Realizacja": "Umsetzung", "Nie wybrano w Skanerze": "Im Scanner nicht gewählt", "← Wróć do Bazy": "← Zurück zur Datenbank", "Wróć do Bazy": "Zurück zur Datenbank", "Wybierz produkt w Bazie": "Produkt in der Datenbank wählen", "Action plany otwierasz, klikając nazwę produktu w zakładce Baza.": "Action Plans öffnen Sie über den Produktnamen im Reiter Datenbank.", "Ten produkt nie ma jeszcze action planu. Utwórz go w formularzu pod spodem.": "Für dieses Produkt gibt es noch keinen Action Plan. Erstellen Sie ihn im Formular unten.", "ZDJĘCIA PRODUKTU ({n}/{n})": "PRODUKTFOTOS ({n}/{n})", "W Skanerze nie dodano zdjęć tego produktu. Możesz je dorobić teraz — zapiszą się razem z projektem.": "Im Scanner wurden für dieses Produkt keine Fotos hinzugefügt. Sie können sie jetzt ergänzen — sie werden mit dem Projekt gespeichert.", "UTWÓRZ ACTION PLAN": "ACTION PLAN ERSTELLEN", "Produkt lub inspiracja": "Produkt oder Inspiration", "Linia docelowa": "Ziellinie", "Kierunek do odtworzenia": "Nachzubildende Richtung", "Start projektu — data (opcjonalnie)": "Projektstart — Datum (optional)", "Start projektu — data": "Projektstart — Datum", "Harmonogram": "Zeitplan", "Szablon 8 kroków": "Vorlage mit 8 Schritten", "Pusty — dodam kroki sam": "Leer — Schritte selbst hinzufügen", "Jeden produkt = jeden action plan.": "Ein Produkt = ein Action Plan.", "Utwórz plan": "Plan erstellen", "Uszczegółowij zadania (AI)": "Aufgaben konkretisieren (KI)", "Pracuję…": "Arbeite…", "Usuń plan": "Plan löschen", "Przelicz z kroków ({n}/{n})": "Aus Schritten berechnen ({n}/{n})", "Podaj datę startu — kolejne kroki rozpiszą się co tydzień. Termin każdego kroku możesz zmienić osobno.": "Startdatum eingeben — die weiteren Schritte werden wöchentlich verteilt. Jeder Termin ist einzeln änderbar.", "Nazwa kroku": "Schrittbezeichnung", "Termin kroku — wybierz datę": "Termin des Schritts — Datum wählen", "− tydzień": "− eine Woche", "+ tydzień": "+ eine Woche", "dziś": "heute", "termin nieustalony": "kein Termin", "Zadania": "Aufgaben", "Rola odpowiedzialna": "Verantwortliche Rolle", "Inicjały": "Initialen", "Krok zrobiony": "Schritt erledigt", "↑ wyżej": "↑ nach oben", "↓ niżej": "↓ nach unten", "Usuń krok": "Schritt löschen", "dodaj własny": "eigenen hinzufügen", "Tytuł kroku": "Titel des Schritts", "Dodaj krok": "Schritt hinzufügen", "Krok trafia na koniec harmonogramu, termin tydzień po poprzednim. Kolejność zmienisz strzałkami.": "Der Schritt wird am Ende ergänzt, eine Woche nach dem vorherigen. Reihenfolge über die Pfeile ändern.", "Zadania i terminy zatwierdza właściciel projektu. Wpisuj wyłącznie inicjały, bez pełnych danych osobowych.": "Aufgaben und Termine genehmigt der Projektverantwortliche. Nur Initialen eintragen, keine personenbezogenen Daten.", "R&D Manager": "F&E-Leiter", "Technolog R&D": "F&E-Technologe", "Specjalista sensoryki": "Sensorik-Spezialist", "Zakupy / Sourcing": "Einkauf / Sourcing", "Produkcja / Linia": "Produktion / Linie", "Jakość (QA)": "Qualität (QA)", "Marketing": "Marketing", "Sales": "Vertrieb", "Brief i benchmark": "Briefing und Benchmark", "Surowce i dostawcy": "Rohstoffe und Lieferanten", "Receptury laboratoryjne": "Laborrezepturen", "Panel sensoryczny": "Sensorik-Panel", "Korekta i kalkulacja": "Korrektur und Kalkulation", "Próba technologiczna": "Technologischer Versuch", "Shelf-life i specyfikacja": "Haltbarkeit und Spezifikation", "Gate i przekazanie": "Gate und Übergabe", "Zapytania do dostawców o aromaty i dodatki, próbki surowców, wstępny koszt na 100 kg, sprawdzenie statusu clean label": "Lieferantenanfragen zu Aromen und Zusätzen, Rohstoffmuster, Vorkalkulation pro 100 kg, Prüfung des Clean-Label-Status", "3 warianty receptury w skali laboratoryjnej, dobór poziomu aromatu i słodkości, notatki technologiczne": "3 Rezepturvarianten im Labormaßstab, Einstellung von Aroma- und Süßeniveau, technologische Notizen", "Test 5-punktowy (smak, zapach, konsystencja), panel 8–10 osób, porównanie z referencją rynkową, wybór 1–2 wariantów": "5-Punkte-Test (Geschmack, Geruch, Textur), Panel mit 8–10 Personen, Vergleich mit Marktreferenz, Auswahl von 1–2 Varianten", "Poprawa wybranego wariantu, kalkulacja kosztu i wartości odżywczych, projekt deklaracji składu": "Optimierung der gewählten Variante, Kosten- und Nährwertberechnung, Entwurf der Zutatenliste", "Start testu przechowalniczego (0 / 1 / 3 mies.), analizy mikro i fizykochemiczne, projekt specyfikacji i etykiety": "Start des Lagertests (0 / 1 / 3 Monate), mikrobiologische und physikalisch-chemische Analysen, Entwurf von Spezifikation und Etikett", "Próba na linii płatków: parametry prażenia i tostowania, grubość płatka po walcowaniu, chrupkość i zachowanie w mleku": "Versuch auf der Flakes-Linie: Röst- und Toastparameter, Flockendicke nach dem Walzen, Knusprigkeit und Verhalten in Milch", "Próba na linii granoli: prażenie w piecu taśmowym, dozowanie syropu i dodatków, kruszenie i sitowanie frakcji": "Versuch auf der Granola-Linie: Röstung im Bandofen, Dosierung von Sirup und Zutaten, Brechen und Sieben der Fraktionen", "Próba na ekstruderze: profil temperatur, wilgotność masy, stopień ekspansji, oblewanie i dosuszanie": "Extruder-Versuch: Temperaturprofil, Massefeuchte, Expansionsgrad, Überzug und Nachtrocknung", "Próba koekstruzji: stabilność nadzienia, proporcja nadzienie do otoczki, szczelność zamknięcia, dosuszanie": "Koextrusionsversuch: Füllungsstabilität, Verhältnis Füllung zu Hülle, Dichtheit der Versiegelung, Nachtrocknung", "Próba w mieszalni suchej: proporcja płatków i dodatków, homogeniczność mieszanki, kontrola pylenia i segregacji frakcji": "Versuch in der Trockenmischung: Verhältnis Flocken zu Zutaten, Homogenität der Mischung, Kontrolle von Staub und Fraktionstrennung", "Próba w mieszalni: homogeniczność premiksu, rozpuszczalność i czas zalewania, saszetkowanie i waga porcji": "Mischversuch: Homogenität der Vormischung, Löslichkeit und Aufgusszeit, Beutelabfüllung und Portionsgewicht", "Próba na linii batonów: formowanie masy, oblewanie (walce dociskowe), kontrola wagi sztuki": "Versuch auf der Riegel-Linie: Masseformung, Überzug (Andruckwalzen), Kontrolle des Stückgewichts", "Próba technologiczna na linii docelowej": "Technologischer Versuch auf der Ziellinie", "PRZETESTOWANE PRODUKTY": "GETESTETE PRODUKTE", "WYBRANE DO TRANSFERU": "FÜR TRANSFER AUSGEWÄHLT", "BEZ TRANSFERU": "KEIN TRANSFER", "PROJEKTY W FAZIE ON-GOING": "LAUFENDE PROJEKTE", "ZAKOŃCZONE SUKCESEM": "ERFOLGREICH ABGESCHLOSSEN", "w sesjach: {n} · z archiwum: {n}": "aus Sitzungen: {n} · aus Archiv: {n}", "{n}% bazy": "{n}% der Datenbank", "decyzja: nie przenosimy": "Entscheidung: kein Transfer", "w realizacji, postęp poniżej 100%": "in Umsetzung, unter 100%", "plany z postępem 100%": "Pläne mit 100% Fortschritt", "FILTR PROJEKTÓW WEDŁUG OCENY CECHY": "PROJEKTE NACH MERKMALSBEWERTUNG FILTERN", "Ocena łączna": "Gesamtbewertung", "co najmniej {n}": "mindestens {n}", "1 produkt spełnia warunek": "1 Produkt erfüllt das Kriterium", "{n} produkty spełniają warunek": "{n} Produkte erfüllen das Kriterium", "{n} produktów spełnia warunek": "{n} Produkte erfüllen das Kriterium", "Pokazano 25 z {n} — zawęź kryterium.": "25 von {n} angezeigt — Kriterium eingrenzen.", "Żaden produkt nie ma oceny {n} lub wyżej dla tej cechy.": "Kein Produkt erreicht {n} oder mehr bei diesem Merkmal.", "{n} pozycji nie ma oceny cząstkowej (archiwum z Excela) — filtruj je przez „Ocena łączna”.": "{n} Positionen haben keine Merkmalsbewertung (Excel-Archiv) — mit „Gesamtbewertung“ filtern.", "OVERVIEW — OD DEGUSTACJI DO WDROŻENIA": "OVERVIEW — VON DER DEGUSTATION ZUR UMSETZUNG", "Przetestowane": "Getestet", "Wybrane do transferu": "Für Transfer ausgewählt", "Projekty w fazie on-going": "Laufende Projekte", "Zakończone sukcesem": "Erfolgreich abgeschlossen", "Kandydaci z oceną 4,0 i wyżej: {n} · bez decyzji: {n} · zajęta pamięć: {n} KB": "Kandidaten mit Bewertung 4,0 und höher: {n} · ohne Entscheidung: {n} · belegter Speicher: {n} KB", "ŚREDNIA OCENA WEDŁUG KATEGORII": "DURCHSCHNITTSBEWERTUNG NACH KATEGORIE", "HISTORIA ACTION PLANÓW": "ACTION-PLAN-HISTORIE", "Plany otwierasz, klikając nazwę produktu w Bazie. On-going: {n} · zakończone sukcesem: {n}.": "Pläne öffnen Sie über den Produktnamen in der Datenbank. Laufend: {n} · erfolgreich abgeschlossen: {n}.", "Usuń wszystkie plany ({n})": "Alle Pläne löschen ({n})", "TOP 10 INSPIRACJI DO PRZENIESIENIA": "TOP 10 INSPIRATIONEN FÜR TRANSFER", "brak": "keine", "bez transferu": "kein Transfer", "brak planu": "kein Plan", "Najpierw wgraj co najmniej jedno zdjęcie.": "Laden Sie zuerst mindestens ein Foto hoch.", "Analizuję {n} zdjęć…": "{n} Fotos werden analysiert…", "Odczyt gotowy. Sprawdź i popraw pola — dane pochodzą z AI i mogą być niepełne.": "Auslesung abgeschlossen. Felder prüfen und korrigieren — die Daten stammen von der KI und können unvollständig sein.", "Odczyt AI niedostępny w tym trybie (plik otwarty lokalnie, bez połączenia z modelem). Wpisz skład i wartości ręcznie — reszta narzędzia działa normalnie.": "KI-Auslesung in diesem Modus nicht verfügbar (Datei lokal geöffnet, keine Modellverbindung). Zutaten und Werte manuell eingeben — der Rest des Tools funktioniert normal.", "Wpisz nazwę produktu przed zapisem.": "Produktnamen vor dem Speichern eingeben.", "Zapisuję ocenę i zmniejszam zdjęcia…": "Bewertung wird gespeichert, Fotos werden verkleinert…", "Wpisz nazwę produktu lub inspiracji.": "Namen des Produkts oder der Inspiration eingeben.", "Wpisz tytuł kroku przed dodaniem.": "Titel des Schritts vor dem Hinzufügen eingeben.", "Plan nie ma jeszcze kroków.": "Der Plan hat noch keine Schritte.", "Plan usunięty.": "Plan gelöscht.", "Usunąć action plan tego produktu?": "Action Plan für dieses Produkt löschen?", "Usunąć ocenę tego produktu?": "Bewertung dieses Produkts löschen?", "Usunąć wszystkie plany ({n})? Tego nie da się cofnąć — najpierw zrób Kopię JSON.": "Alle Pläne löschen ({n})? Nicht umkehrbar — zuerst eine JSON-Sicherung erstellen.", "Historia action planów wyczyszczona. Nowy plan utworzysz, klikając produkt w Bazie.": "Action-Plan-Historie gelöscht. Neuen Plan über ein Produkt in der Datenbank erstellen.", "Ten produkt nie ma jeszcze action planu — utwórz go w formularzu poniżej.": "Für dieses Produkt gibt es noch keinen Action Plan — im Formular unten erstellen.", "Postęp przeliczony z kroków: {n}% ({n} z {n}).": "Fortschritt aus Schritten berechnet: {n}% ({n} von {n}).", "Plan uszczegółowiony przez AI. Zweryfikuj zadania przed wysłaniem do zespołu.": "Plan von der KI konkretisiert. Aufgaben vor dem Versand an das Team prüfen.", "Uszczegóławiam harmonogram…": "Zeitplan wird konkretisiert…", "Uszczegółowienie AI niedostępne w tym trybie. Zostaje wersja szablonowa — edytuj zadania ręcznie w kartach kroków.": "KI-Konkretisierung in diesem Modus nicht verfügbar. Die Vorlage bleibt — Aufgaben in den Schrittkarten manuell bearbeiten.", "Limit 6 zdjęć na produkt. Usuń jedno, żeby dodać kolejne.": "Maximal 6 Fotos pro Produkt. Entfernen Sie eines, um ein weiteres hinzuzufügen.", "Nie udało się przygotować pliku.": "Die Datei konnte nicht erstellt werden.", "Nie udało się zapisać do wspólnej bazy. Zrób Kopię JSON, żeby nie stracić danych.": "Speichern in der gemeinsamen Datenbank fehlgeschlagen. Erstellen Sie eine JSON-Sicherung.", "Wspólna baza chwilowo nieosiągalna — pracujesz na kopii lokalnej.": "Gemeinsame Datenbank vorübergehend nicht erreichbar — Sie arbeiten mit einer lokalen Kopie.", "Plik nie jest poprawną kopią JSON.": "Die Datei ist keine gültige JSON-Sicherung.", "Plik nie jest poprawną paczką zdjęć JSON.": "Die Datei ist kein gültiges JSON-Fotopaket.", "Terminy wyczyszczone.": "Termine gelöscht.", "Data startu zapisana.": "Startdatum gespeichert.", "Linia docelowa zmieniona na {n}. Krok próby technologicznej dopasowano do linii.": "Ziellinie geändert. Der Schritt des technologischen Versuchs wurde an die Linie angepasst."}, "f": [["Prezentacja próbek dla Sales i Marketingu, rekomendacja go / no-go, wpis do pipeline NPD dla ", "Musterpräsentation für Vertrieb und Marketing, Go-/No-Go-Empfehlung, Eintrag in die NPD-Pipeline für "], ["”, zakup 3–5 produktów referencyjnych, cel sensoryczny i ramy kosztowe dla linii ", "“, Kauf von 3–5 Referenzprodukten, sensorisches Ziel und Kostenrahmen für die Linie "], [" projektów. Zmiany innych osób pojawiają się automatycznie.", " Projekte. Änderungen anderer erscheinen automatisch."], [" planów. Wrzuć go na SharePoint zamiast poprzedniej wersji.", " Pläne. Laden Sie sie anstelle der Vorversion in SharePoint."], ["Ten produkt ma już plan — linia docelowa zmieniona na ", "Dieses Produkt hat bereits einen Plan — Ziellinie geändert auf "], [" zdjęć z paczki i przypisano do produktów.", " Fotos aus dem Paket wurden Produkten zugeordnet."], [" zdjęć. Twoje wpisy zostały zachowane.", " Fotos. Ihre Einträge wurden beibehalten."], [". Dodaj kroki w karcie „Nowy krok”.", ". Schritte in der Karte „Neuer Schritt“ hinzufügen."], [" zdjęć. Nic nie zostało nadpisane.", " Fotos. Nichts wurde überschrieben."], ["Ten produkt ma już plan na linii ", "Dieses Produkt hat bereits einen Plan auf Linie "], ["Wczytano wspólną bazę działu: ", "Gemeinsame Datenbank der Abteilung geladen: "], ["Gotowe: plik z wpisaną bazą (", "Fertig: Datei mit eingebetteter Datenbank ("], [". Jeden produkt = jeden plan.", ". Ein Produkt = ein Plan."], ["Karta briefu dla kierunku „", "Briefing-Blatt für die Richtung „"], ["ACTION PLAN · UTWORZONY ", "ACTION PLAN · ERSTELLT "], ["Harmonogram rozpisany: ", "Zeitplan verteilt: "], ["Oryginał w SharePoint: ", "Original in SharePoint: "], ["Scalono kopię: dodano ", "Sicherung zusammengeführt: hinzugefügt "], ["Wspólna baza online: ", "Gemeinsame Datenbank online: "], [" zdjęć do produktów.", " Fotos zu Produkten."], [" Bez dopasowania (", " Ohne Zuordnung ("], ["Plan utworzony: ", "Plan erstellt: "], ["Właściciele: ", "Verantwortliche: "], ["Dodano krok ", "Schritt hinzugefügt: "], ["Przypisano ", "Zugeordnet: "], ["Nowy krok ", "Neuer Schritt "], ["Kierunek: ", "Richtung: "], [" planów, ", " Pläne, "], ["Wczytuję ", "Lade "], ["Wczytano ", "Geladen: "], [" plików…", " Dateien…"], ["Postęp: ", "Fortschritt: "], ["bez daty", "ohne Datum"], ["archiwum", "Archiv"], [" ocen, ", " Bewertungen, "], [" MB) — ", " MB) — "], ["Linia: ", "Linie: "], ["Kroki: ", "Schritte: "], ["(waga ", "(Gewichtung "], ["Krok ", "Schritt "], ["sesja", "Sitzung"], [" zdj.", " Fotos"]]}, "fr": {"x": {"Skanuj — oceniaj — przenoś na własne linie": "Scanner — évaluer — transférer sur nos lignes", "Eksport CSV": "Export CSV", "Kopia JSON": "Sauvegarde JSON", "Wypal wspólną bazę": "Publier la base commune", "Scal z kopią JSON": "Fusionner une sauvegarde JSON", "Wczytaj paczkę zdjęć (JSON)": "Charger le lot de photos (JSON)", "Wgraj zdjęcia z SharePointu": "Importer les photos de SharePoint", "Drukuj / PDF": "Imprimer / PDF", "Wspierane przez AI": "Assisté par IA", "tryb: sprawdzam…": "mode : vérification…", "baza lokalna w tej przeglądarce": "base locale dans ce navigateur", "wspólna baza · aktualna": "base commune · à jour", "wspólna baza · zapisuję…": "base commune · enregistrement…", "Odczyt etykiet i uszczegółowienie planów generuje model AI — treści wymagają weryfikacji przez człowieka przed użyciem w decyzjach, dokumentacji i publikacjach. Nie wprowadzaj do narzędzia własnych receptur, kosztów surowców ani danych osobowych. Materiały pochodne oznaczaj jako „Wsparte przez AI”. Dane zapisują się wyłącznie w tej przeglądarce — rób kopię JSON po sesji.": "La lecture des étiquettes et la précision des tâches sont générées par un modèle d’IA — le contenu doit être vérifié par un humain avant toute utilisation dans des décisions, documents ou publications. Ne saisissez pas vos propres recettes, coûts de matières premières ni données personnelles. Indiquez « Assisté par IA » sur les documents dérivés. Les données sont enregistrées uniquement dans ce navigateur — effectuez une sauvegarde JSON après la session.", "Skaner produktu": "Scanner produit", "Baza ({n})": "Base ({n})", "Dashboard": "Tableau de bord", "KROK {n} — ZDJĘCIA ({n}/{n})": "ÉTAPE {n} — PHOTOS ({n}/{n})", "Wgraj zdjęcia produktu": "Importer des photos du produit", "Możesz wybrać kilka plików naraz": "Vous pouvez sélectionner plusieurs fichiers", "Front opakowania": "Face avant", "Tył / etykieta": "Dos / étiquette", "Produkt (środek)": "Produit (intérieur)", "Detal / przekrój": "Détail / coupe", "Zrób zdjęcie": "Prendre une photo", "Dodaj z galerii": "Ajouter depuis la galerie", "Odczytaj skład i wartości (AI)": "Lire les ingrédients et valeurs (IA)", "Odczytuję etykiety…": "Lecture des étiquettes…", "Usuń wszystkie": "Tout supprimer", "Usuń": "Supprimer", "Na telefonie „Zrób zdjęcie” otwiera aparat — zrób front, tył z etykietą i produkt wyjęty z opakowania, po jednym ujęciu.": "Sur téléphone, « Prendre une photo » ouvre l’appareil — une prise pour la face avant, le dos avec l’étiquette et le produit sorti de l’emballage.", "Sprawdź opis pod każdym zdjęciem — AI czyta skład i tabelę z „Tył / etykieta”, a wygląd i konsystencję z „Produkt (środek)”.": "Vérifiez la légende sous chaque photo — l’IA lit les ingrédients et le tableau nutritionnel sur « Dos / étiquette », et l’aspect et la texture sur « Produit (intérieur) ».", "Odczyt AI to wsparcie, nie źródło prawdy. Skład i wartości odżywcze potwierdź na opakowaniu przed użyciem w dokumentacji.": "La lecture par IA est une aide, pas une source de vérité. Confirmez les ingrédients et valeurs nutritionnelles sur l’emballage avant tout usage documentaire.", "KROK 2 — DANE PRODUKTU (EDYTOWALNE)": "ÉTAPE 2 — DONNÉES PRODUIT (MODIFIABLES)", "Nazwa produktu": "Nom du produit", "Marka": "Marque", "Kategoria": "Catégorie", "Skład": "Ingrédients", "Alergeny": "Allergènes", "Deklaracje na opakowaniu": "Allégations sur l’emballage", "Co jest nowe lub ciekawe": "Nouveauté ou point intéressant", "Wygląd produktu i obserwacje wizualne": "Aspect du produit et observations visuelles", "WARTOŚCI ODŻYWCZE NA 100 G": "VALEURS NUTRITIONNELLES POUR 100 G", "Energia": "Énergie", "Tłuszcz": "Matières grasses", "w tym kwasy nasycone": "dont acides gras saturés", "Węglowodany": "Glucides", "w tym cukry": "dont sucres", "Błonnik": "Fibres", "Białko": "Protéines", "Sól": "Sel", "KROK 3 — OCENA W SKALI 1–5": "ÉTAPE 3 — NOTATION DE 1 À 5", "Sześć kryteriów, wagi sumują się do 100%.": "Six critères, pondérations totalisant 100%.", "Wygląd": "Aspect", "Zapach": "Odeur", "Smak": "Goût", "Konsystencja": "Texture", "Innowacyjność": "Caractère innovant", "Możliwość przeniesienia": "Transférabilité", "INDEKS TRANSFERU": "INDICE DE TRANSFERT", "Do transferu": "À transférer", "Obserwuj": "À surveiller", "Odrzuć": "Rejeter", "KROK 4 — WNIOSEK I KIERUNEK TRANSFERU": "ÉTAPE 4 — CONCLUSION ET ORIENTATION DU TRANSFERT", "Wniosek z degustacji (co konkretnie chcemy odtworzyć)": "Conclusion de la dégustation (ce que nous voulons reproduire)", "Linie docelowe (albo decyzja o braku transferu)": "Lignes cibles (ou décision de non-transfert)", "Zapisz ocenę w bazie": "Enregistrer l’évaluation", "Wyczyść formularz": "Effacer le formulaire", "Indeks od 4,0 rekomenduje utworzenie action planu w zakładce Baza.": "À partir d’un indice de 4,0, créez un plan d’action dans l’onglet Base.", "Płatki kukurydziane i wielozbożowe": "Flocons de maïs et multicéréales", "Granola": "Granola", "Ekstrudaty": "Extrudés", "Poduszki": "Coussins fourrés", "Musli": "Muesli", "Owsianki": "Porridges", "Batony": "Barres", "Bez Transferu": "Pas de transfert", "Płatki śniadaniowe": "Céréales de petit-déjeuner", "Przekąski słodkie": "Snacks sucrés", "Przekąski wytrawne": "Snacks salés", "Czekolada": "Chocolat", "Wyroby cukiernicze": "Confiserie", "Napój": "Boisson", "Inne": "Autre", "Szukaj w nazwach i wnioskach": "Rechercher dans les noms et conclusions", "Wszystkie": "Tous", "Bez decyzji": "Sans décision", "Wybrana linia": "Ligne choisie", "{n} pozycji, sortowanie od najwyższej oceny": "{n} entrées, triées par note décroissante", "Pobierz folder InnoSession z SharePointu i wskaż pliki — narzędzie dopasuje je do produktów po nazwie pliku z kolumny D.": "Téléchargez le dossier InnoSession depuis SharePoint et sélectionnez les fichiers — l’outil les associe aux produits via le nom de fichier de la colonne D.", "Produkt": "Produit", "Ocena": "Note", "Postęp projektu": "Avancement du projet", "Postęp": "Avancement", "Co nowe / wniosek": "Nouveauté / conclusion", "Co nowe": "Nouveauté", "Transfer na linię": "Transfert vers la ligne", "Transfer": "Transfert", "Usuń ocenę": "Supprimer l’évaluation", "Bez transferu — pasek postępu niepotrzebny": "Pas de transfert — barre d’avancement inutile", "Brak action planu": "Aucun plan d’action", "Realizacja": "Réalisation", "Nie wybrano w Skanerze": "Non sélectionné dans le scanner", "← Wróć do Bazy": "← Retour à la base", "Wróć do Bazy": "Retour à la base", "Wybierz produkt w Bazie": "Sélectionnez un produit dans la base", "Action plany otwierasz, klikając nazwę produktu w zakładce Baza.": "Ouvrez les plans d’action en cliquant sur un nom de produit dans l’onglet Base.", "Ten produkt nie ma jeszcze action planu. Utwórz go w formularzu pod spodem.": "Ce produit n’a pas encore de plan d’action. Créez-le dans le formulaire ci-dessous.", "ZDJĘCIA PRODUKTU ({n}/{n})": "PHOTOS DU PRODUIT ({n}/{n})", "W Skanerze nie dodano zdjęć tego produktu. Możesz je dorobić teraz — zapiszą się razem z projektem.": "Aucune photo n’a été ajoutée pour ce produit dans le scanner. Vous pouvez les ajouter maintenant — elles seront enregistrées avec le projet.", "UTWÓRZ ACTION PLAN": "CRÉER UN PLAN D’ACTION", "Produkt lub inspiracja": "Produit ou inspiration", "Linia docelowa": "Ligne cible", "Kierunek do odtworzenia": "Orientation à reproduire", "Start projektu — data (opcjonalnie)": "Début du projet — date (facultatif)", "Start projektu — data": "Début du projet — date", "Harmonogram": "Calendrier", "Szablon 8 kroków": "Modèle en 8 étapes", "Pusty — dodam kroki sam": "Vide — j’ajoute les étapes moi-même", "Jeden produkt = jeden action plan.": "Un produit = un plan d’action.", "Utwórz plan": "Créer le plan", "Uszczegółowij zadania (AI)": "Détailler les tâches (IA)", "Pracuję…": "Traitement…", "Usuń plan": "Supprimer le plan", "Przelicz z kroków ({n}/{n})": "Recalculer d’après les étapes ({n}/{n})", "Podaj datę startu — kolejne kroki rozpiszą się co tydzień. Termin każdego kroku możesz zmienić osobno.": "Indiquez la date de début — les étapes suivantes sont réparties chaque semaine. Chaque échéance reste modifiable.", "Nazwa kroku": "Nom de l’étape", "Termin kroku — wybierz datę": "Échéance de l’étape — choisir une date", "− tydzień": "− une semaine", "+ tydzień": "+ une semaine", "dziś": "aujourd’hui", "termin nieustalony": "échéance non définie", "Zadania": "Tâches", "Rola odpowiedzialna": "Rôle responsable", "Inicjały": "Initiales", "Krok zrobiony": "Étape terminée", "↑ wyżej": "↑ monter", "↓ niżej": "↓ descendre", "Usuń krok": "Supprimer l’étape", "dodaj własny": "ajouter la vôtre", "Tytuł kroku": "Titre de l’étape", "Dodaj krok": "Ajouter une étape", "Krok trafia na koniec harmonogramu, termin tydzień po poprzednim. Kolejność zmienisz strzałkami.": "L’étape est ajoutée à la fin, une semaine après la précédente. Utilisez les flèches pour réordonner.", "Zadania i terminy zatwierdza właściciel projektu. Wpisuj wyłącznie inicjały, bez pełnych danych osobowych.": "Les tâches et échéances sont validées par le responsable du projet. N’indiquez que des initiales, aucune donnée personnelle.", "R&D Manager": "Responsable R&D", "Technolog R&D": "Technologue R&D", "Specjalista sensoryki": "Spécialiste sensoriel", "Zakupy / Sourcing": "Achats / sourcing", "Produkcja / Linia": "Production / ligne", "Jakość (QA)": "Qualité (QA)", "Marketing": "Marketing", "Sales": "Ventes", "Brief i benchmark": "Brief et benchmark", "Surowce i dostawcy": "Matières premières et fournisseurs", "Receptury laboratoryjne": "Recettes de laboratoire", "Panel sensoryczny": "Panel sensoriel", "Korekta i kalkulacja": "Ajustement et calcul des coûts", "Próba technologiczna": "Essai technologique", "Shelf-life i specyfikacja": "Durée de conservation et spécification", "Gate i przekazanie": "Gate et transmission", "Zapytania do dostawców o aromaty i dodatki, próbki surowców, wstępny koszt na 100 kg, sprawdzenie statusu clean label": "Demandes aux fournisseurs pour arômes et additifs, échantillons de matières premières, coût préliminaire aux 100 kg, vérification du statut clean label", "3 warianty receptury w skali laboratoryjnej, dobór poziomu aromatu i słodkości, notatki technologiczne": "3 variantes de recette à l’échelle laboratoire, réglage des niveaux d’arôme et de sucrosité, notes technologiques", "Test 5-punktowy (smak, zapach, konsystencja), panel 8–10 osób, porównanie z referencją rynkową, wybór 1–2 wariantów": "Test en 5 points (goût, odeur, texture), panel de 8 à 10 personnes, comparaison avec la référence du marché, sélection de 1 à 2 variantes", "Poprawa wybranego wariantu, kalkulacja kosztu i wartości odżywczych, projekt deklaracji składu": "Amélioration de la variante retenue, calcul des coûts et valeurs nutritionnelles, projet de déclaration des ingrédients", "Start testu przechowalniczego (0 / 1 / 3 mies.), analizy mikro i fizykochemiczne, projekt specyfikacji i etykiety": "Début du test de conservation (0 / 1 / 3 mois), analyses micro et physico-chimiques, projet de spécification et d’étiquette", "Próba na linii płatków: parametry prażenia i tostowania, grubość płatka po walcowaniu, chrupkość i zachowanie w mleku": "Essai sur la ligne de flocons : paramètres de torréfaction et de grillage, épaisseur après laminage, croustillant et tenue dans le lait", "Próba na linii granoli: prażenie w piecu taśmowym, dozowanie syropu i dodatków, kruszenie i sitowanie frakcji": "Essai sur la ligne granola : torréfaction au four à bande, dosage du sirop et des inclusions, concassage et tamisage des fractions", "Próba na ekstruderze: profil temperatur, wilgotność masy, stopień ekspansji, oblewanie i dosuszanie": "Essai sur extrudeuse : profil de température, humidité de la pâte, taux d’expansion, enrobage et séchage", "Próba koekstruzji: stabilność nadzienia, proporcja nadzienie do otoczki, szczelność zamknięcia, dosuszanie": "Essai de coextrusion : stabilité du fourrage, ratio fourrage/enveloppe, étanchéité de la soudure, séchage", "Próba w mieszalni suchej: proporcja płatków i dodatków, homogeniczność mieszanki, kontrola pylenia i segregacji frakcji": "Essai en mélange sec : ratio flocons/inclusions, homogénéité du mélange, contrôle des poussières et de la ségrégation", "Próba w mieszalni: homogeniczność premiksu, rozpuszczalność i czas zalewania, saszetkowanie i waga porcji": "Essai de mélange : homogénéité du prémix, solubilité et temps d’hydratation, ensachage et poids de portion", "Próba na linii batonów: formowanie masy, oblewanie (walce dociskowe), kontrola wagi sztuki": "Essai sur la ligne de barres : formage de la masse, enrobage (rouleaux de pression), contrôle du poids unitaire", "Próba technologiczna na linii docelowej": "Essai technologique sur la ligne cible", "PRZETESTOWANE PRODUKTY": "PRODUITS TESTÉS", "WYBRANE DO TRANSFERU": "SÉLECTIONNÉS POUR TRANSFERT", "BEZ TRANSFERU": "SANS TRANSFERT", "PROJEKTY W FAZIE ON-GOING": "PROJETS EN COURS", "ZAKOŃCZONE SUKCESEM": "TERMINÉS AVEC SUCCÈS", "w sesjach: {n} · z archiwum: {n}": "issus des sessions : {n} · de l’archive : {n}", "{n}% bazy": "{n}% de la base", "decyzja: nie przenosimy": "décision : pas de transfert", "w realizacji, postęp poniżej 100%": "en cours, moins de 100%", "plany z postępem 100%": "plans à 100% d’avancement", "FILTR PROJEKTÓW WEDŁUG OCENY CECHY": "FILTRER LES PROJETS PAR NOTE D’ATTRIBUT", "Ocena łączna": "Note globale", "co najmniej {n}": "au moins {n}", "1 produkt spełnia warunek": "1 produit répond au critère", "{n} produkty spełniają warunek": "{n} produits répondent au critère", "{n} produktów spełnia warunek": "{n} produits répondent au critère", "Pokazano 25 z {n} — zawęź kryterium.": "25 sur {n} affichés — affinez le critère.", "Żaden produkt nie ma oceny {n} lub wyżej dla tej cechy.": "Aucun produit n’atteint {n} ou plus pour cet attribut.", "{n} pozycji nie ma oceny cząstkowej (archiwum z Excela) — filtruj je przez „Ocena łączna”.": "{n} entrées n’ont pas de note d’attribut (archive Excel) — filtrez-les avec « Note globale ».", "OVERVIEW — OD DEGUSTACJI DO WDROŻENIA": "OVERVIEW — DE LA DÉGUSTATION À LA MISE EN ŒUVRE", "Przetestowane": "Testés", "Wybrane do transferu": "Sélectionnés pour transfert", "Projekty w fazie on-going": "Projets en cours", "Zakończone sukcesem": "Terminés avec succès", "Kandydaci z oceną 4,0 i wyżej: {n} · bez decyzji: {n} · zajęta pamięć: {n} KB": "Candidats notés 4,0 et plus : {n} · sans décision : {n} · mémoire utilisée : {n} Ko", "ŚREDNIA OCENA WEDŁUG KATEGORII": "NOTE MOYENNE PAR CATÉGORIE", "HISTORIA ACTION PLANÓW": "HISTORIQUE DES PLANS D’ACTION", "Plany otwierasz, klikając nazwę produktu w Bazie. On-going: {n} · zakończone sukcesem: {n}.": "Ouvrez les plans en cliquant sur un nom de produit dans la base. En cours : {n} · terminés avec succès : {n}.", "Usuń wszystkie plany ({n})": "Supprimer tous les plans ({n})", "TOP 10 INSPIRACJI DO PRZENIESIENIA": "TOP 10 DES INSPIRATIONS À TRANSFÉRER", "brak": "aucun", "bez transferu": "pas de transfert", "brak planu": "aucun plan", "Najpierw wgraj co najmniej jedno zdjęcie.": "Importez d’abord au moins une photo.", "Analizuję {n} zdjęć…": "Analyse de {n} photos…", "Odczyt gotowy. Sprawdź i popraw pola — dane pochodzą z AI i mogą być niepełne.": "Lecture terminée. Vérifiez et corrigez les champs — les données proviennent de l’IA et peuvent être incomplètes.", "Odczyt AI niedostępny w tym trybie (plik otwarty lokalnie, bez połączenia z modelem). Wpisz skład i wartości ręcznie — reszta narzędzia działa normalnie.": "Lecture par IA indisponible dans ce mode (fichier ouvert localement, sans connexion au modèle). Saisissez les ingrédients et valeurs manuellement — le reste de l’outil fonctionne normalement.", "Wpisz nazwę produktu przed zapisem.": "Saisissez le nom du produit avant d’enregistrer.", "Zapisuję ocenę i zmniejszam zdjęcia…": "Enregistrement de l’évaluation et redimensionnement des photos…", "Wpisz nazwę produktu lub inspiracji.": "Saisissez le nom du produit ou de l’inspiration.", "Wpisz tytuł kroku przed dodaniem.": "Saisissez un titre d’étape avant d’ajouter.", "Plan nie ma jeszcze kroków.": "Le plan n’a pas encore d’étapes.", "Plan usunięty.": "Plan supprimé.", "Usunąć action plan tego produktu?": "Supprimer le plan d’action de ce produit ?", "Usunąć ocenę tego produktu?": "Supprimer l’évaluation de ce produit ?", "Usunąć wszystkie plany ({n})? Tego nie da się cofnąć — najpierw zrób Kopię JSON.": "Supprimer tous les plans ({n}) ? Action irréversible — effectuez d’abord une sauvegarde JSON.", "Historia action planów wyczyszczona. Nowy plan utworzysz, klikając produkt w Bazie.": "Historique des plans effacé. Créez un nouveau plan en cliquant sur un produit dans la base.", "Ten produkt nie ma jeszcze action planu — utwórz go w formularzu poniżej.": "Ce produit n’a pas encore de plan d’action — créez-le dans le formulaire ci-dessous.", "Postęp przeliczony z kroków: {n}% ({n} z {n}).": "Avancement recalculé d’après les étapes : {n}% ({n} sur {n}).", "Plan uszczegółowiony przez AI. Zweryfikuj zadania przed wysłaniem do zespołu.": "Plan détaillé par l’IA. Vérifiez les tâches avant de les envoyer à l’équipe.", "Uszczegóławiam harmonogram…": "Précision du calendrier…", "Uszczegółowienie AI niedostępne w tym trybie. Zostaje wersja szablonowa — edytuj zadania ręcznie w kartach kroków.": "La précision par IA est indisponible dans ce mode. La version modèle est conservée — modifiez les tâches dans les cartes d’étapes.", "Limit 6 zdjęć na produkt. Usuń jedno, żeby dodać kolejne.": "Limite de 6 photos par produit. Supprimez-en une pour en ajouter.", "Nie udało się przygotować pliku.": "Le fichier n’a pas pu être préparé.", "Nie udało się zapisać do wspólnej bazy. Zrób Kopię JSON, żeby nie stracić danych.": "L’enregistrement dans la base commune a échoué. Effectuez une sauvegarde JSON.", "Wspólna baza chwilowo nieosiągalna — pracujesz na kopii lokalnej.": "Base commune momentanément inaccessible — vous travaillez sur une copie locale.", "Plik nie jest poprawną kopią JSON.": "Le fichier n’est pas une sauvegarde JSON valide.", "Plik nie jest poprawną paczką zdjęć JSON.": "Le fichier n’est pas un lot de photos JSON valide.", "Terminy wyczyszczone.": "Échéances effacées.", "Data startu zapisana.": "Date de début enregistrée.", "Linia docelowa zmieniona na {n}. Krok próby technologicznej dopasowano do linii.": "Ligne cible modifiée. L’étape d’essai technologique a été adaptée à la ligne."}, "f": [["Prezentacja próbek dla Sales i Marketingu, rekomendacja go / no-go, wpis do pipeline NPD dla ", "Présentation des échantillons aux Ventes et au Marketing, recommandation go / no-go, inscription au pipeline NPD pour "], ["”, zakup 3–5 produktów referencyjnych, cel sensoryczny i ramy kosztowe dla linii ", " », achat de 3 à 5 produits de référence, cible sensorielle et cadre de coûts pour la ligne "], [" projektów. Zmiany innych osób pojawiają się automatycznie.", " projets. Les modifications des autres apparaissent automatiquement."], [" planów. Wrzuć go na SharePoint zamiast poprzedniej wersji.", " plans. Déposez-le sur SharePoint à la place de la version précédente."], ["Ten produkt ma już plan — linia docelowa zmieniona na ", "Ce produit a déjà un plan — ligne cible remplacée par "], [" zdjęć z paczki i przypisano do produktów.", " photos du lot ont été attribuées aux produits."], [" zdjęć. Twoje wpisy zostały zachowane.", " photos. Vos saisies ont été conservées."], [". Dodaj kroki w karcie „Nowy krok”.", ". Ajoutez des étapes dans la carte « Nouvelle étape »."], [" zdjęć. Nic nie zostało nadpisane.", " photos. Rien n’a été écrasé."], ["Ten produkt ma już plan na linii ", "Ce produit a déjà un plan sur la ligne "], ["Wczytano wspólną bazę działu: ", "Base commune du service chargée : "], ["Gotowe: plik z wpisaną bazą (", "Terminé : fichier avec base intégrée ("], [". Jeden produkt = jeden plan.", ". Un produit = un plan."], ["Karta briefu dla kierunku „", "Fiche de brief pour l’orientation « "], ["ACTION PLAN · UTWORZONY ", "PLAN D’ACTION · CRÉÉ "], ["Harmonogram rozpisany: ", "Calendrier établi : "], ["Oryginał w SharePoint: ", "Original dans SharePoint : "], ["Scalono kopię: dodano ", "Sauvegarde fusionnée : ajout de "], ["Wspólna baza online: ", "Base commune en ligne : "], [" zdjęć do produktów.", " photos aux produits."], [" Bez dopasowania (", " Sans correspondance ("], ["Plan utworzony: ", "Plan créé : "], ["Właściciele: ", "Responsables : "], ["Dodano krok ", "Étape ajoutée : "], ["Przypisano ", "Attribué : "], ["Nowy krok ", "Nouvelle étape "], ["Kierunek: ", "Orientation : "], [" planów, ", " plans, "], ["Wczytuję ", "Chargement de "], ["Wczytano ", "Chargé : "], [" plików…", " fichiers…"], ["Postęp: ", "Avancement : "], ["bez daty", "sans date"], ["archiwum", "archive"], [" ocen, ", " évaluations, "], [" MB) — ", " Mo) — "], ["Linia: ", "Ligne : "], ["Kroki: ", "Étapes : "], ["(waga ", "(pondération "], ["Krok ", "Étape "], ["sesja", "session"], [" zdj.", " photos"]]}};
+/* --- jezyki --- */
+var LANGS=[['pl','PL'],['en','EN'],['de','DE'],['fr','FR']];
+var LANG=(function(){try{return localStorage.getItem('inno:lang')||'pl';}catch(e){return 'pl';}})();
+function setLang(l){LANG=l;try{localStorage.setItem('inno:lang',l);}catch(e){}
+ document.documentElement.setAttribute('lang',l);render();}
+function JEZYK(){return {pl:'polski',en:'angielski',de:'niemiecki',fr:'francuski'}[LANG]||'polski';}
+function tr(t){
+ if(LANG==='pl'||t==null)return t;
+ var D=DICT[LANG];if(!D)return t;
+ var raw=String(t),core=raw.trim();
+ if(!core)return raw;
+ var pre=raw.slice(0,raw.indexOf(core.charAt(0))),post=raw.slice(pre.length+core.length);
+ var out=null;
+ if(D.x[core]!=null)out=D.x[core];
+ if(out===null){
+  var liczby=[],wzor=core.replace(/\d+(?:[.,]\d+)?/g,function(m){liczby.push(m);return '{n}';});
+  if(D.x[wzor]!=null){var i=0;out=D.x[wzor].replace(/\{n\}/g,function(){return liczby[i++];});}}
+ if(out===null){var z=core;
+  D.f.forEach(function(par){z=z.split(par[0]).join(par[1]);});
+  if(z===core)return raw;
+  out=z;}
+ return pre+out+post;}
+function trDOM(root){
+ if(!root||LANG==='pl')return;
+ var it=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null),lista=[],n;
+ while((n=it.nextNode()))lista.push(n);
+ lista.forEach(function(node){
+  var el=node.parentElement;if(!el)return;
+  var tag=el.tagName;
+  if(tag==='TEXTAREA'||tag==='INPUT'||tag==='SCRIPT'||tag==='STYLE')return;
+  if(el.className&&String(el.className).indexOf('notr')>-1)return;
+  var v=tr(node.nodeValue);
+  if(v!==node.nodeValue)node.nodeValue=v;});
+ ['placeholder','title'].forEach(function(atr){
+  Array.prototype.forEach.call(root.querySelectorAll('['+atr+']'),function(el){
+   var v=tr(el.getAttribute(atr));if(v)el.setAttribute(atr,v);});});}
+function langBar(){
+ var el=document.getElementById('lang');if(!el)return;
+ el.innerHTML=LANGS.map(function(l){return '<button class="tab notr" data-lang="'+l[0]+'" style="padding:5px 9px;font-size:11px;background:'+(LANG===l[0]?C.coral:'rgba(255,255,255,.18)')+';color:#fff">'+l[1]+'</button>';}).join('');}
+function trPlan(rows){if(LANG==='pl')return rows;
+ return rows.map(function(w){return [w[0],tr(w[1]),w[2],tr(w[3])];});}
+
+/* --- widoki --- */
+function radarSVG(){var cx=130,cy=115,R=88,n=CRIT.length,pts=[],ax='';
+ for(var i=0;i<n;i++){var a=-Math.PI/2+i*2*Math.PI/n,v=(Number(S.draft.scores[CRIT[i].k])||0)/5;
+  pts.push((cx+Math.cos(a)*R*v).toFixed(1)+','+(cy+Math.sin(a)*R*v).toFixed(1));
+  ax+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+Math.cos(a)*R)+'" y2="'+(cy+Math.sin(a)*R)+'" stroke="#E7DFE2"/>';
+  var lx=cx+Math.cos(a)*(R+16),ly=cy+Math.sin(a)*(R+13);
+  ax+='<text x="'+lx+'" y="'+ly+'" font-size="9" fill="'+C.char+'" text-anchor="middle">'+esc(CRIT[i].l.slice(0,14))+'</text>';}
+ var rings='';[.2,.4,.6,.8,1].forEach(function(f){var p=[];for(var i=0;i<n;i++){var a=-Math.PI/2+i*2*Math.PI/n;p.push((cx+Math.cos(a)*R*f).toFixed(1)+','+(cy+Math.sin(a)*R*f).toFixed(1));}rings+='<polygon points="'+p.join(' ')+'" fill="none" stroke="#F1E9EC"/>';});
+ return '<svg viewBox="0 0 260 235" width="100%" height="215">'+rings+ax+'<polygon points="'+pts.join(' ')+'" fill="'+C.coral+'" fill-opacity=".28" stroke="'+C.coral+'" stroke-width="2"/></svg>';}
+
+function scanView(){var d=S.draft,t=indexOf(d.scores),v=verdict(t);
+ return '<div class="body"><div class="g2">'+
+ '<div class="card"><div class="eyebrow">KROK 1 — ZDJĘCIA ('+d.photos.length+'/6)</div>'+
+ (d.photos.length?'<div class="thumbs">'+d.photos.map(function(p,i){
+   return '<div class="thumb"><img src="'+p.src+'" alt="'+esc(p.type)+'" data-zoom="'+i+'">'+
+   '<select data-pt="'+i+'">'+PTYPES.map(function(t){return '<option value="'+esc(t)+'"'+(t===p.type?' selected':'')+'>'+t+'</option>';}).join('')+'</select>'+
+   '<button class="x" data-rp="'+i+'">Usuń</button></div>';}).join('')+'</div>'
+  :'<div class="drop" data-act="pick"><div><div class="hd" style="font-size:15px">Wgraj zdjęcia produktu</div>'+
+   '<div style="margin-top:6px">Możesz wybrać kilka plików naraz</div>'+
+   '<div class="slots">'+PTYPES.map(function(t){return '<span class="slot">'+t+'</span>';}).join('')+'</div></div></div>')+
+ '<input type="file" id="ph" accept="image/*" multiple style="display:none">'+
+ '<input type="file" id="cam" accept="image/*" capture="environment" style="display:none">'+
+ '<div class="row" style="margin-top:12px">'+
+ '<button class="btn dark" data-act="shoot">Zrób zdjęcie</button>'+
+ '<button class="btn ghost" data-act="pick">Dodaj z galerii</button>'+
+ '<button class="btn primary" data-act="read"'+(!d.photos.length||S.busy?' disabled':'')+'>'+(S.busy?'Odczytuję etykiety…':'Odczytaj skład i wartości (AI)')+'</button>'+
+ (d.photos.length?'<button class="btn ghost" data-act="delphoto">Usuń wszystkie</button>':'')+'</div>'+
+ '<div class="note camonly" style="margin-top:8px">Na telefonie „Zrób zdjęcie” otwiera aparat — zrób front, tył z etykietą i produkt wyjęty z opakowania, po jednym ujęciu.</div>'+
+ '<div class="note" style="margin-top:8px">Sprawdź opis pod każdym zdjęciem — AI czyta skład i tabelę z „Tył / etykieta”, a wygląd i konsystencję z „Produkt (środek)”.</div>'+
+ '<div class="hl" style="margin-top:14px">Odczyt AI to wsparcie, nie źródło prawdy. Skład i wartości odżywcze potwierdź na opakowaniu przed użyciem w dokumentacji.</div></div>'+
+
+ '<div class="card"><div class="eyebrow">KROK 2 — DANE PRODUKTU (EDYTOWALNE)</div>'+
+ '<div class="g2" style="gap:10px"><div><label>Nazwa produktu</label><input data-f="nazwa" value="'+esc(d.nazwa)+'" placeholder="np. Baton piernikowy"></div>'+
+ '<div><label>Marka</label><input data-f="marka" value="'+esc(d.marka)+'"></div></div>'+
+ '<label>Kategoria</label><select data-f="kat">'+KATS.map(function(k){return '<option value="'+esc(k)+'"'+(k===d.kat?' selected':'')+'>'+k+'</option>';}).join('')+'</select>'+
+ '<label>Skład</label><textarea data-f="sklad">'+esc(d.sklad)+'</textarea>'+
+ '<div class="g2" style="gap:10px"><div><label>Alergeny</label><input data-f="alergeny" value="'+esc(d.alergeny)+'"></div>'+
+ '<div><label>Deklaracje na opakowaniu</label><input data-f="claims" value="'+esc(d.claims)+'" placeholder="high protein, no added sugar…"></div></div>'+
+ '<label>Co jest nowe lub ciekawe</label><textarea data-f="nowe" style="min-height:54px">'+esc(d.nowe)+'</textarea>'+
+ '<label>Wygląd produktu i obserwacje wizualne</label><textarea data-f="wyglad" style="min-height:54px" placeholder="kształt, barwa, przekrój, sposób oblania, widoczne dodatki">'+esc(d.wyglad)+'</textarea></div></div>'+
+
+ '<div class="g2"><div class="card"><div class="eyebrow">WARTOŚCI ODŻYWCZE NA 100 G</div><table><tbody>'+
+ NUTRI.map(function(n){return '<tr><td style="width:58%">'+n[1]+'</td><td><div class="row" style="gap:6px"><input style="width:92px" data-n="'+n[0]+'" value="'+esc(d.nutri[n[0]])+'"><span class="note">'+n[2]+'</span></div></td></tr>';}).join('')+
+ '</tbody></table></div>'+
+
+ '<div class="card"><div class="eyebrow">KROK 3 — OCENA W SKALI 1–5</div>'+
+ '<div class="note" style="margin-bottom:6px">Sześć kryteriów, wagi sumują się do 100%.</div>'+
+ CRIT.map(function(c){return '<div class="scorerow"><div>'+c.l+' <span class="note">(waga '+Math.round(c.w*100)+'%)</span></div><div class="row" style="gap:5px">'+
+  [1,2,3,4,5].map(function(n){return '<button class="dot'+(n<=d.scores[c.k]?' on':'')+'" data-s="'+c.k+'" data-v="'+n+'">'+n+'</button>';}).join('')+'</div></div>';}).join('')+
+ '<div class="row" style="margin-top:14px;justify-content:space-between"><div><div class="eyebrow" style="margin:0">INDEKS TRANSFERU</div>'+
+ '<div class="kpi" style="color:'+C.coral+'">'+t.toFixed(1)+'<span style="font-size:16px;color:'+C.char+'"> / 5</span></div></div>'+
+ '<span class="pill" style="background:'+v.c+(v.c===C.gold?';color:'+C.claret:'')+'">'+v.t+'</span></div>'+radarSVG()+'</div></div>'+
+
+ '<div class="card"><div class="eyebrow">KROK 4 — WNIOSEK I KIERUNEK TRANSFERU</div>'+
+ '<label>Wniosek z degustacji (co konkretnie chcemy odtworzyć)</label><textarea data-f="komentarz" placeholder="np. profil piernikowy z nutą karmelową, kremowa konsystencja bez piaszczystości">'+esc(d.komentarz)+'</textarea>'+
+ '<label>Linie docelowe (albo decyzja o braku transferu)</label><div class="row">'+LINES.concat([NOPE]).map(function(l){var on=d.targets.indexOf(l)>-1;
+  return '<button class="btn" data-tg="'+esc(l)+'" style="background:'+(on?(l===NOPE?C.steel:C.claret):'#F7F3F4')+';color:'+(on?'#fff':C.claret)+'">'+esc(l)+'</button>';}).join('')+'</div>'+
+ '<div class="row sticky" style="margin-top:16px"><button class="btn primary" data-act="save">Zapisz ocenę w bazie</button>'+
+ '<button class="btn ghost" data-act="clear">Wyczyść formularz</button>'+
+ '<span class="note">Indeks od 4,0 rekomenduje utworzenie action planu w zakładce Baza.</span></div></div></div>';}
+
+function baseView(){var kats=['Wszystkie'];all().forEach(function(p){if(kats.indexOf(p.kat)<0)kats.push(p.kat);});var list=shown();
+ return '<div class="body"><div class="card"><div class="row">'+
+ '<input style="max-width:280px" id="q" placeholder="Szukaj w nazwach i wnioskach" value="'+esc(S.q)+'">'+
+ '<select style="max-width:230px" id="fk">'+kats.map(function(k){return '<option value="'+esc(k)+'"'+(k===S.kat?' selected':'')+'>'+esc(k)+'</option>';}).join('')+'</select>'+
+ '<select style="max-width:210px" id="fd">'+['Wszystkie','Bez decyzji',NOPE,'Wybrana linia'].map(function(o){return '<option value="'+esc(o)+'"'+(o===S.decf?' selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select>'+
+ '<span class="note">'+list.length+' pozycji, sortowanie od najwyższej oceny</span></div>'+
+ '<div class="row" style="margin-top:10px"><label class="btn dark" style="margin:0">Wgraj zdjęcia z SharePointu<input type="file" id="bulk" accept="image/*" multiple style="display:none"></label>'+
+ '<label class="btn ghost" style="margin:0">Wczytaj paczkę zdjęć (JSON)<input type="file" id="impimg" accept=".json" style="display:none"></label>'+
+ '<span class="note">Pobierz folder InnoSession z SharePointu i wskaż pliki — narzędzie dopasuje je do produktów po nazwie pliku z kolumny D.</span></div></div>'+
+ '<div class="card" style="overflow-x:auto"><table><thead><tr><th>Produkt</th><th>Kategoria</th><th style="width:120px">Ocena</th><th style="width:150px">Postęp projektu</th><th>Co nowe / wniosek</th><th style="width:200px">Transfer na linię</th></tr></thead><tbody>'+
+ list.map(function(p){var vv=verdict(Number(p.ocena)||0);var ph=(p.photos&&p.photos.length?p.photos:(S.imgs[p.nazwa]||[]));var dec=decOf(p);var pr=progOf(p);
+ return '<tr><td><div class="row" style="gap:8px;align-items:flex-start">'+
+ (ph.length?'<img class="tmini" src="'+ph[0].src+'" alt="'+esc(p.nazwa)+'">'
+  :(p.url?'<a class="tmini nolocal" href="'+esc(p.url)+'" target="_blank" rel="noopener" title="'+esc(p.file)+'">SP</a>':''))+
+ '<div><button class="linkish" data-open="'+esc(p.nazwa)+'|'+esc(p.id)+'">'+esc(p.nazwa)+'</button>'+
+ (planFor(p.nazwa)?'<span class="pill" style="background:'+C.coral+';margin-left:6px">plan</span>':'')+
+ '<div class="note">'+esc(p.data||'bez daty')+' · '+p.source+(ph.length>1?' · '+ph.length+' zdj.':'')+'</div>'+
+ (p.source==='sesja'?'<button class="mini" data-del="'+p.id+'" style="margin-top:5px">Usuń ocenę</button>':'')+'</div></div></td>'+
+ '<td><span class="mlabel">Kategoria</span>'+esc(p.kat)+'</td>'+
+ '<td><span class="mlabel">Ocena</span><div class="row" style="gap:6px"><strong>'+(Number(p.ocena)||0).toFixed(1)+'</strong><span class="pill" style="background:'+vv.c+(vv.c===C.gold?';color:'+C.claret:'')+'">'+vv.t+'</span></div>'+
+ '<div class="bar" style="margin-top:5px"><i style="width:'+((Number(p.ocena)||0)/5*100)+'%"></i></div></td>'+
+ '<td><span class="mlabel">Postęp</span>'+(dec.indexOf(NOPE)>-1
+   ?'<span class="note">Bez transferu — pasek postępu niepotrzebny</span>'
+   :(pr===null?'<span class="note">Brak action planu</span>'
+     :'<div class="row" style="gap:6px;justify-content:space-between"><span class="note">Realizacja</span><strong>'+pr+'%</strong></div>'+
+      '<div class="bar" style="margin-top:4px"><i style="width:'+pr+'%;background:'+C.claret+'"></i></div>'+
+      '<div class="note" style="margin-top:4px">'+esc(planFor(p.nazwa).line)+'</div>'))+'</td>'+
+ '<td style="max-width:330px"><span class="mlabel">Co nowe</span>'+esc(p.nowe&&p.nowe!=='-'?p.nowe:'—')+'<div class="note">'+esc(p.komentarz||'')+'</div></td>'+
+ '<td><span class="mlabel">Transfer</span>'+(dec.length
+  ?'<div class="row" style="gap:5px">'+dec.map(function(l){
+    return '<span class="pill" style="background:'+(l===NOPE?C.steel:C.claret)+'">'+esc(l)+'</span>';}).join('')+'</div>'
+  :'<span class="note">Nie wybrano w Skanerze</span>')+'</td></tr>';}).join('')+
+ '</tbody></table></div></div>';}
+
+function newPlanForm(){
+ var linie=NP.dec&&NP.dec.filter(function(l){return l!==NOPE;}).length?NP.dec.filter(function(l){return l!==NOPE;}):LINES;
+ if(linie.indexOf(NP.line)<0)NP.line=linie[0];
+ return '<div class="card"><div class="eyebrow">UTWÓRZ ACTION PLAN</div>'+
+ '<div class="g2" style="gap:10px"><div><label>Produkt lub inspiracja</label><input data-np="product" value="'+esc(NP.product)+'" placeholder="np. Baton piernikowy"></div>'+
+ '<div><label>Linia docelowa</label><select data-np="line">'+linie.map(function(l){return '<option value="'+esc(l)+'"'+(l===NP.line?' selected':'')+'>'+esc(l)+'</option>';}).join('')+'</select></div></div>'+
+ '<div class="g2" style="gap:10px"><div><label>Kierunek do odtworzenia</label><input data-np="flavour" value="'+esc(NP.flavour)+'" placeholder="np. profil piernikowy, kremowa konsystencja"></div>'+
+ '<div><label>Start projektu — data (opcjonalnie)</label><input type="date" data-np="start" value="'+esc(NP.start)+'"></div></div>'+
+ '<label>Harmonogram</label><div class="row">'+
+ '<button class="btn" data-npt="1" style="background:'+(NP.tmpl?C.claret:'#F7F3F4')+';color:'+(NP.tmpl?'#fff':C.claret)+'">Szablon 8 kroków</button>'+
+ '<button class="btn" data-npt="0" style="background:'+(!NP.tmpl?C.claret:'#F7F3F4')+';color:'+(!NP.tmpl?'#fff':C.claret)+'">Pusty — dodam kroki sam</button></div>'+
+ '<div class="note" style="margin-top:8px">Jeden produkt = jeden action plan.</div>'+
+ '<div class="row" style="margin-top:14px"><button class="btn primary" data-act="addplan">Utwórz plan</button>'+
+ '<button class="btn ghost" data-act="toBase">Wróć do Bazy</button></div></div>';}
+
+function photoBlock(nazwa){var ph=photosFor(nazwa);
+ return '<div style="margin-top:14px;padding-top:14px;border-top:1px solid #EEE8EA"><div class="eyebrow">ZDJĘCIA PRODUKTU ('+ph.length+'/6)</div>'+
+ (ph.length?'<div class="thumbs">'+ph.map(function(x,i){
+   return '<div class="thumb"><img src="'+x.src+'" alt="'+esc(x.type)+'" data-zoom2="'+i+'">'+
+   '<select data-pt2="'+i+'">'+PTYPES.map(function(t){return '<option value="'+esc(t)+'"'+(t===x.type?' selected':'')+'>'+t+'</option>';}).join('')+'</select>'+
+   '<button class="x" data-rp2="'+i+'">Usuń</button></div>';}).join('')+'</div>'
+  :'<div class="note">W Skanerze nie dodano zdjęć tego produktu. Możesz je dorobić teraz — zapiszą się razem z projektem.</div>')+
+ (linkOf(nazwa)?'<div class="note" style="margin-top:8px">Oryginał w SharePoint: <a href="'+esc(linkOf(nazwa).url)+'" target="_blank" rel="noopener">'+esc(linkOf(nazwa).file)+'</a></div>':'')+
+ '<input type="file" id="ph2" accept="image/*" multiple style="display:none">'+
+ '<input type="file" id="cam2" accept="image/*" capture="environment" style="display:none">'+
+ '<div class="row" style="margin-top:12px"><button class="btn dark" data-act="shoot2">Zrób zdjęcie</button>'+
+ '<button class="btn ghost" data-act="pick2">Dodaj z galerii</button></div></div>';}
+
+function planCard(p){var f=p.weeks.filter(function(w){return w.initials;}).length;
+ return '<div class="card"><div class="row" style="justify-content:space-between">'+
+ '<div><div class="eyebrow" style="margin:0">ACTION PLAN · UTWORZONY '+esc(p.created)+'</div><h2 style="font-size:18px">'+esc(p.product)+'</h2>'+
+ '<div class="row" style="gap:6px;margin-top:6px"><span class="pill" style="background:'+C.claret+'">Linia: '+esc(p.line)+'</span>'+
+ '<span class="pill" style="background:'+C.pink+'">Kierunek: '+esc(String(p.flavour).slice(0,60))+'</span>'+
+ '<span class="pill" style="background:'+C.claret+'">Kroki: '+p.weeks.length+'</span>'+
+ '<span class="pill" style="background:'+C.coral+'">Postęp: '+(Number(p.progress)||0)+'%</span>'+
+ '<span class="pill" style="background:'+C.steel+'">Właściciele: '+f+'/'+p.weeks.length+'</span>'+
+ (p.weeks[0]&&p.weeks[0].date?'<span class="pill" style="background:'+C.pink+'">'+plDate(p.weeks[0].date)+' — '+plDate(p.weeks[p.weeks.length-1].date)+'</span>':'')+'</div></div>'+
+ '<div class="row"><button class="btn primary" data-ai="'+p.id+'"'+(S.busy?' disabled':'')+'>'+(S.busy?'Pracuję…':'Uszczegółowij zadania (AI)')+'</button>'+
+ '<button class="btn ghost" data-dp="'+p.id+'">Usuń plan</button></div></div>'+
+ photoBlock(p.product)+
+ '<div class="g2" style="gap:12px;margin-top:14px"><div><label>Start projektu — data</label><input type="date" data-ps="'+p.id+'" value="'+esc(p.start||'')+'"></div>'+
+ '<div><label>Linia docelowa</label><select data-pl="'+p.id+'">'+LINES.map(function(l){return '<option value="'+esc(l)+'"'+(l===p.line?' selected':'')+'>'+esc(l)+'</option>';}).join('')+'</select></div></div>'+
+ '<div class="g2" style="gap:12px"><div><label>Postęp projektu</label><div class="row" style="gap:8px"><select data-pg="'+p.id+'" style="max-width:130px">'+
+ [0,10,20,30,40,50,60,70,80,90,100].map(function(v){return '<option value="'+v+'"'+(v===(Number(p.progress)||0)?' selected':'')+'>'+v+'%</option>';}).join('')+'</select>'+
+ '<button class="mini" data-pc="'+p.id+'">Przelicz z kroków ('+stepsDone(p).d+'/'+stepsDone(p).t+')</button></div></div><div></div></div>'+
+ '<div class="bar" style="margin-top:10px"><i style="width:'+(Number(p.progress)||0)+'%;background:'+C.claret+'"></i></div>'+
+ '<div class="note" style="margin-top:6px">Podaj datę startu — kolejne kroki rozpiszą się co tydzień. Termin każdego kroku możesz zmienić osobno.</div>'+
+ '<div class="weeks">'+
+ p.weeks.map(function(w){return '<div><div class="weekhead"><span>Krok '+w.nr+(w.date?' · '+plDate(w.date):'')+'</span><span>'+esc(w.title)+'</span></div><div class="weekbox">'+
+ '<label>Nazwa kroku</label><input data-w="'+p.id+'|'+w.nr+'|title" value="'+esc(w.title)+'">'+
+ '<label>Termin kroku — wybierz datę</label><input type="date" data-w="'+p.id+'|'+w.nr+'|date" value="'+esc(w.date||'')+'">'+
+ '<div class="row" style="gap:5px;margin-top:6px">'+
+ '<button class="mini" data-wsh="'+p.id+'|'+w.nr+'|-7">− tydzień</button>'+
+ '<button class="mini" data-wsh="'+p.id+'|'+w.nr+'|7">+ tydzień</button>'+
+ '<button class="mini" data-wsh="'+p.id+'|'+w.nr+'|0">dziś</button>'+
+ (w.date?'<span class="note">'+plDate(w.date)+'</span>':'<span class="note">termin nieustalony</span>')+'</div>'+
+ '<label>Zadania</label><textarea style="min-height:92px;font-size:12px" data-w="'+p.id+'|'+w.nr+'|tasks">'+esc(w.tasks)+'</textarea>'+
+ '<div class="g2" style="gap:8px"><div><label>Rola odpowiedzialna</label><select data-w="'+p.id+'|'+w.nr+'|role">'+
+ ROLES.map(function(r){return '<option value="'+esc(r)+'"'+(r===w.role?' selected':'')+'>'+r+'</option>';}).join('')+'</select></div>'+
+ '<div><label>Inicjały</label><input maxlength="4" placeholder="np. AK" data-w="'+p.id+'|'+w.nr+'|initials" value="'+esc(w.initials)+'"></div></div>'+
+ '<label class="row" style="gap:7px;margin-top:8px;font-size:12px;color:'+C.claret+'"><input type="checkbox" data-wd="'+p.id+'|'+w.nr+'" style="width:18px;height:18px"'+(w.done?' checked':'')+'> Krok zrobiony</label>'+
+ '<div class="row" style="gap:5px;margin-top:8px">'+
+ '<button class="mini" data-mw="'+p.id+'|'+w.nr+'|-1"'+(w.nr===1?' disabled':'')+'>↑ wyżej</button>'+
+ '<button class="mini" data-mw="'+p.id+'|'+w.nr+'|1"'+(w.nr===p.weeks.length?' disabled':'')+'>↓ niżej</button>'+
+ '<button class="mini" data-dw="'+p.id+'|'+w.nr+'">Usuń krok</button></div></div></div>';}).join('')+
+ '<div><div class="weekhead" style="background:'+C.coral+'"><span>Nowy krok '+(p.weeks.length+1)+'</span><span>dodaj własny</span></div>'+
+ '<div class="weekbox"><label>Tytuł kroku</label><input data-ns="'+p.id+'" value="'+esc(NS[p.id]||'')+'" placeholder="np. Panel sensoryczny z Marketingiem">'+
+ '<button class="btn primary" data-aw="'+p.id+'" style="width:100%;margin-top:8px">Dodaj krok</button>'+
+ '<div class="note" style="margin-top:6px">Krok trafia na koniec harmonogramu, termin tydzień po poprzednim. Kolejność zmienisz strzałkami.</div></div></div>'+
+ '</div><div class="hl" style="margin-top:14px">Zadania i terminy zatwierdza właściciel projektu. Wpisuj wyłącznie inicjały, bez pełnych danych osobowych.</div></div>';}
+
+function planView(){
+ var back='<div class="row"><button class="btn ghost" data-act="toBase">← Wróć do Bazy</button></div>';
+ if(!S.open)return '<div class="body">'+back+'<div class="card"><div class="hd" style="font-size:16px">Wybierz produkt w Bazie</div>'+
+  '<p class="note" style="margin-top:8px">Action plany otwierasz, klikając nazwę produktu w zakładce Baza.</p></div></div>';
+ var p=planFor(S.open);
+ if(!p)return '<div class="body">'+back+'<div class="card"><h2 style="font-size:18px">'+esc(S.open)+'</h2>'+
+  '<p class="note" style="margin-top:8px">Ten produkt nie ma jeszcze action planu. Utwórz go w formularzu pod spodem.</p>'+
+  photoBlock(S.open)+'</div>'+newPlanForm()+'</div>';
+ return '<div class="body">'+back+planCard(p)+'</div>';}
+
+function critFilterCard(){
+ var lab=DF.crit==='ocena'?'Ocena łączna':(CRIT.filter(function(c){return c.k===DF.crit;})[0]||{}).l;
+ var A=all();
+ var rows=A.map(function(p){
+   var v=DF.crit==='ocena'?Number(p.ocena)||0:(p.scores&&p.scores[DF.crit]!=null?Number(p.scores[DF.crit]):null);
+   return {p:p,v:v};})
+  .filter(function(x){return x.v!==null&&x.v>=DF.min;})
+  .sort(function(a,b){return b.v-a.v||(Number(b.p.ocena)||0)-(Number(a.p.ocena)||0);});
+ var brak=A.filter(function(p){return DF.crit!=='ocena'&&!(p.scores&&p.scores[DF.crit]!=null);}).length;
+ return '<div class="card"><div class="eyebrow">FILTR PROJEKTÓW WEDŁUG OCENY CECHY</div>'+
+ '<div class="row"><select id="dfc" style="max-width:230px">'+
+ CRIT.map(function(c){return '<option value="'+c.k+'"'+(c.k===DF.crit?' selected':'')+'>'+esc(c.l)+'</option>';}).join('')+
+ '<option value="ocena"'+(DF.crit==='ocena'?' selected':'')+'>Ocena łączna</option></select>'+
+ '<select id="dfm" style="max-width:170px">'+[1,2,3,4,5].map(function(v){return '<option value="'+v+'"'+(v===DF.min?' selected':'')+'>co najmniej '+v+'</option>';}).join('')+'</select>'+
+ '<span class="note">'+plProd(rows.length)+'</span></div>'+
+ (rows.length?'<table style="margin-top:12px"><thead><tr><th>Produkt</th><th style="width:110px">'+esc(lab)+'</th><th style="width:90px">Ocena</th><th style="width:170px">Transfer</th><th style="width:110px">Postęp</th></tr></thead><tbody>'+
+  rows.slice(0,25).map(function(x){var dc=decOf(x.p),pr=progOf(x.p);
+   return '<tr><td><button class="linkish" data-open="'+esc(x.p.nazwa)+'|'+esc(x.p.id)+'">'+esc(x.p.nazwa)+'</button>'+
+    '<div class="note">'+esc(x.p.kat)+'</div></td>'+
+    '<td><span class="mlabel">'+esc(lab)+'</span><strong>'+x.v.toFixed(1)+'</strong><div class="bar" style="margin-top:4px"><i style="width:'+(x.v/5*100)+'%"></i></div></td>'+
+    '<td><span class="mlabel">Ocena</span>'+(Number(x.p.ocena)||0).toFixed(1)+'</td>'+
+    '<td><span class="mlabel">Transfer</span>'+(dc.length?dc.map(function(l){return esc(l);}).join(', '):'<span class="note">brak</span>')+'</td>'+
+    '<td><span class="mlabel">Postęp</span>'+(dc.indexOf(NOPE)>-1?'<span class="note">bez transferu</span>':(pr===null?'<span class="note">brak planu</span>':pr+'%'))+'</td></tr>';}).join('')+
+  '</tbody></table>'+(rows.length>25?'<div class="note">Pokazano 25 z '+rows.length+' — zawęź kryterium.</div>':'')
+  :'<div class="note" style="margin-top:10px">Żaden produkt nie ma oceny '+DF.min+' lub wyżej dla tej cechy.</div>')+
+ (brak?'<div class="note" style="margin-top:8px">'+brak+' pozycji nie ma oceny cząstkowej (archiwum z Excela) — filtruj je przez „Ocena łączna”.</div>':'')+
+ '</div>';}
+
+function dashView(){var A=all(),m={};A.forEach(function(p){var k=p.kat||'Inne';m[k]=m[k]||{k:k,n:0,s:0};m[k].n++;m[k].s+=Number(p.ocena)||0;});
+ var st=Object.keys(m).map(function(k){return {k:k,n:m[k].n,a:m[k].s/m[k].n};}).sort(function(a,b){return b.a-a.a;});
+ var top=A.filter(function(p){return (Number(p.ocena)||0)>=4;});
+ var kb=0;try{kb=Math.round(((localStorage.getItem('inno:items')||'').length+(localStorage.getItem('inno:plans')||'').length+(localStorage.getItem('inno:imgs')||'').length)/1024);}catch(e){}
+ var wybrane=A.filter(function(p){return decOf(p).filter(function(l){return l!==NOPE;}).length>0;});
+ var bez=A.filter(function(p){return decOf(p).indexOf(NOPE)>-1;});
+ var zakon=S.plans.filter(function(p){return (Number(p.progress)||0)>=100;});
+ var ongoing=S.plans.filter(function(p){return (Number(p.progress)||0)<100;});
+ var kpi=[
+  ['Przetestowane produkty',A.length,C.claret,'w sesjach: '+S.items.length+' · z archiwum: '+(A.length-S.items.length)],
+  ['Wybrane do transferu',wybrane.length,C.coral,A.length?Math.round(wybrane.length/A.length*100)+'% bazy':''],
+  ['Bez transferu',bez.length,C.steel,'decyzja: nie przenosimy'],
+  ['Projekty w fazie on-going',ongoing.length,C.pink,'w realizacji, postęp poniżej 100%'],
+  ['Zakończone sukcesem',zakon.length,C.claret,'plany z postępem 100%']];
+ return '<div class="body"><div class="kpis">'+kpi.map(function(x){return '<div class="card"><div class="eyebrow">'+x[0].toUpperCase()+'</div><div class="kpi" style="color:'+x[2]+'">'+x[1]+'</div>'+(x[3]?'<div class="note" style="margin-top:6px">'+esc(x[3])+'</div>':'')+'</div>';}).join('')+'</div>'+
+ critFilterCard()+
+ '<div class="card"><div class="eyebrow">OVERVIEW — OD DEGUSTACJI DO WDROŻENIA</div>'+
+ [['Przetestowane',A.length,C.claret],['Wybrane do transferu',wybrane.length,C.coral],['Projekty w fazie on-going',ongoing.length,C.pink],['Zakończone sukcesem',zakon.length,C.claret]].map(function(x){
+  var pct=A.length?Math.round(x[1]/A.length*100):0;
+  return '<div style="margin:11px 0"><div class="row" style="justify-content:space-between;font-size:12px"><span>'+x[0]+'</span><strong>'+x[1]+' · '+pct+'%</strong></div>'+
+   '<div class="bar" style="margin-top:4px"><i style="width:'+pct+'%;background:'+x[2]+'"></i></div></div>';}).join('')+
+ '<div class="note">Kandydaci z oceną 4,0 i wyżej: '+top.length+' · bez decyzji: '+(A.length-wybrane.length-bez.length)+' · zajęta pamięć: '+kb+' KB</div></div>'+
+ '<div class="g2"><div class="card"><div class="eyebrow">ŚREDNIA OCENA WEDŁUG KATEGORII</div>'+
+ st.map(function(x){return '<div style="margin:11px 0"><div class="row" style="justify-content:space-between;font-size:12px"><span>'+esc(x.k)+' <span class="note">('+x.n+')</span></span><strong>'+x.a.toFixed(2)+'</strong></div>'+
+ '<div class="bar" style="margin-top:4px"><i style="width:'+(x.a/5*100)+'%"></i></div></div>';}).join('')+'</div>'+
+ '<div class="card"><div class="eyebrow">HISTORIA ACTION PLANÓW</div>'+
+ '<div class="note">Plany otwierasz, klikając nazwę produktu w Bazie. On-going: '+ongoing.length+' · zakończone sukcesem: '+zakon.length+'.</div>'+
+ (S.plans.length?'<div class="row" style="gap:6px;margin-top:10px">'+S.plans.map(function(p){
+   return '<button class="mini" data-open="'+esc(p.product)+'|x">'+esc(p.product)+' · '+esc(p.line)+' · '+(Number(p.progress)||0)+'%</button>';}).join('')+'</div>'+
+  '<button class="btn ghost" style="margin-top:12px" data-act="wipeplans">Usuń wszystkie plany ('+S.plans.length+')</button>':'')+'</div></div>'+
+ '<div class="card"><div class="eyebrow">TOP 10 INSPIRACJI DO PRZENIESIENIA</div><table><tbody>'+
+ top.slice(0,10).map(function(p,i){return '<tr><td style="width:26px;color:'+C.pink+'">'+(i+1)+'</td><td><button class="linkish" data-open="'+esc(p.nazwa)+'|'+esc(p.id)+'">'+esc(p.nazwa)+'</button><div class="note">'+esc(p.komentarz||p.nowe||'')+'</div></td><td style="width:42px;text-align:right"><strong>'+Number(p.ocena).toFixed(1)+'</strong></td></tr>';}).join('')+
+ '</tbody></table></div></div>';}
+
+function render(){
+ var sy=window.scrollY||0;
+ var T=[['scan','Skaner produktu'],['base','Baza ('+all().length+')'],['dash','Dashboard']];
+ document.getElementById('tabs').innerHTML=T.map(function(t){return '<button class="tab'+(S.tab===t[0]?' on':'')+'" data-tab="'+t[0]+'">'+t[1]+'</button>';}).join('');
+ document.getElementById('view').innerHTML=S.tab==='scan'?scanView():S.tab==='base'?baseView():S.tab==='plan'?planView():dashView();
+ var tb=document.getElementById('tryb');
+ if(tb)tb.textContent=ONLINE?('wspólna baza · '+(SYNC.busy?'zapisuję…':'aktualna')):'baza lokalna w tej przeglądarce';
+ langBar();
+ trDOM(document.getElementById('tabs'));trDOM(document.getElementById('view'));
+ trDOM(document.querySelector('.top'));trDOM(document.querySelector('.foot'));
+ trDOM(document.getElementById('msg'));
+ if(S.keepScroll){window.scrollTo(0,sy);}S.keepScroll=false;
+}
+
+/* --- AI --- */
+function callAI(body,ok,err){
+ fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+ .then(function(r){return r.json();}).then(function(d){
+  var t=(d.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n');
+  var c=t.replace(/```json|```/g,'').trim();ok(JSON.parse(c.slice(c.indexOf('{'),c.lastIndexOf('}')+1)));
+ }).catch(function(){err();});
+}
+function readLabel(){var d=S.draft;if(!d.photos.length)return flash('Najpierw wgraj co najmniej jedno zdjęcie.',1);
+ S.busy=true;render();flash('Analizuję '+d.photos.length+' zdjęć…');
+ var prompt='Jesteś technologiem żywności. Przeanalizuj wszystkie powyższe zdjęcia JEDNEGO produktu spożywczego — każde jest opisane rolą (front opakowania, tył z etykietą, produkt wyjęty z opakowania, detal).\n'+
+ 'Nazwę, markę i deklaracje odczytaj z frontu. Skład, alergeny i tabelę wartości odżywczych odczytaj z tyłu / etykiety. Wygląd, barwę, kształt, przekrój i domniemaną konsystencję opisz na podstawie zdjęcia produktu.\n'+
+ 'Zwróć WYŁĄCZNIE JSON bez komentarza:\n'+
+ '{"nazwa":"","marka":"","kat":"jedna z: '+KATS.join(" | ")+'","sklad":"pełna lista składników","alergeny":"","claims":"deklaracje z opakowania","nowe":"co jest nowe lub ciekawe z perspektywy R&D, 1 zdanie","wyglad":"opis wyglądu i konsystencji ze zdjęcia produktu, 1-2 zdania","nutri":{"energia_kcal":"","tluszcz":"","nasycone":"","weglowodany":"","cukry":"","blonnik":"","bialko":"","sol":""}}\n'+
+ 'Wartości odżywcze na 100 g, liczby bez jednostek. Jeżeli czegoś nie widać na żadnym zdjęciu, wpisz "?" — nie zgaduj.\nPola opisowe napisz w jezyku: '+JEZYK()+'.';
+ var content=[];
+ d.photos.forEach(function(p){var mt=p.src.slice(5,p.src.indexOf(';')),b64=p.src.slice(p.src.indexOf(',')+1);
+  content.push({type:'text',text:'Zdjęcie — '+p.type+':'});
+  content.push({type:'image',source:{type:'base64',media_type:mt||'image/jpeg',data:b64}});});
+ content.push({type:'text',text:prompt});
+ callAI({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:content}]},
+ function(j){['nazwa','marka','sklad','alergeny','claims','nowe','wyglad'].forEach(function(k){if(j[k])d[k]=j[k];});
+  if(KATS.indexOf(j.kat)>-1)d.kat=j.kat;
+  if(j.nutri)NUTRI.forEach(function(n){if(j.nutri[n[0]]!=null&&j.nutri[n[0]]!=='')d.nutri[n[0]]=j.nutri[n[0]];});
+  S.busy=false;render();flash('Odczyt gotowy. Sprawdź i popraw pola — dane pochodzą z AI i mogą być niepełne.');},
+ function(){S.busy=false;render();flash('Odczyt AI niedostępny w tym trybie (plik otwarty lokalnie, bez połączenia z modelem). Wpisz skład i wartości ręcznie — reszta narzędzia działa normalnie.',1);});
+}
+function enrich(id){var p=S.plans.filter(function(x){return x.id===id;})[0];if(!p)return;S.busy=true;render();flash('Uszczegóławiam harmonogram…');
+ var prompt='Jesteś kierownikiem projektów NPD w firmie produkującej batony, granolę, owsianki i ekstrudaty zbożowe.\nProdukt inspiracja: "'+p.product+'". Kierunek do odtworzenia: "'+p.flavour+'". Linia docelowa: "'+p.line+'".\nUszczegółowij 8-tygodniowy harmonogram. Zwróć WYŁĄCZNIE JSON: {"weeks":[{"nr":1,"title":"","tasks":""}, ... 8 pozycji]}\nZadania konkretne i technologiczne (poziomy dodatków, parametry procesu, rodzaj testu), w jezyku: '+JEZYK()+', max 220 znaków na krok. Bez nazw osób.';
+ callAI({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]},
+ function(j){(j.weeks||[]).forEach(function(x){var w=p.weeks.filter(function(y){return y.nr===Number(x.nr);})[0];if(w){if(x.title)w.title=x.title;if(x.tasks)w.tasks=x.tasks;}});
+  S.busy=false;save();render();flash('Plan uszczegółowiony przez AI. Zweryfikuj zadania przed wysłaniem do zespołu.');},
+ function(){S.busy=false;render();flash('Uszczegółowienie AI niedostępne w tym trybie. Zostaje wersja szablonowa — edytuj zadania ręcznie w kartach tygodni.',1);});
+}
+
+/* zapis oceny: zdjęcia zmniejszane do 760 px, żeby pamięć telefonu nie zapełniła się po kilku produktach */
+function burn(){
+ var ids=['view','tabs','msg'],zap={};
+ ids.forEach(function(k){var el=document.getElementById(k);zap[k]=el.innerHTML;el.innerHTML='';});
+ var html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+ ids.forEach(function(k){document.getElementById(k).innerHTML=zap[k];});
+ var TAG='<'+'script>',ETAG='<'+'/'+'script>';
+ html=html.replace(new RegExp(TAG+'window\\.PRELOAD=[\\s\\S]*?'+ETAG+'\\s*'),'');
+ var dane={items:S.items,plans:S.plans,dec:S.dec,imgs:S.imgs,stan:new Date().toISOString().slice(0,10)};
+ var pre=TAG+'window.PRELOAD='+JSON.stringify(dane).replace(/<\//g,'<\\/')+';'+ETAG+'\n';
+ var i=html.indexOf(TAG);
+ if(i<0)return flash('Nie udało się przygotować pliku.',1);
+ html=html.slice(0,i)+pre+html.slice(i);
+ var mb=Math.round(html.length/1048576*10)/10;
+ dl(html,'Inno_Session_Lab_baza_'+dane.stan+'.html','text/html');
+ flash('Gotowe: plik z wpisaną bazą ('+mb+' MB) — '+S.items.length+' ocen, '+S.plans.length+' planów. Wrzuć go na SharePoint zamiast poprzedniej wersji.');}
+
+function bulkImport(files){
+ var map=fileMap(),list=Array.prototype.slice.call(files),left=list.length,ok=0,miss=[];
+ flash('Wczytuję '+left+' plików…');
+ list.forEach(function(f){
+  var nazwa=map[(f.name||'').toLowerCase()];
+  if(!nazwa){miss.push(f.name);if(--left===0)done();return;}
+  var fr=new FileReader();
+  fr.onload=function(){shrink(fr.result,1000,.78).then(function(src){
+   var arr=photosFor(nazwa);
+   if(arr.length<6&&!arr.some(function(x){return x.name===f.name;}))
+    {arr.push({src:src,type:PTYPES[Math.min(arr.length,PTYPES.length-1)],name:f.name});ok++;}
+   if(--left===0)done();});};
+  fr.onerror=function(){miss.push(f.name);if(--left===0)done();};
+  fr.readAsDataURL(f);});
+ function done(){save();render();
+  flash('Przypisano '+ok+' zdjęć do produktów.'+(miss.length?' Bez dopasowania ('+miss.length+'): '+miss.slice(0,4).join(', ')+(miss.length>4?'…':''):''),miss.length?1:0);}}
+
+function shrink(src,max,q){return new Promise(function(res){
+ var done=false,fin=function(v){if(!done){done=true;res(v);}};
+ setTimeout(function(){fin(src);},4000);
+ if(String(src).length<40000)return fin(src);
+ var img=new Image();
+ img.onload=function(){try{var s=Math.min(1,max/Math.max(img.width,img.height)),cv=document.createElement('canvas');
+  cv.width=Math.round(img.width*s);cv.height=Math.round(img.height*s);
+  cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);fin(cv.toDataURL('image/jpeg',q));}catch(e){fin(src);}};
+ img.onerror=function(){fin(src);};img.src=src;});}
+
+function saveItem(){var d=S.draft;
+ if(!d.nazwa.trim())return flash('Wpisz nazwę produktu przed zapisem.',1);
+ var v=Number(indexOf(d.scores).toFixed(1));
+ flash('Zapisuję ocenę i zmniejszam zdjęcia…');
+ Promise.all(d.photos.map(function(p){return shrink(p.src,760,.7).then(function(src){return {src:src,type:p.type};});}))
+ .then(function(ph){
+  S.items.unshift({id:'u'+Date.now(),data:new Date().toISOString().slice(0,10),nazwa:d.nazwa,marka:d.marka,kat:d.kat,
+   sklad:d.sklad,alergeny:d.alergeny,claims:d.claims,nowe:d.nowe,wyglad:d.wyglad,komentarz:d.komentarz,
+   nutri:d.nutri,scores:d.scores,targets:d.targets,photos:ph,ocena:v,source:'sesja'});
+  save();S.draft=emptyDraft();S.tab='base';render();
+  flash('Zapisano: '+S.items[0].nazwa+' — indeks '+v+'/5.');});}
+
+/* --- eksport --- */
+function csv(){var r=[['Nr','Data','Nazwa','Kategoria','Indeks 1-5','Co nowe','Wygląd','Wniosek / insight','Decyzja transferu','Postęp projektu','Liczba zdjęć','Źródło']];
+ shown().forEach(function(p,i){r.push([i+1,p.data||'',p.nazwa,p.kat,p.ocena==null?'':p.ocena,p.nowe||'',p.wyglad||'',p.komentarz||'',decOf(p).join(', ')||'brak decyzji',(decOf(p).indexOf(NOPE)>-1?'bez transferu':(progOf(p)===null?'brak planu':progOf(p)+'%')),(p.photos||[]).length,p.source]);});
+ S.plans.forEach(function(p){p.weeks.forEach(function(w){r.push(['PLAN',p.created,p.product+' -> '+p.line,'Krok '+w.nr+(w.date?' · '+plDate(w.date):''),'',w.title,'',w.tasks+' | '+w.role+' '+(w.initials||'?'),p.line,(Number(p.progress)||0)+'%'+(w.done?' · krok zrobiony':''),'','action plan']);});});
+ dl('\ufeff'+r.map(function(x){return x.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(';');}).join('\n'),'inno_session_export.csv','text/csv');}
+function dl(txt,name,type){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:type}));a.download=name;a.click();}
+
+/* --- zdarzenia --- */
+document.addEventListener('click',function(e){
+ if(e.target.closest('.lightbox')){e.target.closest('.lightbox').remove();return;}
+ var z=e.target.closest('[data-zoom]');
+ if(z){var lb=document.createElement('div');lb.className='lightbox';
+  lb.innerHTML='<img src="'+S.draft.photos[Number(z.dataset.zoom)].src+'" alt="Powiększenie">';document.body.appendChild(lb);return;}
+ var z2=e.target.closest('[data-zoom2]');
+ if(z2){var lb2=document.createElement('div');lb2.className='lightbox';
+  lb2.innerHTML='<img src="'+photosFor(S.open)[Number(z2.dataset.zoom2)].src+'" alt="Powiększenie">';document.body.appendChild(lb2);return;}
+ var r2=e.target.closest('[data-rp2]');
+ if(r2){photosFor(S.open).splice(Number(r2.dataset.rp2),1);save();S.keepScroll=true;render();return;}
+ var op=e.target.closest('[data-open]');
+ if(op){var xo=op.dataset.open.split('|');
+  openPlan(xo[0],decOf({id:xo[1],targets:curTargets(xo[1])}));
+  flash(planFor(xo[0])?null:'Ten produkt nie ma jeszcze action planu — utwórz go w formularzu poniżej.');return;}
+ var lg=e.target.closest('[data-lang]');
+ if(lg){setLang(lg.dataset.lang);return;}
+ var nt=e.target.closest('[data-npt]');if(nt){NP.tmpl=nt.dataset.npt==='1';S.keepScroll=true;render();return;}
+ var pc=e.target.closest('[data-pc]');
+ if(pc){var pp2=S.plans.filter(function(y){return y.id===pc.dataset.pc;})[0];
+  if(pp2){var stt=stepsDone(pp2);if(!stt.t)return flash('Plan nie ma jeszcze kroków.',1);
+   pp2.progress=Math.round(stt.d/stt.t*100);save();S.keepScroll=true;render();
+   flash('Postęp przeliczony z kroków: '+pp2.progress+'% ('+stt.d+' z '+stt.t+').');}return;}
+ var aw=e.target.closest('[data-aw]');
+ if(aw){var pid=aw.dataset.aw,pa=S.plans.filter(function(y){return y.id===pid;})[0];
+  if(pa){var last=pa.weeks[pa.weeks.length-1],nr=last?last.nr+1:1,tit=(NS[pid]||'').trim();
+   if(!tit)return flash('Wpisz tytuł kroku przed dodaniem.',1);
+   pa.weeks.push({nr:nr,title:tit,role:'Technolog R&D',initials:'',tasks:'',date:last&&last.date?addDays(last.date,7):(pa.start?addDays(pa.start,pa.weeks.length*7):'')});
+   NS[pid]='';save();S.keepScroll=true;render();flash('Dodano krok '+nr+': '+tit+'.');}return;}
+ var sh=e.target.closest('[data-wsh]');
+ if(sh){var xs=sh.dataset.wsh.split('|'),ps=S.plans.filter(function(y){return y.id===xs[0];})[0];
+  if(ps){var ws=ps.weeks.filter(function(y){return y.nr===Number(xs[1]);})[0];
+   if(ws){var dni=Number(xs[2]);
+    if(dni===0)ws.date=ymd(new Date());
+    else{var baza=ws.date||ps.start||ymd(new Date());ws.date=addDays(baza,dni);}
+    save();S.keepScroll=true;render();}}return;}
+ var mw=e.target.closest('[data-mw]');
+ if(mw){var xm=mw.dataset.mw.split('|'),pm=S.plans.filter(function(y){return y.id===xm[0];})[0];
+  if(pm){var i0=pm.weeks.map(function(y){return y.nr;}).indexOf(Number(xm[1])),j0=i0+Number(xm[2]);
+   if(i0>-1&&j0>=0&&j0<pm.weeks.length){var dts=pm.weeks.map(function(y){return y.date;});
+    var tmp=pm.weeks[i0];pm.weeks[i0]=pm.weeks[j0];pm.weeks[j0]=tmp;
+    pm.weeks.forEach(function(y,k){y.nr=k+1;y.date=dts[k];});
+    save();S.keepScroll=true;render();}}return;}
+ var dw=e.target.closest('[data-dw]');
+ if(dw){var xd=dw.dataset.dw.split('|'),pd=S.plans.filter(function(y){return y.id===xd[0];})[0];
+  if(pd){pd.weeks=pd.weeks.filter(function(y){return y.nr!==Number(xd[1]);}).map(function(y,i){return Object.assign(y,{nr:i+1});});
+   save();S.keepScroll=true;render();}return;}
+ var t=e.target.closest('[data-tab],[data-act],[data-s],[data-tg],[data-del],[data-ai],[data-dp],[data-rp]');if(!t)return;
+ var d=S.draft;
+ if(t.dataset.rp){d.photos.splice(Number(t.dataset.rp),1);render();return;}
+ if(t.dataset.tab){S.tab=t.dataset.tab;render();return;}
+ if(t.dataset.s){d.scores[t.dataset.s]=Number(t.dataset.v);render();return;}
+ if(t.dataset.tg){var tg=t.dataset.tg,i=d.targets.indexOf(tg);
+  if(i>-1)d.targets.splice(i,1);
+  else if(tg===NOPE)d.targets=[NOPE];
+  else d.targets=d.targets.filter(function(x){return x!==NOPE;}).concat([tg]);
+  render();return;}
+ if(t.dataset.del){if(!window.confirm(tr('Usunąć ocenę tego produktu?')))return;
+  S.items=S.items.filter(function(x){return x.id!==t.dataset.del;});save();render();return;}
+ if(t.dataset.ai){enrich(t.dataset.ai);return;}
+ if(t.dataset.dp){if(!window.confirm(tr('Usunąć action plan tego produktu?')))return;
+  S.plans=S.plans.filter(function(x){return x.id!==t.dataset.dp;});save();S.tab='base';S.open=null;render();
+  flash('Plan usunięty.');return;}
+ var a=t.dataset.act;
+ if(a==='pick'){document.getElementById('ph').click();}
+ else if(a==='shoot'){document.getElementById('cam').click();}
+ else if(a==='pick2'){document.getElementById('ph2').click();}
+ else if(a==='shoot2'){document.getElementById('cam2').click();}
+ else if(a==='delphoto'){d.photos=[];render();}
+ else if(a==='read'){readLabel();}
+ else if(a==='clear'){S.draft=emptyDraft();render();flash(null);}
+ else if(a==='save'){saveItem();}
+ else if(a==='toBase'){S.tab='base';S.open=null;render();flash(null);}
+ else if(a==='addplan'){
+  if(!NP.product.trim())return flash('Wpisz nazwę produktu lub inspiracji.',1);
+  var ex=planFor(NP.product.trim());
+  if(ex){var ch=switchLine(ex,NP.line);
+   if(NP.start){ex.start=NP.start;if(ex.weeks.length)spread(ex,NP.start);}
+   S.open=ex.product;save();NP.flavour='';NP.start='';render();
+   return flash(ch?'Ten produkt ma już plan — linia docelowa zmieniona na '+ex.line+'.':'Ten produkt ma już plan na linii '+ex.line+'. Jeden produkt = jeden plan.');}
+  var np={id:'p'+Date.now(),product:NP.product.trim(),line:NP.line,flavour:NP.flavour.trim()||NP.product.trim(),
+   created:new Date().toISOString().slice(0,10),start:NP.start||'',progress:0,
+   weeks:NP.tmpl?plan8(NP.line,NP.product.trim(),NP.flavour.trim()||NP.product.trim()):[]};
+  if(NP.start&&np.weeks.length)spread(np,NP.start);
+  S.plans.unshift(np);S.open=np.product;
+  var it=itemByName(np.product);
+  if(it){var cd=decOf(it).filter(function(x){return x!==NOPE;});if(cd.indexOf(np.line)<0)cd.push(np.line);S.dec[it.id]=cd;}
+  save();NP.flavour='';NP.start='';render();
+  flash('Plan utworzony: '+np.product+' → '+np.line+(np.weeks.length?'.':'. Dodaj kroki w karcie „Nowy krok”.'));}
+ else if(a==='wipeplans'){
+  if(!S.plans.length)return;
+  if(!window.confirm(tr('Usunąć wszystkie plany ('+S.plans.length+')? Tego nie da się cofnąć — najpierw zrób Kopię JSON.')))return;
+  S.plans=[];S.open=null;save();render();flash('Historia action planów wyczyszczona. Nowy plan utworzysz, klikając produkt w Bazie.');}
+ else if(a==='burn'){burn();}
+ else if(a==='csv'){csv();}
+ else if(a==='json'){dl(JSON.stringify({items:S.items,plans:S.plans,dec:S.dec,imgs:S.imgs},null,1),'inno_session_kopia.json','application/json');}
+ else if(a==='print'){window.print();}
+});
+document.addEventListener('input',function(e){var el=e.target,d=S.draft;
+ if(el.dataset.ns){NS[el.dataset.ns]=el.value;return;}
+ if(el.dataset.np){NP[el.dataset.np]=el.value;return;}
+ if(el.dataset.f){d[el.dataset.f]=el.value;}
+ else if(el.dataset.n){d.nutri[el.dataset.n]=el.value;}
+ else if(el.id==='q'){S.q=el.value;}
+ else if(el.dataset.w){var x=el.dataset.w.split('|');if(x[2]==='date')return;
+  var p=S.plans.filter(function(y){return y.id===x[0];})[0];
+  if(p){var w=p.weeks.filter(function(y){return y.nr===Number(x[1]);})[0];if(w){w[x[2]]=x[2]==='initials'?el.value.toUpperCase():el.value;save();}}}
+});
+document.addEventListener('change',function(e){var el=e.target;
+ if((el.id==='ph'||el.id==='cam')&&el.files&&el.files.length){addPhotos(el.files);el.value='';}
+ else if((el.id==='ph2'||el.id==='cam2')&&el.files&&el.files.length){addPhotos(el.files,photosFor(S.open));el.value='';}
+ else if(el.id==='bulk'&&el.files&&el.files.length){bulkImport(el.files);el.value='';}
+ else if(el.id==='impimg'&&el.files&&el.files[0]){var f3=new FileReader();f3.onload=function(){try{
+   var j=JSON.parse(f3.result),src=j.imgs||j,n=0;
+   Object.keys(src).forEach(function(k){var arr=Array.isArray(src[k])?src[k]:[src[k]];
+    var tgt=photosFor(k);
+    arr.forEach(function(x){var o=(typeof x==='string')?{src:x,type:PTYPES[0]}:x;
+     if(tgt.length<6&&!tgt.some(function(y){return y.src===o.src;})){tgt.push(o);n++;}});});
+   save();render();flash('Wczytano '+n+' zdjęć z paczki i przypisano do produktów.');}
+   catch(err){flash('Plik nie jest poprawną paczką zdjęć JSON.',1);}};f3.readAsText(el.files[0]);el.value='';}
+ else if(el.dataset.pt){S.draft.photos[Number(el.dataset.pt)].type=el.value;}
+ else if(el.dataset.pt2){photosFor(S.open)[Number(el.dataset.pt2)].type=el.value;save();}
+ else if(el.dataset.np){NP[el.dataset.np]=el.value;}
+ else if(el.id==='fk'){S.kat=el.value;S.keepScroll=true;render();}
+ else if(el.id==='fd'){S.decf=el.value;S.keepScroll=true;render();}
+ else if(el.id==='dfc'){DF.crit=el.value;S.keepScroll=true;render();}
+ else if(el.id==='dfm'){DF.min=Number(el.value);S.keepScroll=true;render();}
+ else if(el.dataset.pl){var pll=S.plans.filter(function(y){return y.id===el.dataset.pl;})[0];
+  if(pll){switchLine(pll,el.value);save();S.keepScroll=true;render();
+   flash('Linia docelowa zmieniona na '+el.value+'. Krok próby technologicznej dopasowano do linii.');}}
+ else if(el.dataset.pg){var pg=S.plans.filter(function(y){return y.id===el.dataset.pg;})[0];
+  if(pg){pg.progress=Number(el.value);save();S.keepScroll=true;render();}}
+ else if(el.dataset.wd){var xz=el.dataset.wd.split('|'),pz=S.plans.filter(function(y){return y.id===xz[0];})[0];
+  if(pz){var wz=pz.weeks.filter(function(y){return y.nr===Number(xz[1]);})[0];
+   if(wz){wz.done=el.checked;save();S.keepScroll=true;render();}}}
+ else if(el.dataset.w){var xw=el.dataset.w.split('|');
+  if(xw[2]==='date'){var pl2=S.plans.filter(function(y){return y.id===xw[0];})[0];
+   if(pl2){var wk=pl2.weeks.filter(function(y){return y.nr===Number(xw[1]);})[0];
+    if(wk){wk.date=el.value;save();S.keepScroll=true;render();}}}}
+ else if(el.dataset.ps){var pp=S.plans.filter(function(y){return y.id===el.dataset.ps;})[0];
+  if(pp){if(!el.value){pp.start='';pp.weeks.forEach(function(w){w.date='';});flash('Terminy wyczyszczone.');}
+   else{pp.start=el.value;spread(pp,el.value);flash(pp.weeks.length?'Harmonogram rozpisany: '+plDate(pp.weeks[0].date)+' — '+plDate(pp.weeks[pp.weeks.length-1].date)+'.':'Data startu zapisana.');}
+   save();S.keepScroll=true;render();}}
+ else if(el.id==='q'){S.q=el.value;S.keepScroll=true;render();}
+ else if(el.id==='imp'&&el.files&&el.files[0]){var f2=new FileReader();f2.onload=function(){try{var j=JSON.parse(f2.result);
+   var n=mergeState(j,'scal');save();render();
+   flash('Scalono kopię: dodano '+n.i+' ocen, '+n.p+' planów, '+n.g+' zdjęć. Nic nie zostało nadpisane.');}
+   catch(err){flash('Plik nie jest poprawną kopią JSON.',1);}};f2.readAsText(el.files[0]);}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.id==='q'){S.keepScroll=true;render();}});
+/* przeciągnij i upuść zdjęcia w Skanerze */
+document.addEventListener('dragover',function(e){if(S.tab==='scan'){e.preventDefault();}});
+document.addEventListener('drop',function(e){if(S.tab!=='scan')return;e.preventDefault();
+ if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files.length)addPhotos(e.dataTransfer.files);});
+load();render();
+if(ONLINE){
+ pull(false).then(function(){render();
+  flash('Wspólna baza online: '+S.items.length+' ocen, '+S.plans.length+' projektów. Zmiany innych osób pojawiają się automatycznie.');});
+ setInterval(function(){
+  if(S.busy||SYNC.busy)return;
+  pull(true).then(function(zmiana){if(zmiana){S.keepScroll=true;render();}});},12000);
+ window.addEventListener('focus',function(){pull(true).then(function(z){if(z){S.keepScroll=true;render();}});});
+}
+</script>

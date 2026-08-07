@@ -5,7 +5,8 @@ from . import views
 app_name = 'inno_lab'
 
 urlpatterns = [
-    path('', views.dashboard, name='dashboard'),
+    path('', views.original_app, name='app'),
+    path('panel/', views.dashboard, name='dashboard'),
     path('skaner/', views.product_create, name='scan'),
     path('baza/', views.base_list, name='base'),
     path('baza/eksport.csv', views.export_csv, name='export_csv'),

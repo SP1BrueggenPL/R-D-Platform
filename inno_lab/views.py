@@ -1,6 +1,7 @@
 import csv
 import datetime
 import json
+from pathlib import Path
 
 from django.conf import settings
 from django.contrib import messages
@@ -8,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from . import planning
@@ -17,6 +19,28 @@ from .models import PlanStep, Product, ProductPhoto, TransferPlan
 from .services import ai as ai_service
 
 PHOTO_LIMIT = 6
+
+# --------------------------------------------------------------------------
+# Original standalone tool, served byte-for-byte as-is (per explicit request:
+# do not alter its markup/CSS/JS/data in any way). The ONLY change made to
+# the response is prepending one small "back to platform" link into the
+# static top bar — nothing inside it is touched by the Django template
+# engine, so nothing in the file's own JS/CSS can be misinterpreted as
+# template syntax.
+# --------------------------------------------------------------------------
+_ORIGINAL_HTML_PATH = Path(__file__).resolve().parent / 'legacy' / 'inno_session_lab.html'
+
+
+@login_required
+def original_app(request):
+    html = _ORIGINAL_HTML_PATH.read_text(encoding='utf-8')
+    back_link = (
+        f'<a class="btn ghost" href="{reverse("core:hub")}" '
+        f'style="background:transparent;color:#fff;border-color:#fff">'
+        f'← Powrót do platformy</a>'
+    )
+    html = html.replace('<div class="top">', f'<div class="top">{back_link}', 1)
+    return HttpResponse(html, content_type='text/html; charset=utf-8')
 
 
 # --------------------------------------------------------------------------

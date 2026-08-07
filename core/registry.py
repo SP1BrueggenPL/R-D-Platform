@@ -14,7 +14,7 @@ RD_PROCESSES = [
             'Skanowanie i ocena produktów konkurencji z targów i sesji innowacji, '
             'oraz plany transferu inspiracji na linie produkcyjne.'
         ),
-        'url_name': 'inno_lab:dashboard',
+        'url_name': 'inno_lab:app',
         'enabled': True,
     },
 ]
