@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load inno_lab_extras %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+{% include "inno_lab/_tabs.html" with active="dashboard" %}
+<div class="wrap">
+
+<div class="g3" style="grid-template-columns:repeat(5,1fr)">
+  <div class="card"><div class="kpi">{{ total }}</div><div class="kpi-label">Przetestowane produkty</div><div class="note">w sesjach: {{ sesja }} · z archiwum: {{ archiwum }}</div></div>
+  <div class="card"><div class="kpi">{{ selected }}</div><div class="kpi-label">Wybrane do transferu</div></div>
+  <div class="card"><div class="kpi">{{ no_transfer }}</div><div class="kpi-label">Bez transferu</div></div>
+  <div class="card"><div class="kpi">{{ ongoing }}</div><div class="kpi-label">Projekty w fazie on-going</div></div>
+  <div class="card"><div class="kpi">{{ done }}</div><div class="kpi-label">Zakończone sukcesem</div></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">Filtr projektów według oceny cechy</div>
+  <form method="get" class="row">
+    <select name="crit">
+      <option value="overall" {% if crit_key == "overall" %}selected{% endif %}>Ocena łączna</option>
+      {% for key, label, weight in crit %}<option value="{{ key }}" {% if key == crit_key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <select name="min">
+      {% for i in "12345" %}<option value="{{ i }}" {% if i|add:"0" == crit_min %}selected{% endif %}>co najmniej {{ i }}</option>{% endfor %}
+    </select>
+    <button class="btn ghost" type="submit">Zastosuj</button>
+  </form>
+  <p class="note" style="margin-top:8px">{{ crit_count }} produkt(y/ów) spełnia(ją) warunek „{{ crit_label }} ≥ {{ crit_min }}”.</p>
+  <table>
+    <thead><tr><th>Produkt</th><th>{{ crit_label }}</th><th>Ocena</th><th>Transfer</th><th>Postęp</th></tr></thead>
+    <tbody>
+      {% for p in crit_results %}
+      <tr>
+        <td><a href="{% url 'inno_lab:plan' p.pk %}">{{ p.name }}</a></td>
+        <td>{% if crit_key != "overall" %}{{ p|attr:crit_key }}{% else %}—{% endif %}</td>
+        <td>{{ p.overall_score }}</td>
+        <td>{{ p.target_lines|join:", "|default:"—" }}</td>
+        <td>{% if p.has_plan %}{{ p.plan.progress }}%{% else %}—{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if crit_truncated %}<p class="note">Pokazano 25 z {{ crit_count }} — zawęź kryterium.</p>{% endif %}
+</div>
+
+<div class="card">
+  <div class="eyebrow">Overview — od degustacji do wdrożenia</div>
+  <div class="note">Przetestowane: {{ total }}</div><div class="bar"><i style="width:100%"></i></div>
+  <div class="note" style="margin-top:8px">Wybrane do transferu: {{ selected }} ({% widthratio selected total 100 %}%)</div><div class="bar"><i style="width:{% widthratio selected total 100 %}%"></i></div>
+  <div class="note" style="margin-top:8px">Projekty w fazie on-going: {{ ongoing }}</div><div class="bar"><i style="width:{% widthratio ongoing total 100 %}%"></i></div>
+  <div class="note" style="margin-top:8px">Zakończone sukcesem: {{ done }}</div><div class="bar"><i style="width:{% widthratio done total 100 %}%"></i></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">Średnia ocena według kategorii</div>
+  {% for c in category_avg %}
+    <div class="note" style="margin-top:8px">{{ c.kat }} — {{ c.avg|floatformat:1 }} ({{ c.n }})</div>
+    <div class="bar"><i style="width:{% widthratio c.avg max_avg 100 %}%"></i></div>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="eyebrow">Historia action planów</div>
+  <div class="row">
+    {% for pl in plans_summary %}
+      <a class="chip" style="background:var(--claret)" href="{% url 'inno_lab:plan' pl.product.pk %}">{{ pl.product.name }} · {{ pl.line }} · {{ pl.progress }}%</a>
+    {% empty %}<span class="note">Brak action planów.</span>{% endfor %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">Top 10 inspiracji do przeniesienia</div>
+  <table>
+    <thead><tr><th>#</th><th>Produkt</th><th>Ocena</th><th>Co nowe / wniosek</th></tr></thead>
+    <tbody>
+      {% for p in top10 %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td><a href="{% url 'inno_lab:plan' p.pk %}">{{ p.name }}</a></td>
+        <td>{{ p.overall_score }}</td>
+        <td>{{ p.whats_new|default:p.conclusion }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</div>
+{% endblock %}

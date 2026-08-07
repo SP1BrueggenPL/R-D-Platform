@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Logowanie{% endblock %}
+{% block content %}
+<div class="wrap" style="max-width:420px">
+  <div class="card">
+    <div class="eyebrow">Platforma R&amp;D · Brüggen</div>
+    <h2 style="margin-bottom:6px">Logowanie chipem</h2>
+    <p class="note">Wpisz swój numer chip, aby zalogować się do platformy.</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <label for="id_chip_number">{{ form.chip_number.label }}</label>
+      {{ form.chip_number }}
+      {% if form.chip_number.errors %}<p class="note" style="color:var(--coral)">{{ form.chip_number.errors|join:', ' }}</p>{% endif %}
+      <button class="btn primary" style="width:100%;margin-top:16px" type="submit">Zaloguj</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

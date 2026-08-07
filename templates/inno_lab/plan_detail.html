@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Action plan · {{ product.name }}{% endblock %}
+{% block content %}
+{% include "inno_lab/_tabs.html" with active="base" %}
+<div class="wrap">
+<a class="mini" href="{% url 'inno_lab:base' %}">← Wróć do Bazy</a>
+
+<div class="card">
+  <div class="eyebrow">Action plan · utworzony {{ plan.created_at|date:"d.m.Y" }}</div>
+  <h2>{{ product.name }}</h2>
+  <div class="row" style="margin:10px 0">
+    <span class="pill" style="background:var(--claret)">Linia: {{ plan.line }}</span>
+    <span class="pill" style="background:var(--pink)">Kierunek: {{ plan.flavour|truncatechars:60 }}</span>
+    <span class="pill" style="background:var(--steel)">Kroki: {{ steps|length }}</span>
+    <span class="pill" style="background:var(--gold);color:var(--claret)">Postęp: {{ plan.progress }}%</span>
+    <span class="pill" style="background:var(--char)">Właściciele: {{ owners_done }}/{{ steps|length }}</span>
+  </div>
+  <div class="row">
+    <button class="btn primary" type="submit" form="ai-enrich-form" {% if not ai_enabled %}disabled{% endif %}>Uszczegółowij zadania (AI)</button>
+    <form id="ai-enrich-form" method="post" action="{% url 'inno_lab:ai_enrich_plan' plan.pk %}" style="display:none">{% csrf_token %}</form>
+    <form method="post" action="{% url 'inno_lab:plan_delete' plan.pk %}" onsubmit="return confirm('Usunąć action plan tego produktu?');">
+      {% csrf_token %}<button type="submit" class="btn danger">Usuń plan</button>
+    </form>
+  </div>
+  {% if not ai_enabled %}<p class="note">Funkcje AI (Azure GPT-4o) nie są jeszcze skonfigurowane.</p>{% endif %}
+</div>
+
+<div class="card">
+  <div class="eyebrow">Zdjęcia produktu ({{ product.photos.count }}/6)</div>
+  {% if product.photos.all %}
+    <div class="thumbs">
+      {% for photo in product.photos.all %}
+        <div class="thumb">
+          <img src="{{ photo.image.url }}" alt="">
+          <form method="post" action="{% url 'inno_lab:photo_set_type' photo.pk %}">
+            {% csrf_token %}
+            <select name="photo_type" onchange="this.form.submit()">
+              {% for t in ptypes %}<option value="{{ t }}" {% if t == photo.photo_type %}selected{% endif %}>{{ t }}</option>{% endfor %}
+            </select>
+          </form>
+          <form method="post" action="{% url 'inno_lab:photo_delete' photo.pk %}">
+            {% csrf_token %}<button type="submit" class="mini" style="width:100%;margin-top:5px">Usuń</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  <form method="post" action="{% url 'inno_lab:photo_add' product.pk %}" enctype="multipart/form-data" style="margin-top:10px">
+    {% csrf_token %}
+    <input type="file" name="photos" accept="image/*" multiple>
+    <button class="btn ghost" type="submit" style="margin-top:8px">Dodaj zdjęcia</button>
+  </form>
+</div>
+
+<div class="card">
+  <div class="eyebrow">Ustawienia planu</div>
+  <form method="post" action="{% url 'inno_lab:plan_edit' plan.pk %}">
+    {% csrf_token %}
+    <div class="g3">
+      <div><label>{{ edit_form.start_date.label }}</label>{{ edit_form.start_date }}</div>
+      <div><label>{{ edit_form.line.label }}</label>{{ edit_form.line }}</div>
+      <div><label>{{ edit_form.progress.label }}</label>{{ edit_form.progress }}</div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn ghost" type="submit">Zapisz ustawienia</button>
+    </div>
+  </form>
+  <form method="post" action="{% url 'inno_lab:plan_recalc' plan.pk %}" style="margin-top:6px">
+    {% csrf_token %}<button class="btn mini" type="submit">Przelicz z kroków (d/t)</button>
+  </form>
+</div>
+
+<div class="weeks">
+  {% for step in steps %}
+  <div>
+    <div class="weekhead"><span>Krok {{ step.nr }} · {{ step.date|date:"d.m.Y"|default:"—" }}</span></div>
+    <div class="weekbox">
+      <form method="post" action="{% url 'inno_lab:step_edit' step.pk %}">
+        {% csrf_token %}
+        <label>Nazwa kroku</label>
+        <input type="text" name="title" value="{{ step.title }}">
+        <label>Termin kroku — wybierz datę</label>
+        <input type="date" name="date" value="{{ step.date|date:'Y-m-d' }}">
+        <label>Zadania</label>
+        <textarea name="tasks" rows="3">{{ step.tasks }}</textarea>
+        <label>Rola odpowiedzialna</label>
+        <select name="role">{% for r in roles %}<option value="{{ r }}" {% if r == step.role %}selected{% endif %}>{{ r }}</option>{% endfor %}</select>
+        <label>Inicjały</label>
+        <input type="text" name="initials" maxlength="4" placeholder="np. AK" style="text-transform:uppercase" value="{{ step.initials }}">
+        <label style="display:flex;align-items:center;gap:6px;margin-top:8px">
+          <input type="checkbox" name="done" {% if step.done %}checked{% endif %}> Krok zrobiony
+        </label>
+        <div class="row" style="margin-top:10px">
+          <button class="mini" type="submit">Zapisz krok</button>
+        </div>
+      </form>
+      <div class="row" style="margin-top:8px">
+        <form method="post" action="{% url 'inno_lab:step_edit' step.pk %}"><input type="hidden" name="action" value="shift"><input type="hidden" name="delta" value="-7">{% csrf_token %}<button class="mini" type="submit">− tydzień</button></form>
+        <form method="post" action="{% url 'inno_lab:step_edit' step.pk %}"><input type="hidden" name="action" value="shift"><input type="hidden" name="delta" value="7">{% csrf_token %}<button class="mini" type="submit">+ tydzień</button></form>
+        <form method="post" action="{% url 'inno_lab:step_edit' step.pk %}"><input type="hidden" name="action" value="today">{% csrf_token %}<button class="mini" type="submit">dziś</button></form>
+        <form method="post" action="{% url 'inno_lab:step_move' step.pk 'up' %}">{% csrf_token %}<button class="mini" type="submit" {% if forloop.first %}disabled{% endif %}>↑ wyżej</button></form>
+        <form method="post" action="{% url 'inno_lab:step_move' step.pk 'down' %}">{% csrf_token %}<button class="mini" type="submit" {% if forloop.last %}disabled{% endif %}>↓ niżej</button></form>
+        <form method="post" action="{% url 'inno_lab:step_delete' step.pk %}" onsubmit="return confirm('Usunąć krok?');">{% csrf_token %}<button class="mini" type="submit">Usuń krok</button></form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  <div>
+    <div class="weekhead"><span>Nowy krok {{ steps|length|add:1 }} · dodaj własny</span></div>
+    <div class="weekbox">
+      <form method="post" action="{% url 'inno_lab:step_add' plan.pk %}">
+        {% csrf_token %}
+        <label>{{ new_step_form.title.label }}</label>{{ new_step_form.title }}
+        <button class="btn ghost" type="submit" style="margin-top:10px">Dodaj krok</button>
+      </form>
+      <p class="note" style="margin-top:8px">Krok trafia na koniec harmonogramu, termin tydzień po poprzednim. Kolejność zmienisz strzałkami.</p>
+    </div>
+  </div>
+</div>
+
+<div class="hl" style="margin-top:16px">Zadania i terminy zatwierdza właściciel projektu. Wpisuj wyłącznie inicjały, bez pełnych danych osobowych.</div>
+
+</div>
+{% endblock %}

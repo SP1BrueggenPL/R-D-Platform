@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Baza{% endblock %}
+{% block content %}
+{% include "inno_lab/_tabs.html" with active="base" %}
+<div class="wrap">
+
+<div class="card">
+  <form method="get" class="row">
+    {{ form.q }}
+    {{ form.kat }}
+    {{ form.decf }}
+    <button class="btn ghost" type="submit">Filtruj</button>
+    <a class="btn ghost" href="{% url 'inno_lab:base' %}">Wyczyść</a>
+  </form>
+  <p class="note" style="margin-top:8px">{{ count }} pozycji, sortowanie od najwyższej oceny</p>
+  <div class="row" style="margin-top:8px">
+    <a class="btn ghost" href="{% url 'inno_lab:export_csv' %}?{{ request.GET.urlencode }}">Eksport CSV</a>
+    <a class="btn ghost" href="{% url 'inno_lab:export_json' %}">Kopia JSON</a>
+    <form method="post" action="{% url 'inno_lab:import_json' %}" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center">
+      {% csrf_token %}
+      <input type="file" name="backup" accept=".json" style="width:auto">
+      <button class="btn ghost" type="submit">Scal z kopią JSON</button>
+    </form>
+    <a class="btn ghost" href="{% url 'inno_lab:scan' %}">+ Nowa ocena</a>
+  </div>
+</div>
+
+<div class="card" style="overflow-x:auto">
+  <table>
+    <thead>
+      <tr><th>Produkt</th><th>Kategoria</th><th>Ocena</th><th>Postęp projektu</th><th>Co nowe / wniosek</th><th>Transfer na linię</th></tr>
+    </thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td>
+          {% with photo=p.photos.first %}
+            {% if photo %}<img class="tmini" src="{{ photo.image.url }}" style="width:52px;height:52px;object-fit:cover;border-radius:9px" alt="">
+            {% elif p.external_url %}<a class="mini" href="{{ p.external_url }}" target="_blank" rel="noopener">SP</a>{% endif %}
+          {% endwith %}
+          {% if p.pk %}<a href="{% url 'inno_lab:plan' p.pk %}"><strong>{{ p.name }}</strong></a>{% endif %}
+          {% if p.has_plan %}<span class="pill" style="background:var(--steel)">plan</span>{% endif %}
+          <div class="note">{{ p.date|default:"" }} · {{ p.source }}{% if p.photos.count > 1 %} · {{ p.photos.count }} zdj.{% endif %}</div>
+          {% if p.is_deletable %}
+            <form method="post" action="{% url 'inno_lab:product_delete' p.pk %}" onsubmit="return confirm('Usunąć ocenę?');" style="margin-top:4px">
+              {% csrf_token %}<button type="submit" class="mini">Usuń ocenę</button>
+            </form>
+          {% endif %}
+        </td>
+        <td>{{ p.category }}</td>
+        <td>
+          {% if p.overall_score %}
+            {{ p.overall_score }} <span class="pill" style="background:{{ p.verdict.color }}">{{ p.verdict.text }}</span>
+            <div class="bar" style="margin-top:6px"><i style="width:{% widthratio p.overall_score 5 100 %}%"></i></div>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if p.is_no_transfer %}Bez transferu — pasek postępu niepotrzebny
+          {% elif not p.has_plan %}Brak action planu
+          {% else %}Realizacja: {{ p.plan.progress }}%
+            <div class="bar" style="margin-top:6px"><i style="width:{{ p.plan.progress }}%"></i></div>
+            {{ p.plan.line }}
+          {% endif %}
+        </td>
+        <td>{{ p.whats_new|default:"—" }}<div class="note">{{ p.conclusion }}</div></td>
+        <td>
+          {% if p.target_lines %}
+            {% for line in p.target_lines %}
+              <span class="pill" style="background:{% if line == nope %}var(--steel){% else %}var(--claret){% endif %}">{{ line }}</span>
+            {% endfor %}
+          {% else %}<span class="note">Nie wybrano w Skanerze</span>{% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="note">Brak wyników.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</div>
+{% endblock %}

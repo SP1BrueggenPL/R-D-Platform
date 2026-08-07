@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Procesy R&amp;D{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="eyebrow">Platforma R&amp;D · Brüggen</div>
+  <h2>Procesy</h2>
+  <p class="note">Wybierz proces, w którym chcesz pracować. Nowe procesy będą dodawane tutaj.</p>
+  <div class="hub-grid">
+    {% for p in processes %}
+      <a class="hub-card{% if not p.enabled %} disabled{% endif %}" {% if p.enabled %}href="{% url p.url_name %}"{% endif %}>
+        <div class="mono" style="color:#fff">{{ p.name|slice:":1" }}</div>
+        <h3>{{ p.name }}</h3>
+        <div class="note" style="color:var(--gold);margin:4px 0 8px">{{ p.tagline }}</div>
+        <div class="note">{{ p.description }}</div>
+        {% if not p.enabled %}<div class="note" style="margin-top:8px"><em>Wkrótce</em></div>{% endif %}
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

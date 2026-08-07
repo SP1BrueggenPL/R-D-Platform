@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Skaner produktu{% endblock %}
+{% block content %}
+{% include "inno_lab/_tabs.html" with active="scan" %}
+<div class="wrap">
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="card">
+    <div class="eyebrow">Krok 1 — zdjęcia{% if product %} ({{ product.photos.count }}/{{ photo_limit }}){% endif %}</div>
+    {% if product %}
+      {% if product.photos.all %}
+        <div class="thumbs">
+          {% for photo in product.photos.all %}
+            <div class="thumb">
+              <img src="{{ photo.image.url }}" alt="">
+              <form method="post" action="{% url 'inno_lab:photo_set_type' photo.pk %}">
+                {% csrf_token %}
+                <select name="photo_type" onchange="this.form.submit()">
+                  {% for t in ptypes %}
+                    <option value="{{ t }}" {% if t == photo.photo_type %}selected{% endif %}>{{ t }}</option>
+                  {% endfor %}
+                </select>
+              </form>
+              <form method="post" action="{% url 'inno_lab:photo_delete' photo.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="mini" style="width:100%;margin-top:5px">Usuń</button>
+              </form>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="note">Brak zdjęć. Dodaj front opakowania, tył z etykietą, produkt i ewentualny detal (max {{ photo_limit }}).</p>
+      {% endif %}
+      <label style="margin-top:12px">Dodaj zdjęcia (z galerii lub aparatu)</label>
+      <input type="file" name="photos" accept="image/*" multiple>
+      <div class="row" style="margin-top:10px">
+        <button type="submit" class="btn ghost" name="add_photos" value="1">Dodaj zdjęcia</button>
+        <button type="submit" class="btn primary" name="read_label" value="1"
+          formaction="{% url 'inno_lab:ai_read_label' product.pk %}" formnovalidate
+          {% if not product.photos.all or not ai_enabled %}disabled{% endif %}>
+          Odczytaj skład i wartości (AI)
+        </button>
+      </div>
+      {% if not ai_enabled %}<p class="note">Funkcje AI (Azure GPT-4o) nie są jeszcze skonfigurowane — uzupełnij pola ręcznie.</p>{% endif %}
+      <div class="hl" style="margin-top:14px">Odczyt AI to wsparcie, nie źródło prawdy. Skład i wartości odżywcze potwierdź na opakowaniu przed użyciem w dokumentacji.</div>
+    {% else %}
+      <label>Dodaj zdjęcia (opcjonalnie — front, tył z etykietą, produkt, detal)</label>
+      <input type="file" name="photos" accept="image/*" multiple>
+      <p class="note" style="margin-top:8px">Po zapisaniu oceny będzie można doprecyzować typ każdego zdjęcia i użyć odczytu AI.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Krok 2 — dane produktu (edytowalne)</div>
+    <label>{{ form.name.label }}</label>{{ form.name }}
+    <label>{{ form.brand.label }}</label>{{ form.brand }}
+    <label>{{ form.category.label }}</label>{{ form.category }}
+    <label>{{ form.composition.label }}</label>{{ form.composition }}
+    <label>{{ form.allergens.label }}</label>{{ form.allergens }}
+    <label>{{ form.claims.label }}</label>{{ form.claims }}
+    <label>{{ form.whats_new.label }}</label>{{ form.whats_new }}
+    <label>{{ form.appearance.label }}</label>{{ form.appearance }}
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Wartości odżywcze na 100 g</div>
+    <table>
+      <tr><th>Składnik</th><th>Wartość</th><th>Jednostka</th></tr>
+      <tr><td>Energia</td><td>{{ form.energia_kcal }}</td><td>kcal</td></tr>
+      <tr><td>Tłuszcz</td><td>{{ form.tluszcz }}</td><td>g</td></tr>
+      <tr><td>w tym kwasy nasycone</td><td>{{ form.nasycone }}</td><td>g</td></tr>
+      <tr><td>Węglowodany</td><td>{{ form.weglowodany }}</td><td>g</td></tr>
+      <tr><td>w tym cukry</td><td>{{ form.cukry }}</td><td>g</td></tr>
+      <tr><td>Błonnik</td><td>{{ form.blonnik }}</td><td>g</td></tr>
+      <tr><td>Białko</td><td>{{ form.bialko }}</td><td>g</td></tr>
+      <tr><td>Sól</td><td>{{ form.sol }}</td><td>g</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Krok 3 — ocena w skali 1–5</div>
+    <p class="note">Sześć kryteriów, wagi sumują się do 100%.</p>
+    <div class="row" style="gap:18px">
+      <div><label>Wygląd (waga 10%)</label>{{ form.wyglad_ocena }}</div>
+      <div><label>Zapach (waga 10%)</label>{{ form.zapach }}</div>
+      <div><label>Smak (waga 25%)</label>{{ form.smak }}</div>
+      <div><label>Konsystencja (waga 15%)</label>{{ form.konsystencja }}</div>
+      <div><label>Innowacyjność (waga 15%)</label>{{ form.innowacyjnosc }}</div>
+      <div><label>Możliwość przeniesienia (waga 25%)</label>{{ form.transfer }}</div>
+    </div>
+    {% if product and product.overall_score %}
+      <div class="row" style="margin-top:14px">
+        <span class="kpi">{{ product.overall_score }}<span style="font-size:16px">/5</span></span>
+        <span class="pill" style="background:{{ product.verdict.color }}">{{ product.verdict.text }}</span>
+      </div>
+      <p class="note">Indeks od 4,0 rekomenduje utworzenie action planu w zakładce Baza.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Krok 4 — wniosek i kierunek transferu</div>
+    <label>{{ form.conclusion.label }}</label>{{ form.conclusion }}
+    <label>{{ form.target_lines.label }}</label>
+    <div class="row">{{ form.target_lines }}</div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn primary" type="submit">Zapisz ocenę w bazie</button>
+      <a class="btn ghost" href="{% url 'inno_lab:scan' %}">Wyczyść formularz</a>
+    </div>
+  </div>
+</form>
+
+</div>
+{% endblock %}

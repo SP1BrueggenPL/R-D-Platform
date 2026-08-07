@@ -1,0 +1,6 @@
+{% load static %}
+<div class="tabs">
+  <a class="tab{% if active == 'scan' %} on{% endif %}" href="{% url 'inno_lab:scan' %}">Skaner produktu</a>
+  <a class="tab{% if active == 'base' %} on{% endif %}" href="{% url 'inno_lab:base' %}">Baza</a>
+  <a class="tab{% if active == 'dashboard' %} on{% endif %}" href="{% url 'inno_lab:dashboard' %}">Dashboard</a>
+</div>

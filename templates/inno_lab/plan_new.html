@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Action plan · {{ product.name }}{% endblock %}
+{% block content %}
+{% include "inno_lab/_tabs.html" with active="base" %}
+<div class="wrap" style="max-width:640px">
+  <a class="mini" href="{% url 'inno_lab:base' %}">← Wróć do Bazy</a>
+  <div class="card">
+    <div class="eyebrow">Utwórz action plan</div>
+    <h2>{{ product.name }}</h2>
+    <p class="note">Ten produkt nie ma jeszcze action planu. Utwórz go w formularzu pod spodem.</p>
+    <form method="post">
+      {% csrf_token %}
+      <label>{{ form.line.label }}</label>{{ form.line }}
+      <label>{{ form.flavour.label }}</label>{{ form.flavour }}
+      <label>{{ form.start_date.label }}</label>{{ form.start_date }}
+      <div style="margin-top:10px">{{ form.use_template }}</div>
+      <p class="note">Jeden produkt = jeden action plan.</p>
+      <div class="row" style="margin-top:14px">
+        <button class="btn primary" type="submit">Utwórz plan</button>
+        <a class="btn ghost" href="{% url 'inno_lab:base' %}">Wróć do Bazy</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

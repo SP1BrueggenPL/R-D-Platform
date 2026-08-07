@@ -1,0 +1,18 @@
+__pycache__/
+*.pyc
+db.sqlite3
+/media/
+/staticfiles/
+.env
+venv/
+.venv/
+*.log
+
+# Claude Code local tool config — not part of the app
+.claude/
+
+# Superseded by the Django app; contains the same data as
+# inno_lab/seed_data/seed_products.json plus raw internal tasting notes.
+# Kept locally for reference, intentionally not pushed. Remove this line
+# if you'd rather have it in git history.
+/Inno_Session_Lab*.html
