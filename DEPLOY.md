@@ -29,7 +29,7 @@ nothing to configure by hand on each deploy.)
 
 | Name | Value |
 |---|---|
-| `DJANGO_SECRET_KEY` | a long random string (`python -c "import secrets; print(secrets.token_urlsafe(50))"`) |
+| `SECRET_KEY` | a long random string (`python -c "import secrets; print(secrets.token_urlsafe(50))"`) |
 | `DJANGO_DEBUG` | `False` |
 | `DATABASE_URL` | the Postgres connection string from step 1 |
 
@@ -43,7 +43,7 @@ Optional, to turn on the AI features (Azure OpenAI GPT-4o):
 | Name | Value |
 |---|---|
 | `AZURE_OPENAI_ENDPOINT` | e.g. `https://your-resource.openai.azure.com/` |
-| `AZURE_OPENAI_API_KEY` | from the Azure OpenAI resource |
+| `AZURE_OPENAI_KEY` | from the Azure OpenAI resource |
 | `AZURE_OPENAI_DEPLOYMENT` | your GPT-4o deployment name (default `gpt-4o`) |
 | `AZURE_OPENAI_API_VERSION` | default `2024-08-01-preview` is usually fine |
 

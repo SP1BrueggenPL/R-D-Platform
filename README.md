@@ -35,6 +35,17 @@ The `create_admin_chip` command prints a generated Django-admin password
 That password is only for `/admin/`; logging into the platform itself is
 always just the chip number.
 
+## Managing users and roles
+
+Anyone with the **Administrator** role sees a "Użytkownicy" link in the top
+nav (`/accounts/uzytkownicy/`) to add, edit, deactivate, or delete platform
+accounts — each just needs a display name, a chip number, and a role
+(Administrator or Członek zespołu R&D). No password is set; login is always
+the chip number, same as everyone else. Non-admins get a 403 if they try the
+URL directly. This is separate from Django's `/admin/`, which stays
+username+password and is only for the couple of people who need raw
+database access.
+
 ## Adding a new R&D process
 
 1. `python manage.py startapp <your_app>`, add it to `INSTALLED_APPS`.
@@ -45,7 +56,7 @@ Nothing else on the hub page needs to change.
 
 ## Enabling AI (Azure OpenAI GPT-4o)
 
-Set `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_API_KEY` in `.env` (deployment
+Set `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_KEY` in `.env` (deployment
 name defaults to `gpt-4o`). Until then, the "Odczytaj skład i wartości (AI)"
 and "Uszczegółowij zadania (AI)" buttons stay disabled and every field they'd
 fill in is entered by hand — the app is fully usable without AI.

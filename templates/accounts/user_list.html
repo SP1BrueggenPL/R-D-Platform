@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Użytkownicy{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="eyebrow">Platforma R&amp;D · Administracja</div>
+  <div class="row" style="justify-content:space-between">
+    <h2>Użytkownicy</h2>
+    <a class="btn primary" href="{% url 'accounts:user_create' %}">+ Dodaj użytkownika</a>
+  </div>
+
+  <div class="card" style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr><th>Nazwa</th><th>Numer chip</th><th>Rola</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for profile in profiles %}
+        <tr>
+          <td>{{ profile.display_name|default:profile.user.username }}{% if profile.user_id == request.user.id %} <span class="note">(Ty)</span>{% endif %}</td>
+          <td>{{ profile.chip_number }}</td>
+          <td>{{ profile.get_role_display }}</td>
+          <td>
+            {% if profile.is_active_chip %}<span class="pill" style="background:var(--steel)">aktywny</span>
+            {% else %}<span class="pill" style="background:var(--char)">nieaktywny</span>{% endif %}
+          </td>
+          <td>
+            <div class="row">
+              <a class="mini" href="{% url 'accounts:user_edit' profile.pk %}">Edytuj</a>
+              {% if profile.user_id != request.user.id %}
+                <form method="post" action="{% url 'accounts:user_toggle_active' profile.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="mini">{% if profile.is_active_chip %}Dezaktywuj{% else %}Aktywuj{% endif %}</button>
+                </form>
+                <form method="post" action="{% url 'accounts:user_delete' profile.pk %}" onsubmit="return confirm('Usunąć konto {{ profile.display_name|default:profile.user.username }}?');">
+                  {% csrf_token %}
+                  <button type="submit" class="mini">Usuń</button>
+                </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="note">Brak użytkowników.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

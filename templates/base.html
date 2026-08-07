@@ -10,12 +10,12 @@
 </head>
 <body>
 <div class="top">
-  <a class="mono" href="{% url 'core:hub' %}">B</a>
   <div><h1>Platforma R&amp;D</h1>
   <div class="tagline">#TheCerealFamily</div></div>
   <div class="top-nav">
     {% if user.is_authenticated %}
       <span class="whoami">{{ user.profile.display_name|default:user.username }}{% if user.profile.chip_number %} · chip {{ user.profile.chip_number }}{% endif %}</span>
+      {% if user.profile.is_admin %}<a href="{% url 'accounts:user_list' %}">Użytkownicy</a>{% endif %}
       {% if user.is_staff %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
       <form method="post" action="{% url 'accounts:logout' %}" style="margin:0">
         {% csrf_token %}
@@ -30,9 +30,5 @@
   {% endfor %}
 {% endif %}
 {% block content %}{% endblock %}
-<div class="foot">
-  <div class="hd">Wspierane przez AI</div>
-  <p>Treści generowane przez AI (odczyt etykiet, uszczegółowienie planów) wymagają weryfikacji przez człowieka przed użyciem w decyzjach, dokumentacji lub publikacjach. Nie wprowadzaj do narzędzia własnych receptur, kosztów surowców, know-how ani danych osobowych innych niż niezbędne dane służbowe. Materiały pochodne oznaczaj jako „Wsparte przez AI”.</p>
-</div>
 </body>
 </html>

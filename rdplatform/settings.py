@@ -22,7 +22,7 @@ def env_bool(name, default=False):
     return val.strip().lower() in ('1', 'true', 'yes', 'on')
 
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-t&8viqzg9x=jbl(8fp_7b32d68*qz$nlm%#1$^h%!7(+ytq(=k')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-t&8viqzg9x=jbl(8fp_7b32d68*qz$nlm%#1$^h%!7(+ytq(=k')
 
 DEBUG = env_bool('DJANGO_DEBUG', True)
 
@@ -155,7 +155,7 @@ if _azure_hostname and not DEBUG:
 # (manual entry always works) exactly like the original Inno Session Lab tool.
 # ---------------------------------------------------------------------------
 AZURE_OPENAI_ENDPOINT = os.environ.get('AZURE_OPENAI_ENDPOINT', '')
-AZURE_OPENAI_API_KEY = os.environ.get('AZURE_OPENAI_API_KEY', '')
+AZURE_OPENAI_API_KEY = os.environ.get('AZURE_OPENAI_KEY', '')
 AZURE_OPENAI_DEPLOYMENT = os.environ.get('AZURE_OPENAI_DEPLOYMENT', 'gpt-4o')
 AZURE_OPENAI_API_VERSION = os.environ.get('AZURE_OPENAI_API_VERSION', '2024-08-01-preview')
 AI_FEATURES_ENABLED = bool(AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY)

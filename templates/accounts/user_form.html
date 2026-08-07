@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{% if profile %}Edytuj użytkownika{% else %}Dodaj użytkownika{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap" style="max-width:520px">
+  <a class="mini" href="{% url 'accounts:user_list' %}">← Wróć do listy</a>
+  <div class="card">
+    <div class="eyebrow">{% if profile %}Edytuj użytkownika{% else %}Nowy użytkownik{% endif %}</div>
+    <form method="post">
+      {% csrf_token %}
+      <label>{{ form.display_name.label }}</label>
+      {{ form.display_name }}
+      <label>{{ form.chip_number.label }}</label>
+      {{ form.chip_number }}
+      {% if form.chip_number.errors %}<p class="note" style="color:var(--coral)">{{ form.chip_number.errors|join:', ' }}</p>{% endif %}
+      <label>{{ form.role.label }}</label>
+      {{ form.role }}
+      <label style="display:flex;align-items:center;gap:6px;margin-top:12px">
+        {{ form.is_active_chip }} {{ form.is_active_chip.label }}
+      </label>
+      <div class="row" style="margin-top:16px">
+        <button class="btn primary" type="submit">Zapisz</button>
+        <a class="btn ghost" href="{% url 'accounts:user_list' %}">Anuluj</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
