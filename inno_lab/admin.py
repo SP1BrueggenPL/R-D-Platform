@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import PlanStep, Product, ProductPhoto, TransferPlan
+from .models import LegacyStorageEntry, PlanStep, Product, ProductPhoto, TransferPlan
 
 
 class ProductPhotoInline(admin.TabularInline):
@@ -26,3 +26,9 @@ class TransferPlanAdmin(admin.ModelAdmin):
     list_display = ('product', 'line', 'progress', 'start_date', 'updated_at')
     list_filter = ('line',)
     inlines = [PlanStepInline]
+
+
+@admin.register(LegacyStorageEntry)
+class LegacyStorageEntryAdmin(admin.ModelAdmin):
+    list_display = ('key', 'updated_at')
+    readonly_fields = ('key', 'value', 'updated_at')

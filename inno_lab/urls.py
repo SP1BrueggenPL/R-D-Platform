@@ -6,6 +6,8 @@ app_name = 'inno_lab'
 
 urlpatterns = [
     path('', views.original_app, name='app'),
+    path('api/ai-proxy/', views.ai_proxy, name='ai_proxy'),
+    path('api/storage/<str:key>/', views.legacy_storage, name='legacy_storage'),
     path('panel/', views.dashboard, name='dashboard'),
     path('skaner/', views.product_create, name='scan'),
     path('baza/', views.base_list, name='base'),

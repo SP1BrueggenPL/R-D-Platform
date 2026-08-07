@@ -49,6 +49,21 @@ def _extract_json(text: str) -> dict:
         raise AIUnavailable(f'Nie udało się odczytać odpowiedzi modelu: {exc}') from exc
 
 
+def raw_chat(messages, max_tokens=1000):
+    """Low-level passthrough used by the legacy standalone tool's AI proxy
+    endpoint (see views.ai_proxy). `messages` is already in
+    Azure/OpenAI-compatible shape (content is a string, or a list of
+    {'type':'text','text':...} / {'type':'image_url','image_url':{'url':...}}
+    blocks) — this just calls the model and returns the raw reply text."""
+    client = _client()
+    response = client.chat.completions.create(
+        model=settings.AZURE_OPENAI_DEPLOYMENT,
+        max_tokens=max_tokens,
+        messages=messages,
+    )
+    return response.choices[0].message.content or ''
+
+
 LABEL_PROMPT = (
     'Jesteś technologiem żywności. Przeanalizuj wszystkie powyższe zdjęcia JEDNEGO produktu '
     'spożywczego — każde jest opisane rolą (front opakowania, tył z etykietą, produkt wyjęty '

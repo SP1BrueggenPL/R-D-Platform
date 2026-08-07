@@ -7,15 +7,18 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.middleware.csrf import get_token
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 from . import planning
 from .constants import CRIT, KATS, LINES, NOPE, NUTRI, PTYPES, ROLES
 from .forms import NewPlanForm, NewStepForm, PlanEditForm, PlanStepForm, ProductFilterForm, ProductForm
-from .models import PlanStep, Product, ProductPhoto, TransferPlan
+from .models import LegacyStorageEntry, PlanStep, Product, ProductPhoto, TransferPlan
 from .services import ai as ai_service
 
 PHOTO_LIMIT = 6
@@ -31,8 +34,40 @@ PHOTO_LIMIT = 6
 _ORIGINAL_HTML_PATH = Path(__file__).resolve().parent / 'legacy' / 'inno_session_lab.html'
 
 
+_STORAGE_SHIM = """<script>
+(function(){
+  function getCookie(name){
+    var m = document.cookie.match('(^|;)\\\\s*' + name + '\\\\s*=\\\\s*([^;]+)');
+    return m ? decodeURIComponent(m.pop()) : '';
+  }
+  var BASE = '%(base_url)s';
+  window.storage = {
+    get: function(key){
+      return fetch(BASE + encodeURIComponent(key) + '/', {credentials:'same-origin'})
+        .then(function(r){ return r.ok ? r.json() : {value:null}; })
+        .catch(function(){ return {value:null}; });
+    },
+    set: function(key, value){
+      return fetch(BASE + encodeURIComponent(key) + '/', {
+        method:'POST',
+        credentials:'same-origin',
+        headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+        body: JSON.stringify({value: value})
+      }).then(function(r){ return r.ok; });
+    }
+  };
+})();
+</script>
+"""
+
+
 @login_required
 def original_app(request):
+    # Forces Django to set the CSRF cookie on this response even though no
+    # Django template/{% csrf_token %} is rendered here — the storage shim
+    # below reads it to authenticate its own POSTs.
+    get_token(request)
+
     html = _ORIGINAL_HTML_PATH.read_text(encoding='utf-8')
     back_link = (
         f'<a class="btn ghost" href="{reverse("core:hub")}" '
@@ -40,7 +75,96 @@ def original_app(request):
         f'← Powrót do platformy</a>'
     )
     html = html.replace('<div class="top">', f'<div class="top">{back_link}', 1)
+    # The file's own AI calls post client-side straight to api.anthropic.com
+    # with no key — that never worked outside the environment it was
+    # authored in. Point it at our same-origin proxy instead, which holds
+    # the real Azure OpenAI credentials server-side and talks back in the
+    # same {content:[{type:'text',text:...}]} shape this file already
+    # expects, so none of its own request/response-parsing code changes.
+    html = html.replace(
+        "fetch('https://api.anthropic.com/v1/messages',",
+        f"fetch('{reverse('inno_lab:ai_proxy')}',",
+        1,
+    )
+    # The file already has a pluggable window.storage.get/set abstraction
+    # (falls back to localStorage when absent) plus its own polling sync
+    # (pull every 12s + on focus) and revision-based merge — it was built
+    # for exactly this. Supplying window.storage backed by a real DB table
+    # is enough to make everything persist across restarts/deploys and be
+    # shared between users, with zero changes to the file's own logic.
+    storage_base = reverse('inno_lab:legacy_storage', args=['__KEY__']).replace('__KEY__/', '')
+    storage_shim = _STORAGE_SHIM % {'base_url': storage_base}
+    html = html.replace('<script>\nvar SEED', storage_shim + '<script>\nvar SEED', 1)
     return HttpResponse(html, content_type='text/html; charset=utf-8')
+
+
+@login_required
+def legacy_storage(request, key):
+    if not key:
+        return JsonResponse({'error': 'missing key'}, status=400)
+    if request.method == 'GET':
+        entry = LegacyStorageEntry.objects.filter(key=key).first()
+        return JsonResponse({'value': entry.value if entry else None})
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return JsonResponse({'ok': False, 'error': 'bad request'}, status=400)
+        LegacyStorageEntry.objects.update_or_create(key=key, defaults={'value': body.get('value', '')})
+        return JsonResponse({'ok': True})
+    return JsonResponse({'error': 'method not allowed'}, status=405)
+
+
+def _anthropic_blocks_to_openai(content):
+    """The legacy file builds Anthropic-shaped message content (either a
+    plain string, or a list of {'type':'text',...} / {'type':'image',
+    'source':{'type':'base64','media_type':...,'data':...}} blocks).
+    Azure OpenAI understands the text blocks as-is; image blocks need
+    reshaping to {'type':'image_url','image_url':{'url': 'data:...'}}."""
+    if isinstance(content, str):
+        return content
+    converted = []
+    for block in content:
+        if isinstance(block, dict) and block.get('type') == 'image':
+            source = block.get('source') or {}
+            media_type = source.get('media_type') or 'image/jpeg'
+            data = source.get('data') or ''
+            converted.append({'type': 'image_url', 'image_url': {'url': f'data:{media_type};base64,{data}'}})
+        else:
+            converted.append(block)
+    return converted
+
+
+@csrf_exempt
+@login_required
+@require_POST
+def ai_proxy(request):
+    """Same-origin stand-in for the legacy file's direct-to-Anthropic
+    fetch(). Accepts the Anthropic-shaped {model, max_tokens, messages}
+    body it already sends, calls Azure OpenAI server-side, and replies in
+    the same {content:[{type:'text',text:...}]} shape so the file's
+    existing response parsing (strip ```json fences, JSON.parse) keeps
+    working untouched. CSRF-exempt because the unmodified file's fetch()
+    sends no token; the session cookie's default SameSite=Lax already
+    keeps cross-site requests from carrying credentials here.
+    """
+    try:
+        body = json.loads(request.body.decode('utf-8'))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': 'bad request'}, status=400)
+
+    messages_in = body.get('messages') or []
+    messages_out = [
+        {'role': m.get('role', 'user'), 'content': _anthropic_blocks_to_openai(m.get('content'))}
+        for m in messages_in
+    ]
+
+    try:
+        text = ai_service.raw_chat(messages_out, max_tokens=body.get('max_tokens', 1000))
+    except ai_service.AIUnavailable as exc:
+        return JsonResponse({'error': str(exc)}, status=503)
+
+    return JsonResponse({'content': [{'type': 'text', 'text': text}]})
 
 
 # --------------------------------------------------------------------------

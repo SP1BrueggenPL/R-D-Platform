@@ -182,3 +182,21 @@ class PlanStep(models.Model):
 
     def __str__(self):
         return f'{self.plan_id} · krok {self.nr} · {self.title}'
+
+
+class LegacyStorageEntry(models.Model):
+    """Backs the original standalone tool's `window.storage.get/set` calls
+    (see views.legacy_storage) so its own built-in shared-database/sync
+    logic (pull every 12s, merge on push) persists to the real DB instead
+    of being lost on browser close, deploy, or restart. Just two rows in
+    practice: 'inno:core' (items/plans/decisions) and 'inno:imgs' (photos)."""
+    key = models.CharField(max_length=100, unique=True)
+    value = models.TextField(blank=True, default='')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Wpis pamięci (narzędzie oryginalne)'
+        verbose_name_plural = 'Wpisy pamięci (narzędzie oryginalne)'
+
+    def __str__(self):
+        return self.key

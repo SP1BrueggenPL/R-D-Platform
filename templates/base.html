@@ -1,4 +1,4 @@
-{% load static %}<!doctype html>
+{% load static core_extras %}<!doctype html>
 <html lang="pl">
 <head>
 <meta charset="utf-8">
@@ -16,7 +16,7 @@
     {% if user.is_authenticated %}
       <span class="whoami">{{ user.profile.display_name|default:user.username }}{% if user.profile.chip_number %} · chip {{ user.profile.chip_number }}{% endif %}</span>
       {% if user.profile.is_admin %}<a href="{% url 'accounts:user_list' %}">Użytkownicy</a>{% endif %}
-      {% if user.is_staff %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
+      {% if user|has_group:"helpdesk" %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
       <form method="post" action="{% url 'accounts:logout' %}" style="margin:0">
         {% csrf_token %}
         <button type="submit">Wyloguj</button>
