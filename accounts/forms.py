@@ -10,7 +10,7 @@ class ChipLoginForm(forms.Form):
         widget=forms.TextInput(attrs={
             'autofocus': True,
             'inputmode': 'numeric',
-            'placeholder': 'np. 21012',
+            'placeholder': 'np. 40071',
             'autocomplete': 'off',
         }),
     )
