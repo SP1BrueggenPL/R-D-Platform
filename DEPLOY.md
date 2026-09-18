@@ -66,27 +66,40 @@ python manage.py seed_inno_lab
 python manage.py create_admin_chip --chip 21012 --name "Administrator"
 ```
 
-## The original standalone Inno Session Lab file
+## The standalone Inno Session Lab file
 
-`/inno-session-lab/` serves `inno_lab/legacy/inno_session_lab.html` — the
-original tool — byte-for-byte unmodified on disk. At request time only,
-three things get spliced into the served copy (never touching the file
-itself): a "powrót do platformy" link, the AI calls redirected to a local
-proxy, and a `window.storage` shim.
+`/inno-session-lab/` serves `inno_lab/legacy/inno_session_lab.html`.
+Unlike the very first import, this file is **not** frozen byte-for-byte
+anymore — once real feature/behavior changes were requested (AI wiring,
+OCR prompt quality, persistence), it became a normal, version-controlled
+source file like any other, editable via ordinary commits. Only the
+hosting-integration bits are still patched at *serve time* (never on
+disk), by `inno_lab/views.py: original_app()`:
 
-- **AI**: the file's own `callAI()` posts to `api.anthropic.com` with no
-  key — that never worked standalone either. It's now redirected to
+- A "powrót do platformy" link spliced into the static top bar.
+- Its `callAI()` — which posts to `api.anthropic.com` with no key, so it
+  never worked standalone either — redirected to
   `/inno-session-lab/api/ai-proxy/`, which calls Azure OpenAI server-side
   (same `AZURE_OPENAI_*` settings as above) and replies in the shape the
   file already expects. No AI credentials configured → same graceful
   "wpisz ręcznie" fallback as always.
-- **Storage**: the file already had a `window.storage.get/set` hook with
-  built-in polling sync and merge (it was designed for a shared backend
-  from the start) — it just had nothing behind it before, so data lived
-  only in that one browser's localStorage. It's now backed by the
-  `LegacyStorageEntry` DB table, so the "wspólna baza" is a real shared,
-  persistent database — survives restarts/redeploys and is shared across
-  everyone who opens the tool. Nothing else to configure.
+- A `window.storage.get/set` shim, backing the file's own built-in
+  polling sync/merge ("wspólna baza") with the `LegacyStorageEntry` DB
+  table instead of one browser's localStorage — survives restarts and
+  redeploys, shared across everyone who opens the tool.
+
+On top of that, the file's own OCR prompt (`readLabel()`/`refineLabel()`)
+was tightened for reliability: it now explicitly says which photo (front
+/ back-label / product / detail) each field must come from — the earlier
+version asked the model to return `nazwa`/`marka`/`claims` without ever
+saying where to read them from, which is a likely cause of the reported
+garbage output — and the model now returns a `niepewne` array naming any
+field it isn't confident about. The scan form shows a ⚠️ next to that
+field's label (and next to the Skład/Tabela confidence pills when either
+is under 90%), so low-confidence reads are visibly flagged instead of
+silently trusted. Swapping in a future updated copy of this file is a
+normal file edit + these same three serve-time integration points; there
+is no separate "restore the original" step to worry about anymore.
 
 ## Known follow-up: uploaded photos
 
