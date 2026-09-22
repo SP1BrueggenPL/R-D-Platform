@@ -147,6 +147,30 @@ function rolaOk(r){return ROLES.indexOf(r)>-1?r:(ROLEMAP[r]||ROLES[0]);}
 
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function warn(d,key){return (d.niepewne&&d.niepewne.indexOf(key)>-1)?' <span title="AI nie jest pewne tego pola — sprawdź ręcznie" style="color:'+C.coral+'">⚠️</span>':'';}
+function nutriNum(v){v=String(v==null?'':v).trim().replace(',','.');if(v===''||v==='?')return null;var n=Number(v);return isNaN(n)?null:n;}
+function nutriIssues(nu){nu=nu||{};var e=nutriNum(nu.energia_kcal),f=nutriNum(nu.tluszcz),sf=nutriNum(nu.nasycone),c=nutriNum(nu.weglowodany),sg=nutriNum(nu.cukry),fb=nutriNum(nu.blonnik),p=nutriNum(nu.bialko),s=nutriNum(nu.sol),out={};
+ function flag(k,msg){out[k]=(out[k]?out[k]+' ':'')+msg;}
+ [['tluszcz',f],['nasycone',sf],['weglowodany',c],['cukry',sg],['blonnik',fb],['bialko',p],['sol',s]].forEach(function(x){if(x[1]!=null&&(x[1]<0||x[1]>100))flag(x[0],'Wartość poza realnym zakresem 0–100 g na 100 g produktu.');});
+ if(e!=null&&(e<0||e>900))flag('energia_kcal','Energia poza realnym zakresem dla 100 g produktu.');
+ if(sf!=null&&f!=null&&sf>f+0.5){flag('nasycone','Kwasy nasycone przekraczają podany tłuszcz ogółem.');flag('tluszcz','Tłuszcz ogółem jest mniejszy niż kwasy nasycone — sprawdź oba pola.');}
+ if(sg!=null&&c!=null&&sg>c+0.5){flag('cukry','Cukry przekraczają podane węglowodany ogółem.');flag('weglowodany','Węglowodany ogółem są mniejsze niż cukry — sprawdź oba pola.');}
+ if(fb!=null&&c!=null&&fb>c+0.5)flag('blonnik','Błonnik przekracza podane węglowodany ogółem.');
+ if(e!=null&&f!=null&&c!=null&&p!=null){var calc=f*9+c*4+p*4;
+  if(Math.abs(calc-e)>Math.max(60,e*0.25))flag('energia_kcal','Energia nie zgadza się z przeliczeniem z makroskładników (≈'+Math.round(calc)+' kcal wg tłuszczu/węglowodanów/białka) — sprawdź odczyt.');}
+ return out;}
+function nutriWarn(d,issues,key){var msgs=[];
+ if(d.niepewne&&d.niepewne.indexOf(key)>-1)msgs.push('AI nie jest pewne tego pola — sprawdź ręcznie.');
+ if(issues&&issues[key])msgs.push(issues[key]);
+ return msgs.length?' <span title="'+esc(msgs.join(' '))+'" style="color:'+C.coral+'">⚠️</span>':'';}
+function nutriIssueList(d,issues){var keys=[];
+ NUTRI.forEach(function(n){if((d.niepewne&&d.niepewne.indexOf(n[0])>-1)||(issues&&issues[n[0]]))keys.push(n[0]);});
+ if(!keys.length)return '';
+ return '<div class="hl" style="margin-top:8px">AI mogło się pomylić w tabeli wartości odżywczych — sprawdź te pola na opakowaniu:'+
+ '<ul style="margin:8px 0 0 18px;font-family:Arial,sans-serif;font-weight:normal;font-size:12px">'+
+ keys.map(function(k){var lbl=(NUTRI.filter(function(n){return n[0]===k;})[0]||[k])[1];
+  var msgs=[];if(d.niepewne&&d.niepewne.indexOf(k)>-1)msgs.push('AI zgłasza niepewność odczytu.');if(issues&&issues[k])msgs.push(issues[k]);
+  return '<li style="margin-bottom:4px"><b class="notr">'+esc(lbl)+'</b> — '+esc(msgs.join(' '))+'</li>';}).join('')+
+ '</ul></div>';}
 var PTYPES=['Front opakowania','Tył / etykieta','Produkt (środek)','Detal / przekrój'];
 function D(){return S.tab==='own'?S.draftOwn:S.draft;}
 function zakresTekst(d,k){
@@ -512,7 +536,7 @@ function radarSVG(dd){var d=dd||S.draft;var cx=130,cy=115,R=88,n=CRIT.length,pts
  var rings='';[.2,.4,.6,.8,1].forEach(function(f){var p=[];for(var i=0;i<n;i++){var a=-Math.PI/2+i*2*Math.PI/n;p.push((cx+Math.cos(a)*R*f).toFixed(1)+','+(cy+Math.sin(a)*R*f).toFixed(1));}rings+='<polygon points="'+p.join(' ')+'" fill="none" stroke="#F1E9EC"/>';});
  return '<svg viewBox="0 0 260 235" width="100%" height="215">'+rings+ax+'<polygon points="'+pts.join(' ')+'" fill="'+C.coral+'" fill-opacity=".28" stroke="'+C.coral+'" stroke-width="2"/></svg>';}
 
-function scanView(){var d=S.draft,t=indexOf(d.scores),v=verdict(t);
+function scanView(){var d=S.draft,t=indexOf(d.scores),v=verdict(t),nIss=nutriIssues(d.nutri);
  return '<div class="body"><div class="g2">'+
  '<div class="card"><div class="eyebrow">KROK 1 — ZDJĘCIA ('+d.photos.length+'/6)</div>'+
  (d.photos.length?'<div class="thumbs">'+d.photos.map(function(p,i){
@@ -565,8 +589,8 @@ function scanView(){var d=S.draft,t=indexOf(d.scores),v=verdict(t);
  '<div class="note" style="margin-bottom:8px">Odczytywana jest tylko kolumna na 100 g. Kolumny na porcję, na opakowanie i %RWS są pomijane.'+
  (d.nutri_zrodlo?'<br>Kolumna odczytana z etykiety: <b class="notr">'+esc(d.nutri_zrodlo)+'</b>':'')+'</div>'+
  '<table><tbody>'+
- NUTRI.map(function(n){return '<tr><td style="width:58%">'+n[1]+'</td><td><div class="row" style="gap:6px"><input style="width:92px" data-n="'+n[0]+'" value="'+esc(d.nutri[n[0]])+'"><span class="note">&nbsp;('+n[2]+')</span></div></td></tr>';}).join('')+
- '</tbody></table></div>'+
+ NUTRI.map(function(n){return '<tr><td style="width:58%">'+n[1]+nutriWarn(d,nIss,n[0])+'</td><td><div class="row" style="gap:6px"><input style="width:92px;'+(((d.niepewne&&d.niepewne.indexOf(n[0])>-1)||nIss[n[0]])?'border-color:'+C.coral:'')+'" data-n="'+n[0]+'" value="'+esc(d.nutri[n[0]])+'"><span class="note">&nbsp;('+n[2]+')</span></div></td></tr>';}).join('')+
+ '</tbody></table>'+nutriIssueList(d,nIss)+'</div>'+
 
  '<div class="card"><div class="eyebrow">KROK 3 — OCENA W SKALI 1–5</div>'+
  '<div class="note" style="margin-bottom:6px">Sześć kryteriów, wagi sumują się do 100%.</div>'+
@@ -669,6 +693,20 @@ function grupaBlock(nazwa){var it=itemByName(nazwa);
  PLANTS.map(function(pl){return '<option value="'+esc(pl)+'"'+(pl===(it.plant||PLANTS[0])?' selected':'')+'>'+esc(pl)+'</option>';}).join('')+'</select></div></div>'+
  '<div class="note" style="margin-top:6px">Zmiana zapisuje się od razu i jest widoczna w Bazie oraz na Dashboardzie.</div></div>';}
 
+function nutriBlock(nazwa){var it=itemByName(nazwa);
+ if(!it)return '';
+ var nu=it.nutri||{},nIss=nutriIssues(nu);
+ return '<div style="margin-top:14px;padding-top:14px;border-top:1px solid #EEE8EA">'+
+ '<div class="eyebrow">WARTOŚCI ODŻYWCZE NA 100 G</div>'+
+ '<div class="note" style="margin-bottom:8px">Odczytywana jest tylko kolumna na 100 g. Kolumny na porcję, na opakowanie i %RWS są pomijane.'+
+ (it.nutri_zrodlo?'<br>Kolumna odczytana z etykiety: <b class="notr">'+esc(it.nutri_zrodlo)+'</b>':'')+'</div>'+
+ (it.pewnosc&&it.pewnosc.nutri!=null?'<div class="row" style="gap:6px;margin-bottom:8px">'+
+   '<span class="pill" style="background:'+(Number(it.pewnosc.nutri)>=90?C.claret:C.coral)+'">'+(Number(it.pewnosc.nutri)<90?'⚠️ ':'')+'Pewność tabeli: '+esc(String(it.pewnosc.nutri))+'%</span></div>':'')+
+ '<table><tbody>'+
+ NUTRI.map(function(n){return '<tr><td style="width:58%">'+n[1]+nutriWarn(it,nIss,n[0])+'</td><td><div class="row" style="gap:6px"><input style="width:92px;'+(((it.niepewne&&it.niepewne.indexOf(n[0])>-1)||nIss[n[0]])?'border-color:'+C.coral:'')+'" data-in="'+esc(nazwa)+'" data-ink="'+n[0]+'" value="'+esc(nu[n[0]])+'"><span class="note">&nbsp;('+n[2]+')</span></div></td></tr>';}).join('')+
+ '</tbody></table>'+nutriIssueList(it,nIss)+
+ '<div class="note" style="margin-top:6px">Sprawdź wartości na opakowaniu przed użyciem w dokumentacji. Zmiana zapisuje się od razu.</div></div>';}
+
 function photoBlock(nazwa){var ph=photosFor(nazwa);
  return '<div style="margin-top:14px;padding-top:14px;border-top:1px solid #EEE8EA"><div class="eyebrow">ZDJĘCIA PRODUKTU ('+ph.length+'/6)</div>'+
  (ph.length?'<div class="thumbs">'+ph.map(function(x,i){
@@ -708,7 +746,7 @@ function planCard(p){var f=p.weeks.filter(function(w){return w.initials;}).lengt
  (p.weeks[0]&&p.weeks[0].date?'<span class="pill" style="background:'+C.pink+'">'+plDate(p.weeks[0].date)+' — '+plDate(p.weeks[p.weeks.length-1].date)+'</span>':'')+'</div></div>'+
  '<div class="row"><button class="btn primary" data-ai="'+p.id+'"'+(S.busy?' disabled':'')+'>'+(S.busy?'Pracuję…':'Uszczegółowij zadania (AI)')+'</button>'+
  '<button class="btn ghost" data-dp="'+p.id+'">Usuń plan</button></div></div>'+
- grupaBlock(p.product)+photoBlock(p.product)+prooBlock(p.product)+
+ grupaBlock(p.product)+nutriBlock(p.product)+photoBlock(p.product)+prooBlock(p.product)+
  '<div class="g2" style="gap:12px;margin-top:14px"><div><label>Start projektu — data</label><input type="date" data-ps="'+p.id+'" value="'+esc(p.start||'')+'"></div>'+
  '<div><label>Linia docelowa</label><select data-pl="'+p.id+'">'+LINES.map(function(l){return '<option value="'+esc(l)+'"'+(l===p.line?' selected':'')+'>'+esc(l)+'</option>';}).join('')+'</select></div></div>'+
  '<div class="g2" style="gap:12px"><div><label>Postęp projektu</label><div class="row" style="gap:8px"><select data-pg="'+p.id+'" style="max-width:130px">'+
@@ -751,7 +789,7 @@ function planView(){
   (itemByName(S.open)?'<div class="row" style="gap:6px;margin-top:6px"><span class="pill" style="background:'+(itemByName(S.open).source==='własna'?C.pink:C.steel)+'">'+esc(srcLabel(itemByName(S.open)))+'</span>'+
    (itemByName(S.open).plant?'<span class="pill" style="background:'+C.claret+'">Plant: '+esc(itemByName(S.open).plant)+'</span>':'')+'</div>':'')+
   '<p class="note" style="margin-top:8px">Ten produkt nie ma jeszcze action planu. Utwórz go w formularzu pod spodem.</p>'+
-  grupaBlock(S.open)+photoBlock(S.open)+prooBlock(S.open)+'</div>'+newPlanForm()+'</div>';
+  grupaBlock(S.open)+nutriBlock(S.open)+photoBlock(S.open)+prooBlock(S.open)+'</div>'+newPlanForm()+'</div>';
  return '<div class="body">'+back+planCard(p)+'</div>';}
 
 function critFilterCard(){
@@ -904,6 +942,9 @@ function readLabel(){var d=D();if(!d.photos.length)return flash('Najpierw wgraj 
  'TABELA WARTOŚCI ODŻYWCZYCH — ZASADA BEZWZGLĘDNA. Odczytuj WYŁĄCZNIE kolumnę w przeliczeniu na 100 g produktu (nagłówek: 100 g, na 100 g, pro 100 g, per 100 g, pour 100 g, /100 g). Pozostałe kolumny i wiersze IGNORUJ CAŁKOWICIE: na porcję, na sztukę, na opakowanie, %RWS, %NRV, %GDA, referencyjna wartość spożycia, produkt przygotowany, produkt z mlekiem, wartości na 100 ml. Nie sumuj, nie przeliczaj i nie uśredniaj kolumn.\n'+
  'Jeżeli na etykiecie NIE MA kolumny na 100 g, wpisz "?" we wszystkich polach nutri i dodaj wpis w pytania z informacją, jaka kolumna jest dostępna. Nie przeliczaj porcji na 100 g samodzielnie.\n'+
  'W polu nutri_zrodlo napisz dokładnie nagłówek kolumny, z której odczytałeś liczby. Podawaj same liczby bez jednostek, separator dziesiętny jako kropka. Czego nie widać w tej kolumnie — wpisz "?".\n'+
+ 'WERYFIKACJA CYFR W TABELI. Każdą liczbę z tabeli wartości odżywczych odczytaj cyfra po cyfrze bezpośrednio ze zdjęcia „tył / etykieta”, zwracając uwagę na przecinek/kropkę dziesiętną, druk pod kątem, odblaski i możliwe pomylenie podobnych cyfr (np. 3↔8, 1↔7, 0↔6, 5↔6). Nie uzupełniaj liczby na podstawie tego, jak "zwykle" wygląda taki produkt.\n'+
+ 'SPÓJNOŚĆ TABELI WARTOŚCI ODŻYWCZYCH. Po odczycie sprawdź matematycznie: (1) cukry nie mogą być większe niż węglowodany ogółem, (2) kwasy tłuszczowe nasycone nie mogą być większe niż tłuszcz ogółem, (3) błonnik nie może być większy niż węglowodany ogółem, (4) energia w kcal powinna być zbliżona do przeliczenia tłuszcz×9 + węglowodany×4 + białko×4 (dopuszczalna rozbieżność do ok. 25%, bo etykieta może liczyć energię z kJ albo doliczać błonnik). Jeżeli którakolwiek z tych zależności nie zachodzi w Twoim odczycie, to znak, że pomyliłeś cyfrę lub kolumnę — odczytaj to pole jeszcze raz ze zdjęcia; jeśli po ponownym odczycie niezgodność się utrzymuje, zostaw najlepszą odczytaną wartość, ale KONIECZNIE dodaj nazwę tego pola (energia_kcal, tluszcz, nasycone, weglowodany, cukry, blonnik, bialko lub sol) do tablicy niepewne.\n'+
+ 'PEWNOŚĆ POJEDYNCZYCH PÓL TABELI. Tak jak dla nazwa/marka/alergeny/claims/nowe/wyglad, sprawdź osobno KAŻDE pole tabeli wartości odżywczych: energia_kcal, tluszcz, nasycone, weglowodany, cukry, blonnik, bialko, sol. Jeśli liczba jest niewyraźna, zasłonięta, rozmyta, wynika z domysłu, z zaokrąglenia innej kolumny albo nie spełnia reguł spójności powyżej — dodaj DOKŁADNĄ nazwę tego pola do tablicy niepewne, obok pól tekstowych. pewnosc.nutri to ocena ogólna całej tabeli i NIE zastępuje zgłoszenia pojedynczych niepewnych pól w niepewne.\n'+
  'SPRAWDZENIE PRZED ODPOWIEDZIĄ. Zanim odpowiesz, porównaj w myślach każde pole JSON jeszcze raz z odpowiednim zdjęciem ze wskazanego źródła. Każda niezgodność, domysł albo brak pewności to sygnał, żeby dodać pole do niepewne — nigdy nie jest sygnałem, żeby zgadywać wartość.\n'+
  'FORMAT ODPOWIEDZI — BEZWZGLĘDNE. Odpowiedz WYŁĄCZNIE surowym JSON-em: żadnych znaczników ```, żadnego tekstu przed ani po, żadnego komentarza.\n'+
  'Zwróć WYŁĄCZNIE JSON:\n'+
@@ -912,7 +953,7 @@ function readLabel(){var d=D();if(!d.photos.length)return flash('Najpierw wgraj 
  '"sklad":"tłumaczenie składu","alergeny":"","claims":"","nowe":"co jest nowe z perspektywy R&D, 1 zdanie","wyglad":"opis wyglądu i konsystencji ze zdjęcia produktu",'+
  '"nutri":{"energia_kcal":"","tluszcz":"","nasycone":"","weglowodany":"","cukry":"","blonnik":"","bialko":"","sol":""},"nutri_zrodlo":"nagłówek kolumny, z której odczytano liczby",'+
  '"pewnosc":{"sklad":0,"nutri":0},'+
- '"niepewne":["pola z listy: nazwa, marka, alergeny, claims, nowe, wyglad, jezyk_etykiety — których nie jesteś pewien"],'+
+ '"niepewne":["pola z listy: nazwa, marka, alergeny, claims, nowe, wyglad, jezyk_etykiety, energia_kcal, tluszcz, nasycone, weglowodany, cukry, blonnik, bialko, sol — których nie jesteś pewien"],'+
  '"luki":[{"nr":1,"kontekst":"fragment tekstu przed luką i po luce","uwaga":"co widać, np. zamazany druk, zagięcie folii"}],'+
  '"pytania":["pytanie o niejednoznaczne tłumaczenie terminu"]}';
  callAI({model:'claude-sonnet-4-6',max_tokens:4096,messages:[{role:'user',content:fotoContent(d,prompt)}]},
@@ -970,6 +1011,7 @@ function refineLabel(){var d=D();
  'Pytania, które zadałeś:\n- '+d.pytania.join('\n- ')+'\n'+
  'Odpowiedzi technologa:\n'+d.odpowiedzi+'\n'+
  'Uwzględnij odpowiedzi, ponownie sprawdź zdjęcia i popraw odczyt. Tłumaczenie w języku: '+JEZYK()+', transkrypcja w języku oryginału. Nie zmieniaj pól, których odpowiedzi nie dotyczą. Zostaw pytania tylko wtedy, gdy nadal masz uzasadnioną wątpliwość.\n'+
+ 'Przy okazji ponownie zweryfikuj tabelę wartości odżywczych cyfra po cyfrze ze zdjęcia „tył / etykieta”: cukry ≤ węglowodany, kwasy nasycone ≤ tłuszcz, błonnik ≤ węglowodany, energia zbliżona do tłuszcz×9 + węglowodany×4 + białko×4. Każde pole tabeli (energia_kcal, tluszcz, nasycone, weglowodany, cukry, blonnik, bialko, sol), które jest niepewne albo łamie te reguły, dodaj do niepewne — obok pól tekstowych.\n'+
  'Zwróć WYŁĄCZNIE JSON w tym samym formacie co poprzednio (nazwa, marka, jezyk_etykiety, oryginal, sklad, alergeny, claims, nowe, wyglad, nutri, nutri_zrodlo, pewnosc, niepewne, luki, pytania). Odpowiedz wyłącznie surowym JSON-em, bez znaczników ``` i bez komentarza.';
  callAI({model:'claude-sonnet-4-6',max_tokens:4096,messages:[{role:'user',content:fotoContent(d,prompt)}]},
  function(j){przyjmijOdczyt(d,j);d.odpowiedzi='';
@@ -1026,7 +1068,7 @@ function saveItem(){var d=D(),wlasna=(S.tab==='own');
   (d.kroki||[]).forEach(function(k,ki){k.photos=wyniki[ki+1]||[];});
   S.items.unshift({id:'u'+Date.now(),data:new Date().toISOString().slice(0,10),nazwa:d.nazwa,marka:d.marka,kat:(wlasna?katOk(d.kat):(d.targets.filter(function(x){return x!==NOPE;})[0]||'')),plant:d.plant||PLANTS[0],
    sklad:d.sklad,alergeny:d.alergeny,claims:d.claims,nowe:d.nowe,wyglad:d.wyglad,komentarz:(d.decyzja==='brak'?(d.komentarzBT||''):d.komentarz),decyzja:d.decyzja||'',jezyk_etykiety:d.jezyk_etykiety||'',jezyk_tresci:d.jezyk_tresci||LANG,oryginal:d.oryginal||null,pewnosc:d.pewnosc||null,nutri_zrodlo:d.nutri_zrodlo||'',
-   rola:rolaOk(d.rola),inicjaly:d.inicjaly||'',claimsList:d.claimsList||[],claimsInne:d.claimsInne||'',nutri:d.nutri,nutriMin:d.nutriMin||{},nutriMax:d.nutriMax||{},nutriNA:d.nutriNA||{},scores:sc,targets:d.targets,photos:ph,inspiracja:d.inspiracja||'',kroki:wlasna?d.kroki:[],ocena:v,source:wlasna?'własna':'sesja'});
+   rola:rolaOk(d.rola),inicjaly:d.inicjaly||'',claimsList:d.claimsList||[],claimsInne:d.claimsInne||'',nutri:d.nutri,nutriMin:d.nutriMin||{},nutriMax:d.nutriMax||{},nutriNA:d.nutriNA||{},niepewne:d.niepewne||[],scores:sc,targets:d.targets,photos:ph,inspiracja:d.inspiracja||'',kroki:wlasna?d.kroki:[],ocena:v,source:wlasna?'własna':'sesja'});
   save();
   if(wlasna)S.draftOwn=emptyDraft();else S.draft=emptyDraft();
   S.tab='base';render();
@@ -1219,6 +1261,8 @@ document.addEventListener('change',function(e){var el=e.target;
   if(ik){ik.kat=el.value;save();S.keepScroll=true;render();flash('Grupa produktowa zmieniona na: '+el.value+'.');}}
  else if(el.dataset.iplant){var ip2=itemByName(el.dataset.iplant);
   if(ip2){ip2.plant=el.value;save();S.keepScroll=true;render();flash('Plant zmieniony na: '+el.value+'.');}}
+ else if(el.dataset.in!=null&&el.dataset.ink){var itn=itemByName(el.dataset.in);
+  if(itn){if(!itn.nutri)itn.nutri={};itn.nutri[el.dataset.ink]=el.value;save();S.keepScroll=true;render();flash('Wartości odżywcze zaktualizowane.');}}
  else if(el.dataset.pt2){photosFor(S.open)[Number(el.dataset.pt2)].type=el.value;save();}
  else if(el.dataset.kf){var xg=el.dataset.kf.split('|'),dg=D();
   if(dg.kroki[Number(xg[0])]){dg.kroki[Number(xg[0])][xg[1]]=el.value;S.keepScroll=true;render();}}
