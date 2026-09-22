@@ -496,45 +496,6 @@ function ownView(){var d=S.draftOwn,t=indexOf(d.scores),v=verdict(t);
   ?'<div class="hl" style="margin-top:8px">W zaznaczonych wierszach minimum jest większe od maksimum — popraw przedział.</div>':'')+
  '<div class="note" style="margin-top:8px">Przedziały służą jako założenia projektowe. Wartości rzeczywiste wpisujesz w etapie próby technologicznej.</div></div>'+
 
- '<div class="card"><div class="eyebrow">ETAPY PROJEKTU — UZUPEŁNIA OSOBA ODPOWIEDZIALNA</div>'+
- '<div class="note" style="margin-bottom:8px">Każdy etap ma właściciela, termin, opis zadań, uwagi i własne zdjęcia. Ocena 1–5 jest opcjonalna — włącz ją w etapie, w którym powstała próbka do degustacji.</div>'+
- (d.kroki.length?'<div class="row" style="gap:6px;margin-bottom:6px">'+
-   '<span class="pill" style="background:'+C.claret+'">Etapy: '+etapyDone(d).t+'</span>'+
-   '<span class="pill" style="background:'+C.steel+'">Zrobione: '+etapyDone(d).d+' z '+etapyDone(d).t+'</span>'+
-   '<span class="pill" style="background:'+C.pink+'">Odpowiedzialny: '+esc(rolaOk(d.rola))+(d.inicjaly?' · '+esc(d.inicjaly):'')+'</span>'+
-   (ostatniKrok(d)?'<span class="pill" style="background:'+C.coral+'">Ocena z etapu „'+esc(ostatniKrok(d).title)+'”: '+ocenaWlasnej(d).toFixed(1)+'</span>':'')+'</div>'
-  :'<div class="row" style="margin-bottom:8px"><button class="btn dark" data-act="tmplEtapy">Wstaw 8 pustych etapów</button>'+
-   '<span class="note">albo dodaj własne etapy poniżej</span></div>')+
-
- '<div class="weeks">'+
- d.kroki.map(function(k,i){
-  return '<div><div class="weekhead"><span>Etap '+k.nr+(k.data?' · '+plDate(k.data):'')+'</span><span>'+esc(k.title)+'</span></div>'+
-  '<div class="weekbox">'+
-  '<label>Nazwa etapu</label><input data-kf="'+i+'|title" value="'+esc(k.title)+'">'+
-  '<label>Termin etapu — wybierz datę</label><input type="date" data-kf="'+i+'|data" value="'+esc(k.data||'')+'">'+
-  '<label>Zadania w tym etapie</label><textarea style="min-height:70px;font-size:12px" data-kf="'+i+'|zadania">'+esc(k.zadania||'')+'</textarea>'+
-  '<label>Uwagi z realizacji</label><textarea style="min-height:60px;font-size:12px" data-kf="'+i+'|uwagi" placeholder="obserwacje, problemy, ustalenia z zespołem">'+esc(k.uwagi||'')+'</textarea>'+
-  '<label>Zdjęcia z etapu ('+(k.photos||[]).length+'/4)</label>'+
-  ((k.photos&&k.photos.length)?'<div class="thumbs">'+k.photos.map(function(x,pi){
-    return '<div class="thumb"><img src="'+x.src+'" alt="'+esc(k.title)+'" data-ez="'+i+'|'+pi+'">'+
-    '<button class="x" data-erp="'+i+'|'+pi+'">Usuń</button></div>';}).join('')+'</div>':'')+
-  '<div class="row" style="gap:5px;margin-top:6px"><button class="mini" data-eshoot="'+i+'">Zrób zdjęcie</button>'+
-  '<button class="mini" data-epick="'+i+'">Dodaj z galerii</button></div>'+
-  '<label class="row" style="gap:7px;margin-top:10px;font-size:12px;color:'+C.claret+'"><input type="checkbox" data-kd="'+i+'" style="width:18px;height:18px"'+(k.done?' checked':'')+'> Etap zrobiony</label>'+
-  '<label class="row" style="gap:7px;margin-top:6px;font-size:12px;color:'+C.claret+'"><input type="checkbox" data-ko="'+i+'" style="width:18px;height:18px"'+(k.ocenione?' checked':'')+'> W tym etapie oceniam próbkę 1–5</label>'+
-  (k.ocenione?CRIT.map(function(c){return '<div class="scorerow"><div>'+c.l+' <span class="note">('+Math.round(c.w*100)+'%)</span></div><div class="row" style="gap:5px">'+
-    [1,2,3,4,5].map(function(n){return '<button class="dot'+(n<=k.scores[c.k]?' on':'')+'" data-ks="'+i+'|'+c.k+'" data-kv="'+n+'">'+n+'</button>';}).join('')+'</div></div>';}).join('')+
-   '<div class="row" style="margin-top:8px;justify-content:space-between"><span class="note">Indeks etapu</span><strong>'+krokIdx(k).toFixed(1)+' / 5</strong></div>':'')+
-  '<button class="mini" data-dk="'+i+'" style="margin-top:8px">Usuń etap</button>'+
-  '</div></div>';}).join('')+
- '<div><div class="weekhead" style="background:'+C.coral+'"><span>Nowy etap '+(d.kroki.length+1)+'</span><span>dodaj własny</span></div>'+
- '<div class="weekbox"><label>Nazwa etapu (opcjonalnie)</label><input data-nk="1" value="'+esc(NK)+'" placeholder="możesz wpisać teraz albo później">'+
- '<button class="btn primary" data-act="addkrok" style="width:100%;margin-top:8px">Dodaj etap</button></div></div>'+
- '</div>'+
- '<input type="file" id="eph" accept="image/*" multiple style="display:none">'+
- '<input type="file" id="ecam" accept="image/*" capture="environment" style="display:none">'+
- '</div>'+
-
 '<div class="card"><div class="row sticky" style="margin-top:0"><button class="btn primary" data-act="save">Zapisz innowację w bazie</button>'+
  '<button class="btn ghost" data-act="clear">Wyczyść formularz</button>'+
  '<span class="note">Po zapisie otwórz wpis w Bazie, żeby założyć action plan.</span></div></div></div>';}
@@ -1108,7 +1069,6 @@ function shrink(src,max,q){return new Promise(function(res){
 
 function saveItem(){var d=D(),wlasna=(S.tab==='own');
  if(!d.nazwa.trim())return flash(wlasna?'Wpisz nazwę koncepcji przed zapisem.':'Wpisz nazwę produktu przed zapisem.',1);
- if(wlasna&&!d.kroki.length)return flash('Dodaj co najmniej jeden etap przed zapisem.',1);
  var v=Number((wlasna?ocenaWlasnej(d):indexOf(d.scores)).toFixed(1));
  var oc=ostatniKrok(d);var sc=(wlasna&&oc)?oc.scores:d.scores;
  flash('Zapisuję ocenę i zmniejszam zdjęcia…');
