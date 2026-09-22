@@ -190,7 +190,7 @@ function ostatniKrok(d){var oc=(d.kroki||[]).filter(function(k){return k.ocenion
  return oc.length?oc[oc.length-1]:null;}
 function ocenaWlasnej(d){var k=ostatniKrok(d);return k?krokIdx(k):0;}
 function etapyDone(d){var t=(d.kroki||[]).length,n=(d.kroki||[]).filter(function(k){return k.done;}).length;return {t:t,d:n};}
-function emptyDraft(){var d={photos:[],nazwa:'',marka:'',kat:'Batony zbożowe/orzechowe',plant:'Wilga',sklad:'',alergeny:'',claims:'',nowe:'',wyglad:'',komentarz:'',komentarzBT:'',decyzja:'',jezyk_etykiety:'',jezyk_tresci:'',oryginal:null,pewnosc:null,nutri_zrodlo:'',inspiracja:'',rola:'R&D',inicjaly:'',claimsList:[],claimsInne:'',nutriMin:{},nutriMax:{},nutriNA:{},kroki:[],pytania:[],luki:[],odpowiedzi:'',nutri:{},scores:{},targets:[]};
+function emptyDraft(){var d={photos:[],nazwa:'',marka:'',kat:'Batony zbożowe/orzechowe',plant:'Wilga',sklad:'',alergeny:'',claims:'',nowe:'',wyglad:'',komentarz:'',komentarzBT:'',decyzja:'',jezyk_etykiety:'',jezyk_tresci:'',oryginal:null,pewnosc:null,nutri_zrodlo:'',inspiracja:'',rola:'R&D',inicjaly:'',claimsList:[],claimsInne:'',nutriMin:{},nutriMax:{},nutriNA:{},niepewne:[],nutriRozbieznosci:{},kroki:[],pytania:[],luki:[],odpowiedzi:'',nutri:{},scores:{},targets:[]};
  NUTRI.forEach(function(n){d.nutri[n[0]]='';});CRIT.forEach(function(c){d.scores[c.k]=3;});return d;}
 function indexOf(s){var t=0;CRIT.forEach(function(c){t+=(Number(s[c.k])||0)*c.w;});return t;}
 function verdict(v){return v>=4?{t:'Do transferu',c:C.coral}:v>=3?{t:'Obserwuj',c:C.gold}:{t:'Odrzuć',c:C.steel};}
@@ -537,6 +537,7 @@ function radarSVG(dd){var d=dd||S.draft;var cx=130,cy=115,R=88,n=CRIT.length,pts
  return '<svg viewBox="0 0 260 235" width="100%" height="215">'+rings+ax+'<polygon points="'+pts.join(' ')+'" fill="'+C.coral+'" fill-opacity=".28" stroke="'+C.coral+'" stroke-width="2"/></svg>';}
 
 function scanView(){var d=S.draft,t=indexOf(d.scores),v=verdict(t),nIss=nutriIssues(d.nutri);
+ if(d.nutriRozbieznosci)Object.keys(d.nutriRozbieznosci).forEach(function(k){nIss[k]=(nIss[k]?nIss[k]+' ':'')+d.nutriRozbieznosci[k];});
  return '<div class="body"><div class="g2">'+
  '<div class="card"><div class="eyebrow">KROK 1 — ZDJĘCIA ('+d.photos.length+'/6)</div>'+
  (d.photos.length?'<div class="thumbs">'+d.photos.map(function(p,i){
@@ -696,6 +697,7 @@ function grupaBlock(nazwa){var it=itemByName(nazwa);
 function nutriBlock(nazwa){var it=itemByName(nazwa);
  if(!it)return '';
  var nu=it.nutri||{},nIss=nutriIssues(nu);
+ if(it.nutriRozbieznosci)Object.keys(it.nutriRozbieznosci).forEach(function(k){nIss[k]=(nIss[k]?nIss[k]+' ':'')+it.nutriRozbieznosci[k];});
  return '<div style="margin-top:14px;padding-top:14px;border-top:1px solid #EEE8EA">'+
  '<div class="eyebrow">WARTOŚCI ODŻYWCZE NA 100 G</div>'+
  '<div class="note" style="margin-bottom:8px">Odczytywana jest tylko kolumna na 100 g. Kolumny na porcję, na opakowanie i %RWS są pomijane.'+
@@ -928,8 +930,33 @@ function fotoContent(d,prefix){var c=[];
   c.push({type:'image',source:{type:'base64',media_type:mt||'image/jpeg',data:b64}});});
  c.push({type:'text',text:prefix});
  return c;}
+function fotoContentTyp(d,prefix,typ){var ph=d.photos.filter(function(p){return p.type===typ;});
+ if(!ph.length)ph=d.photos;
+ var c=[];
+ ph.forEach(function(p){var mt=p.src.slice(5,p.src.indexOf(';')),b64=p.src.slice(p.src.indexOf(',')+1);
+  c.push({type:'text',text:'Zdjęcie — '+p.type+':'});
+  c.push({type:'image',source:{type:'base64',media_type:mt||'image/jpeg',data:b64}});});
+ c.push({type:'text',text:prefix});
+ return c;}
+function porownajNutri(a,b){var diff={};
+ NUTRI.forEach(function(n){var k=n[0],av=(a&&a[k])||'',bv=(b&&b[k])||'',x=nutriNum(av),y=nutriNum(bv);
+  if(x==null||y==null){if(String(av).trim()!==String(bv).trim())diff[k]='Dwa niezależne odczyty AI dały różne wartości: "'+(av||'?')+'" vs "'+(bv||'?')+'" — sprawdź na opakowaniu.';return;}
+  var tol=Math.max(0.15,Math.abs(x)*0.03);
+  if(Math.abs(x-y)>tol)diff[k]='Dwa niezależne odczyty AI się różnią: '+av+' vs '+bv+' — sprawdź na opakowaniu.';});
+ return diff;}
+function verifyNutri(d){
+ if(!d.photos.length)return;
+ var pierwszy={};NUTRI.forEach(function(n){pierwszy[n[0]]=d.nutri[n[0]];});
+ var prompt='Poniżej zdjęcie tylnej strony opakowania z tabelą wartości odżywczych. Niezależnie od jakichkolwiek wcześniejszych odczytów tego produktu, przepisz liczby jeszcze raz od zera WYŁĄCZNIE z kolumny w przeliczeniu na 100 g (pomiń porcję, opakowanie, %RWS, %NRV). Czytaj cyfra po cyfrze. Podawaj same liczby bez jednostek, separator dziesiętny jako kropka. Czego nie widać w tej kolumnie — wpisz "?". Zwróć WYŁĄCZNIE surowy JSON, bez znaczników ``` i bez komentarza: {"nutri":{"energia_kcal":"","tluszcz":"","nasycone":"","weglowodany":"","cukry":"","blonnik":"","bialko":"","sol":""}}';
+ callAI({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:fotoContentTyp(d,prompt,'Tył / etykieta')}]},
+ function(j){if(!j||!j.nutri)return;
+  d.nutriRozbieznosci=porownajNutri(pierwszy,j.nutri);
+  render();
+  if(Object.keys(d.nutriRozbieznosci).length)flash('Drugi, niezależny odczyt tabeli wartości odżywczych wykrył rozbieżności — sprawdź oznaczone pola.',1);},
+ function(){});}
 
 function readLabel(){var d=D();if(!d.photos.length)return flash('Najpierw wgraj co najmniej jedno zdjęcie.',1);
+ d.nutriRozbieznosci={};
  S.busy=true;render();flash('Analizuję '+d.photos.length+' zdjęć — transkrypcja i tłumaczenie…');
  var prompt='Jesteś technologiem żywności wykonującym precyzyjny odczyt etykiety. Powyżej masz zdjęcia JEDNEGO produktu, każde opisane rolą (front opakowania, tył z etykietą, produkt wyjęty z opakowania, detal).\n'+
  'PRZYPISANIE ŹRÓDEŁ — PRZESTRZEGAJ DOKłADNIE. Nazwę, markę i deklaracje na opakowaniu (claims) odczytaj WYŁĄCZNIE ze zdjęcia „front opakowania”; jeśli go nie ma na żadnym zdjęciu, wpisz w tych polach "?" i dodaj ich nazwy do niepewne — nie zgaduj na podstawie innych zdjęć ani własnej wiedzy o podobnych produktach. Skład, alergeny i tabelę wartości odżywczych odczytaj WYŁĄCZNIE ze zdjęcia „tył / etykieta”. Wygląd, barwę, kształt, przekrój i konsystencję opisz WYŁĄCZNIE na podstawie zdjęcia „produkt (środek)” lub „detal”.\n'+
@@ -959,6 +986,7 @@ function readLabel(){var d=D();if(!d.photos.length)return flash('Najpierw wgraj 
  callAI({model:'claude-sonnet-4-6',max_tokens:4096,messages:[{role:'user',content:fotoContent(d,prompt)}]},
  function(j){przyjmijOdczyt(d,j);
   S.busy=false;render();
+  verifyNutri(d);
   var ps=(j.pewnosc&&Number(j.pewnosc.sklad))||0;
   if(d.luki.length)flash('Odczyt gotowy. Etykieta jest nieczytelna w '+d.luki.length+' miejscach — dopisz te składniki ręcznie pod polem Skład.',1);
   else if(d.pytania.length)flash('Odczyt gotowy, ale AI ma '+d.pytania.length+' pytań — odpowiedz na nie pod polem Skład, żeby dokończyć odczyt.',1);
@@ -1016,6 +1044,7 @@ function refineLabel(){var d=D();
  callAI({model:'claude-sonnet-4-6',max_tokens:4096,messages:[{role:'user',content:fotoContent(d,prompt)}]},
  function(j){przyjmijOdczyt(d,j);d.odpowiedzi='';
   S.busy=false;render();
+  verifyNutri(d);
   flash(d.pytania.length?('Odczyt poprawiony, zostało '+d.pytania.length+' pytań.'):'Odczyt poprawiony, AI nie ma więcej pytań. Sprawdź skład przed zapisem.');},
  function(){S.busy=false;render();flash('Poprawa odczytu niedostępna w tym trybie.',1);});}
 
@@ -1068,7 +1097,7 @@ function saveItem(){var d=D(),wlasna=(S.tab==='own');
   (d.kroki||[]).forEach(function(k,ki){k.photos=wyniki[ki+1]||[];});
   S.items.unshift({id:'u'+Date.now(),data:new Date().toISOString().slice(0,10),nazwa:d.nazwa,marka:d.marka,kat:(wlasna?katOk(d.kat):(d.targets.filter(function(x){return x!==NOPE;})[0]||'')),plant:d.plant||PLANTS[0],
    sklad:d.sklad,alergeny:d.alergeny,claims:d.claims,nowe:d.nowe,wyglad:d.wyglad,komentarz:(d.decyzja==='brak'?(d.komentarzBT||''):d.komentarz),decyzja:d.decyzja||'',jezyk_etykiety:d.jezyk_etykiety||'',jezyk_tresci:d.jezyk_tresci||LANG,oryginal:d.oryginal||null,pewnosc:d.pewnosc||null,nutri_zrodlo:d.nutri_zrodlo||'',
-   rola:rolaOk(d.rola),inicjaly:d.inicjaly||'',claimsList:d.claimsList||[],claimsInne:d.claimsInne||'',nutri:d.nutri,nutriMin:d.nutriMin||{},nutriMax:d.nutriMax||{},nutriNA:d.nutriNA||{},niepewne:d.niepewne||[],scores:sc,targets:d.targets,photos:ph,inspiracja:d.inspiracja||'',kroki:wlasna?d.kroki:[],ocena:v,source:wlasna?'własna':'sesja'});
+   rola:rolaOk(d.rola),inicjaly:d.inicjaly||'',claimsList:d.claimsList||[],claimsInne:d.claimsInne||'',nutri:d.nutri,nutriMin:d.nutriMin||{},nutriMax:d.nutriMax||{},nutriNA:d.nutriNA||{},niepewne:d.niepewne||[],nutriRozbieznosci:d.nutriRozbieznosci||{},scores:sc,targets:d.targets,photos:ph,inspiracja:d.inspiracja||'',kroki:wlasna?d.kroki:[],ocena:v,source:wlasna?'własna':'sesja'});
   save();
   if(wlasna)S.draftOwn=emptyDraft();else S.draft=emptyDraft();
   S.tab='base';render();
