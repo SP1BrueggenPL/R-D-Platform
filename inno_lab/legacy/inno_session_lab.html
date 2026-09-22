@@ -752,6 +752,19 @@ function photoBlock(nazwa){var ph=photosFor(nazwa);
  '<div class="row" style="margin-top:12px"><button class="btn dark" data-act="shoot2">Zrób zdjęcie</button>'+
  '<button class="btn ghost" data-act="pick2">Dodaj z galerii</button></div></div>';}
 
+function prooBlock(nazwa){var it=itemByName(nazwa);
+ if(!it||!it.kroki||!it.kroki.length)return '';
+ return '<div style="margin-top:14px;padding-top:14px;border-top:1px solid #EEE8EA"><div class="eyebrow">ETAPY WŁASNEJ INNOWACJI ('+it.kroki.length+')</div>'+
+ '<div class="row" style="gap:6px;margin-bottom:8px"><span class="pill" style="background:'+C.claret+'">Odpowiedzialny: '+esc(rolaOk(it.rola))+(it.inicjaly?' · '+esc(it.inicjaly):'')+'</span></div>'+
+ '<table><thead><tr><th>Etap</th><th>Termin</th><th>Zadania i uwagi</th><th style="width:90px">Status</th></tr></thead><tbody>'+
+ it.kroki.map(function(k){
+  return '<tr><td>'+esc(k.title)+((k.photos&&k.photos.length)?' <span class="note notr">('+k.photos.length+' zdj.)</span>':'')+'</td>'+
+  '<td>'+esc(k.data?plDate(k.data):'—')+'</td>'+
+  '<td>'+esc(k.zadania||'—')+(k.uwagi?'<div class="note">'+esc(k.uwagi)+'</div>':'')+'</td>'+
+  '<td>'+(k.done?'<span class="pill" style="background:'+C.claret+'">zrobione</span>':'<span class="note">w toku</span>')+
+  (k.ocenione?'<div class="note">indeks '+indexOf(k.scores).toFixed(1)+'</div>':'')+'</td></tr>';}).join('')+
+ '</tbody></table><div class="note" style="margin-top:6px">Etapy uzupełniasz w zakładce Własna innowacja.</div></div>';}
+
 function planCard(p){var f=p.weeks.filter(function(w){return w.initials;}).length;
  return '<div class="card"><div class="row" style="justify-content:space-between">'+
  '<div><div class="eyebrow" style="margin:0">ACTION PLAN · UTWORZONY '+esc(p.created)+'</div><h2 style="font-size:18px">'+esc(p.product)+'</h2>'+
@@ -764,7 +777,7 @@ function planCard(p){var f=p.weeks.filter(function(w){return w.initials;}).lengt
  '<span class="pill" style="background:'+C.steel+'">Właściciele: '+f+'/'+p.weeks.length+'</span>'+
  (p.weeks[0]&&p.weeks[0].date?'<span class="pill" style="background:'+C.pink+'">'+plDate(p.weeks[0].date)+' — '+plDate(p.weeks[p.weeks.length-1].date)+'</span>':'')+'</div></div>'+
  '</div>'+
- grupaBlock(p.product)+nutriBlock(p.product)+photoBlock(p.product)+attBlock(p.product)+
+ grupaBlock(p.product)+nutriBlock(p.product)+photoBlock(p.product)+attBlock(p.product)+prooBlock(p.product)+
  '<div class="g2" style="gap:12px;margin-top:14px"><div><label>Start projektu — data</label><input type="date" data-ps="'+p.id+'" value="'+esc(p.start||'')+'"></div>'+
  '<div><label>Linia docelowa</label><select data-pl="'+p.id+'">'+LINES.map(function(l){return '<option value="'+esc(l)+'"'+(l===p.line?' selected':'')+'>'+esc(l)+'</option>';}).join('')+'</select></div></div>'+
  '<div class="g2" style="gap:12px"><div><label>Postęp projektu</label><div class="row" style="gap:8px"><select data-pg="'+p.id+'" style="max-width:130px">'+
@@ -808,7 +821,7 @@ function planView(){
   (itemByName(S.open)?'<div class="row" style="gap:6px;margin-top:6px"><span class="pill" style="background:'+(itemByName(S.open).source==='własna'?C.pink:C.steel)+'">'+esc(srcLabel(itemByName(S.open)))+'</span>'+
    (itemByName(S.open).plant?'<span class="pill" style="background:'+C.claret+'">Plant: '+esc(itemByName(S.open).plant)+'</span>':'')+'</div>':'')+
   '<p class="note" style="margin-top:8px">Ten produkt nie ma jeszcze action planu. Utwórz go w formularzu pod spodem.</p>'+
-  grupaBlock(S.open)+nutriBlock(S.open)+photoBlock(S.open)+attBlock(S.open)+'</div>'+newPlanForm()+'</div>';
+  grupaBlock(S.open)+nutriBlock(S.open)+photoBlock(S.open)+attBlock(S.open)+prooBlock(S.open)+'</div>'+newPlanForm()+'</div>';
  return '<div class="body">'+back+planCard(p)+'</div>';}
 
 function critFilterCard(){
