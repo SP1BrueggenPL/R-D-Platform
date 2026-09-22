@@ -681,11 +681,14 @@ function baseView(){var kats=KATS.slice();
  '</tbody></table></div></div>';}
 
 function newPlanForm(){
+ var itNP=itemByName(NP.product),wlasnaNP=itNP&&itNP.source==='własna';
+ if(wlasnaNP)NP.line=katOk(itNP.kat)||LINES[0];
  var linie=NP.dec&&NP.dec.filter(function(l){return l!==NOPE;}).length?NP.dec.filter(function(l){return l!==NOPE;}):LINES;
  if(linie.indexOf(NP.line)<0)NP.line=linie[0];
  return '<div class="card"><div class="eyebrow">UTWÓRZ ACTION PLAN</div>'+
  '<div class="g2" style="gap:10px"><div><label>Produkt lub inspiracja</label><input data-np="product" value="'+esc(NP.product)+'" placeholder="np. Baton piernikowy"></div>'+
- '<div><label>Linia docelowa</label><select data-np="line">'+linie.map(function(l){return '<option value="'+esc(l)+'"'+(l===NP.line?' selected':'')+'>'+esc(l)+'</option>';}).join('')+'</select></div></div>'+
+ (wlasnaNP?'<div><label>Linia docelowa</label><input value="'+esc(NP.line)+'" disabled title="Dla własnej innowacji linia docelowa to Grupa produktowa ustawiona wyżej."></div></div>'
+  :'<div><label>Linia docelowa</label><select data-np="line">'+linie.map(function(l){return '<option value="'+esc(l)+'"'+(l===NP.line?' selected':'')+'>'+esc(l)+'</option>';}).join('')+'</select></div></div>')+
  '<div class="g2" style="gap:10px"><div><label>Kierunek do odtworzenia</label><input data-np="flavour" value="'+esc(NP.flavour)+'" placeholder="np. profil piernikowy, kremowa konsystencja"></div>'+
  '<div><label>Start projektu — data (opcjonalnie)</label><input type="date" data-np="start" value="'+esc(NP.start)+'"></div></div>'+
  '<label>Harmonogram</label><div class="row">'+
