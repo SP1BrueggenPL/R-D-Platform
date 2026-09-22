@@ -1394,9 +1394,9 @@ document.addEventListener('click',function(e){
 },true);
 document.addEventListener('keydown',function(e){if(e.key==='Escape')zamknijFiltry(null);});
 
-/* przeciągnij i upuść zdjęcia w Skanerze */
-document.addEventListener('dragover',function(e){if(S.tab==='scan'){e.preventDefault();}});
-document.addEventListener('drop',function(e){if(S.tab!=='scan')return;e.preventDefault();
+/* przeciągnij i upuść zdjęcia w Skanerze i Własnej innowacji */
+document.addEventListener('dragover',function(e){if(S.tab==='scan'||S.tab==='own'){e.preventDefault();}});
+document.addEventListener('drop',function(e){if(S.tab!=='scan'&&S.tab!=='own')return;e.preventDefault();
  if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files.length)addPhotos(e.dataTransfer.files);});
 load();loadDrafts();render();
 if(ONLINE){
