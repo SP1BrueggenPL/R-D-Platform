@@ -44,8 +44,8 @@ _STORAGE_SHIM = """<script>
   window.storage = {
     get: function(key){
       return fetch(BASE + encodeURIComponent(key) + '/', {credentials:'same-origin'})
-        .then(function(r){ return r.ok ? r.json() : {value:null}; })
-        .catch(function(){ return {value:null}; });
+        .then(function(r){ return (r.ok && !r.redirected) ? r.json() : {value:null, failed:true}; })
+        .catch(function(){ return {value:null, failed:true}; });
     },
     set: function(key, value){
       return fetch(BASE + encodeURIComponent(key) + '/', {
@@ -53,7 +53,7 @@ _STORAGE_SHIM = """<script>
         credentials:'same-origin',
         headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
         body: JSON.stringify({value: value})
-      }).then(function(r){ return r.ok; });
+      }).then(function(r){ return r.ok && !r.redirected; });
     }
   };
 })();
@@ -98,6 +98,9 @@ def original_app(request):
     return HttpResponse(html, content_type='text/html; charset=utf-8')
 
 
+_STORAGE_MAX_BYTES = 64 * 1024 * 1024
+
+
 @login_required
 def legacy_storage(request, key):
     if not key:
@@ -106,8 +109,14 @@ def legacy_storage(request, key):
         entry = LegacyStorageEntry.objects.filter(key=key).first()
         return JsonResponse({'value': entry.value if entry else None})
     if request.method == 'POST':
+        # request.body would enforce DATA_UPLOAD_MAX_MEMORY_SIZE (2.5 MB). The
+        # shared 'inno:core' blob carries every item's photos and attachments
+        # inline as base64, so it outgrows that after a handful of products —
+        # and every save after that was rejected with a 400 and silently lost.
+        if int(request.META.get('CONTENT_LENGTH') or 0) > _STORAGE_MAX_BYTES:
+            return JsonResponse({'ok': False, 'error': 'too large'}, status=413)
         try:
-            body = json.loads(request.body.decode('utf-8'))
+            body = json.loads(request.read().decode('utf-8'))
         except (json.JSONDecodeError, UnicodeDecodeError):
             return JsonResponse({'ok': False, 'error': 'bad request'}, status=400)
         LegacyStorageEntry.objects.update_or_create(key=key, defaults={'value': body.get('value', '')})
