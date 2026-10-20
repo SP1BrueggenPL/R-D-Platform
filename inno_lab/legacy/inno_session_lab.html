@@ -235,9 +235,10 @@ function mergeState(src,tryb){var n={i:0,p:0,d:0,g:0};
 var ONLINE=!!(window.storage&&window.storage.get);
 var SYNC={rev:0,busy:false,pending:false,last:''};
 
-function stGet(k){if(ONLINE)return window.storage.get(k,true).then(function(r){return r&&r.value?r.value:null;}).catch(function(){return null;});
+var STFAIL={};
+function stGet(k){if(ONLINE)return window.storage.get(k,true).then(function(r){return r&&r.failed?STFAIL:(r&&r.value?r.value:null);}).catch(function(){return STFAIL;});
  return Promise.resolve(localStorage.getItem(k));}
-function stSet(k,v){if(ONLINE)return window.storage.set(k,v,true).then(function(){return true;}).catch(function(){return false;});
+function stSet(k,v){if(ONLINE)return window.storage.set(k,v,true).then(function(r){return r!==false;}).catch(function(){return false;});
  try{localStorage.setItem(k,v);return Promise.resolve(true);}catch(e){return Promise.resolve(false);}}
 
 function pack(){return {items:S.items,plans:S.plans,dec:S.dec,rev:SYNC.rev};}
@@ -263,14 +264,16 @@ function push(){
  if(!ONLINE){return stSet('inno:core',JSON.stringify(pack())).then(function(){return stSet('inno:imgs',JSON.stringify(S.imgs));});}
  if(SYNC.busy){SYNC.pending=true;return Promise.resolve();}
  SYNC.busy=true;
+ var coreOk=true;
  return stGet('inno:core').then(function(raw){
+  if(raw===STFAIL)throw new Error('odczyt wspólnej bazy nie powiódł się');   // nie nadpisujemy bazy stanem lokalnym, gdy nie wiemy, co w niej jest
   var zdalne=null;try{zdalne=raw?JSON.parse(raw):null;}catch(e){}
   if(zdalne)mergeState(zdalne,'scal');          // scalamy cudze zmiany przed zapisem
   SYNC.rev=Math.max(SYNC.rev,(zdalne&&Number(zdalne.rev))||0)+1;
   return stSet('inno:core',JSON.stringify(pack()));})
- .then(function(){return stSet('inno:imgs',JSON.stringify(S.imgs));})
+ .then(function(okCore){coreOk=okCore;return stSet('inno:imgs',JSON.stringify(S.imgs));})
  .then(function(ok){
-  if(!ok)flash('Nie udało się zapisać do wspólnej bazy. Zrób Kopię JSON, żeby nie stracić danych.',1);
+  if(!ok||!coreOk)flash('Nie udało się zapisać do wspólnej bazy — dane są tylko w tej karcie przeglądarki i znikną po wyjściu. Zrób Kopię JSON, żeby ich nie stracić.',1);
   SYNC.busy=false;
   if(SYNC.pending){SYNC.pending=false;return push();}})
  .catch(function(){SYNC.busy=false;flash('Wspólna baza chwilowo nieosiągalna — pracujesz na kopii lokalnej.',1);});}
