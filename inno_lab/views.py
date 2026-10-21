@@ -41,19 +41,33 @@ _STORAGE_SHIM = """<script>
     return m ? decodeURIComponent(m.pop()) : '';
   }
   var BASE = '%(base_url)s';
+  function why(op, key, r){
+    return op + ' ' + key + ' \\u2192 HTTP ' + r.status + (r.redirected ? ' (przekierowanie na ' + r.url + ')' : '');
+  }
   window.storage = {
+    last: '',
     get: function(key){
+      var self = window.storage;
       return fetch(BASE + encodeURIComponent(key) + '/', {credentials:'same-origin'})
-        .then(function(r){ return (r.ok && !r.redirected) ? r.json() : {value:null, failed:true}; })
-        .catch(function(){ return {value:null, failed:true}; });
+        .then(function(r){
+          if (r.ok && !r.redirected) { return r.json(); }
+          self.last = self.last || why('GET', key, r);
+          return {value:null, failed:true};
+        })
+        .catch(function(e){ self.last = self.last || ('GET ' + key + ' \\u2192 ' + e); return {value:null, failed:true}; });
     },
     set: function(key, value){
+      var self = window.storage;
       return fetch(BASE + encodeURIComponent(key) + '/', {
         method:'POST',
         credentials:'same-origin',
         headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
         body: JSON.stringify({value: value})
-      }).then(function(r){ return r.ok && !r.redirected; });
+      }).then(function(r){
+        var ok = r.ok && !r.redirected;
+        if (!ok) { self.last = self.last || why('POST', key, r); }
+        return ok;
+      }).catch(function(e){ self.last = self.last || ('POST ' + key + ' \\u2192 ' + e); return false; });
     }
   };
 })();

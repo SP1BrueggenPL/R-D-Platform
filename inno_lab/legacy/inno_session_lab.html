@@ -260,13 +260,14 @@ function pull(cichy){
   if(!cichy||S.items.length+S.plans.length!==przed)return true;
   return false;});}
 
+function powodBazy(err){var w=(window.storage&&window.storage.last)||(err&&err.message&&err.message.indexOf('odczyt')<0?String(err.message):'');return w?' ['+w+']':'';}
 function stanBazy(){var tb=document.getElementById('tryb');
  if(tb)tb.textContent=ONLINE?('wspólna baza · '+(SYNC.failed?'BŁĄD zapisu':(SYNC.busy||SYNC.dirty)?'zapisuję…':'aktualna')):'baza lokalna w tej przeglądarce';}
 
 function push(){
  if(!ONLINE){SYNC.dirty=false;return stSet('inno:core',JSON.stringify(pack())).then(function(){return stSet('inno:imgs',JSON.stringify(S.imgs));});}
  if(SYNC.busy){SYNC.pending=true;return Promise.resolve();}
- SYNC.busy=true;stanBazy();
+ SYNC.busy=true;stanBazy();if(window.storage)window.storage.last='';
  var coreOk=true;
  return stGet('inno:core').then(function(raw){
   if(raw===STFAIL)throw new Error('odczyt wspólnej bazy nie powiódł się');   // nie nadpisujemy bazy stanem lokalnym, gdy nie wiemy, co w niej jest
@@ -277,11 +278,11 @@ function push(){
   return stSet('inno:core',JSON.stringify(pack()));})
  .then(function(okCore){coreOk=okCore;return stSet('inno:imgs',JSON.stringify(S.imgs));})
  .then(function(ok){
-  if(!ok||!coreOk){SYNC.dirty=true;SYNC.failed=true;flash('Nie udało się zapisać do wspólnej bazy — dane są tylko w tej karcie przeglądarki i znikną po wyjściu. Zrób Kopię JSON, żeby ich nie stracić.',1);}
+  if(!ok||!coreOk){SYNC.dirty=true;SYNC.failed=true;flash('Nie udało się zapisać do wspólnej bazy — dane są tylko w tej karcie przeglądarki i znikną po wyjściu. Zrób Kopię JSON, żeby ich nie stracić.'+powodBazy(),1);}
   else SYNC.failed=false;
   SYNC.busy=false;stanBazy();
   if(SYNC.pending){SYNC.pending=false;return push();}})
- .catch(function(){SYNC.busy=false;SYNC.dirty=true;SYNC.failed=true;stanBazy();flash('Wspólna baza chwilowo nieosiągalna — pracujesz na kopii lokalnej.',1);});}
+ .catch(function(err){SYNC.busy=false;SYNC.dirty=true;SYNC.failed=true;stanBazy();if(window.console)console.error('Inno sync:',err,window.storage&&window.storage.last);flash('Wspólna baza chwilowo nieosiągalna — pracujesz na kopii lokalnej.'+powodBazy(err),1);});}
 
 function load(){
  if(!ONLINE){try{
