@@ -233,7 +233,7 @@ function mergeState(src,tryb){var n={i:0,p:0,d:0,g:0};
  return n;}
 
 var ONLINE=!!(window.storage&&window.storage.get);
-var SYNC={rev:0,busy:false,pending:false,last:''};
+var SYNC={rev:0,busy:false,pending:false,last:'',dirty:false,failed:false};
 
 var STFAIL={};
 function stGet(k){if(ONLINE)return window.storage.get(k,true).then(function(r){return r&&r.failed?STFAIL:(r&&r.value?r.value:null);}).catch(function(){return STFAIL;});
@@ -260,23 +260,28 @@ function pull(cichy){
   if(!cichy||S.items.length+S.plans.length!==przed)return true;
   return false;});}
 
+function stanBazy(){var tb=document.getElementById('tryb');
+ if(tb)tb.textContent=ONLINE?('wspólna baza · '+(SYNC.failed?'BŁĄD zapisu':(SYNC.busy||SYNC.dirty)?'zapisuję…':'aktualna')):'baza lokalna w tej przeglądarce';}
+
 function push(){
- if(!ONLINE){return stSet('inno:core',JSON.stringify(pack())).then(function(){return stSet('inno:imgs',JSON.stringify(S.imgs));});}
+ if(!ONLINE){SYNC.dirty=false;return stSet('inno:core',JSON.stringify(pack())).then(function(){return stSet('inno:imgs',JSON.stringify(S.imgs));});}
  if(SYNC.busy){SYNC.pending=true;return Promise.resolve();}
- SYNC.busy=true;
+ SYNC.busy=true;stanBazy();
  var coreOk=true;
  return stGet('inno:core').then(function(raw){
   if(raw===STFAIL)throw new Error('odczyt wspólnej bazy nie powiódł się');   // nie nadpisujemy bazy stanem lokalnym, gdy nie wiemy, co w niej jest
   var zdalne=null;try{zdalne=raw?JSON.parse(raw):null;}catch(e){}
   if(zdalne)mergeState(zdalne,'scal');          // scalamy cudze zmiany przed zapisem
   SYNC.rev=Math.max(SYNC.rev,(zdalne&&Number(zdalne.rev))||0)+1;
+  SYNC.dirty=false;                              // stan, który za chwilę wysyłamy; zmiany w trakcie ustawią dirty ponownie
   return stSet('inno:core',JSON.stringify(pack()));})
  .then(function(okCore){coreOk=okCore;return stSet('inno:imgs',JSON.stringify(S.imgs));})
  .then(function(ok){
-  if(!ok||!coreOk)flash('Nie udało się zapisać do wspólnej bazy — dane są tylko w tej karcie przeglądarki i znikną po wyjściu. Zrób Kopię JSON, żeby ich nie stracić.',1);
-  SYNC.busy=false;
+  if(!ok||!coreOk){SYNC.dirty=true;SYNC.failed=true;flash('Nie udało się zapisać do wspólnej bazy — dane są tylko w tej karcie przeglądarki i znikną po wyjściu. Zrób Kopię JSON, żeby ich nie stracić.',1);}
+  else SYNC.failed=false;
+  SYNC.busy=false;stanBazy();
   if(SYNC.pending){SYNC.pending=false;return push();}})
- .catch(function(){SYNC.busy=false;flash('Wspólna baza chwilowo nieosiągalna — pracujesz na kopii lokalnej.',1);});}
+ .catch(function(){SYNC.busy=false;SYNC.dirty=true;SYNC.failed=true;stanBazy();flash('Wspólna baza chwilowo nieosiągalna — pracujesz na kopii lokalnej.',1);});}
 
 function load(){
  if(!ONLINE){try{
@@ -339,7 +344,27 @@ function zapisano(txt){var el=document.getElementById('autoz');if(!el)return;
  el.textContent=txt||'zapisano';el.style.opacity='1';
  clearTimeout(autoT);autoT=setTimeout(function(){el.style.opacity='0';},1600);}
 var saveT=null;
-function save(){clearTimeout(saveT);saveT=setTimeout(function(){push();zapisano();},400);}
+function save(){SYNC.dirty=true;clearTimeout(saveT);saveT=setTimeout(flushSave,400);}
+function flushSave(){clearTimeout(saveT);saveT=null;
+ return push().then(function(){if(!SYNC.dirty&&!SYNC.failed&&!SYNC.busy)zapisano();});}
+function zapisNiedokonczony(){return !!(saveT||SYNC.dirty||SYNC.busy||SYNC.pending);}
+/* nie wychodź, dopóki zapis do wspólnej bazy trwa — przeglądarka ubija wtedy wysyłkę w połowie i dane przepadają */
+window.addEventListener('beforeunload',function(e){if(zapisNiedokonczony()){e.preventDefault();e.returnValue='';}});
+document.addEventListener('click',function(e){
+ var a=e.target.closest?e.target.closest('a[href]'):null;
+ if(!a||a.target==='_blank'||a.hasAttribute('download')||!zapisNiedokonczony())return;
+ e.preventDefault();e.stopPropagation();
+ var cel=a.href,t0=Date.now();
+ flash('Zapisuję do wspólnej bazy — za chwilę wrócisz do platformy…');
+ SYNC.failed=false;                              // wynik tej próby, nie poprzedniej, decyduje o wyjściu
+ flushSave();
+ (function czekaj(){
+  if(zapisNiedokonczony()&&!SYNC.failed&&Date.now()-t0<60000){setTimeout(czekaj,100);return;}
+  if(SYNC.failed||zapisNiedokonczony()){
+   if(!window.confirm('Nie udało się zapisać zmian do wspólnej bazy. Jeśli wyjdziesz teraz, przepadną. Wyjść mimo to?'))return;
+   SYNC.dirty=false;SYNC.failed=false;SYNC.busy=false;SYNC.pending=false;saveT=null;}
+  window.location.href=cel;})();
+},true);
 function flash(t,bad){var el=document.getElementById('msg');
  el.innerHTML=t?('<div class="msg'+(bad?' bad':'')+'">'+esc(t)+'</div>'):'';
  if(t)trDOM(el);}
@@ -906,8 +931,7 @@ function render(){
  var T=[['scan','Skaner produktu'],['own','Własna innowacja'],['base','Baza danych ('+all().length+')'],['dash','Project Overview']];
  document.getElementById('tabs').innerHTML=T.map(function(t){return '<button class="tab'+(S.tab===t[0]?' on':'')+'" data-tab="'+t[0]+'">'+t[1]+'</button>';}).join('');
  document.getElementById('view').innerHTML=S.tab==='scan'?scanView():S.tab==='own'?ownView():S.tab==='base'?baseView():S.tab==='plan'?planView():dashView();
- var tb=document.getElementById('tryb');
- if(tb)tb.textContent=ONLINE?('wspólna baza · '+(SYNC.busy?'zapisuję…':'aktualna')):'baza lokalna w tej przeglądarce';
+ stanBazy();
  langBar();
  trDOM(document.getElementById('tabs'));trDOM(document.getElementById('view'));
  trDOM(document.querySelector('.top'));trDOM(document.querySelector('.foot'));
@@ -1084,7 +1108,7 @@ function saveItem(){var d=D(),wlasna=(S.tab==='own');
   S.items.unshift({id:'u'+Date.now(),data:new Date().toISOString().slice(0,10),nazwa:d.nazwa,marka:d.marka,kat:(wlasna?katOk(d.kat):(d.targets.filter(function(x){return x!==NOPE;})[0]||'')),plant:d.plant||PLANTS[0],
    sklad:d.sklad,alergeny:d.alergeny,claims:d.claims,nowe:d.nowe,wyglad:d.wyglad,komentarz:(d.decyzja==='brak'?(d.komentarzBT||''):d.komentarz),decyzja:d.decyzja||'',jezyk_etykiety:d.jezyk_etykiety||'',jezyk_tresci:d.jezyk_tresci||LANG,oryginal:d.oryginal||null,pewnosc:d.pewnosc||null,nutri_zrodlo:d.nutri_zrodlo||'',
    rola:rolaOk(d.rola),inicjaly:d.inicjaly||'',claimsList:d.claimsList||[],claimsInne:d.claimsInne||'',nutri:d.nutri,nutriMin:d.nutriMin||{},nutriMax:d.nutriMax||{},nutriNA:d.nutriNA||{},niepewne:d.niepewne||[],nutriRozbieznosci:d.nutriRozbieznosci||{},scores:sc,targets:d.targets,photos:ph,inspiracja:d.inspiracja||'',kroki:wlasna?d.kroki:[],ocena:v,source:wlasna?'własna':'sesja'});
-  save();
+  save();flushSave();
   if(wlasna)S.draftOwn=emptyDraft();else S.draft=emptyDraft();
   S.tab='base';render();
   flash((wlasna?'Zapisano własną innowację: ':'Zapisano: ')+S.items[0].nazwa+' — indeks '+v+'/5.');});}
