@@ -47,6 +47,12 @@ Optional, to turn on the AI features (Azure OpenAI GPT-4o):
 | `AZURE_OPENAI_DEPLOYMENT` | your GPT-4o deployment name (default `gpt-4o`) |
 | `AZURE_OPENAI_API_VERSION` | default `2024-08-01-preview` is usually fine |
 
+> **Migrations:** if the Startup Command above is *not* set, Azure falls back
+> to Oryx's auto-generated gunicorn command and `startup.sh` never runs. The
+> repo's `gunicorn.conf.py` (read automatically by gunicorn) runs `migrate`
+> once at master start, so new tables reach the database either way. Look for
+> "Migracje bazy zastosowane" in the Log stream after a deploy.
+
 ## 3. Deploy
 
 Deployment is via GitHub Actions (`.github/workflows/main_r-dplatform.yml`,
