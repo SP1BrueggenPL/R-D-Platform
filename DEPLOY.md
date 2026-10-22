@@ -47,11 +47,13 @@ Optional, to turn on the AI features (Azure OpenAI GPT-4o):
 | `AZURE_OPENAI_DEPLOYMENT` | your GPT-4o deployment name (default `gpt-4o`) |
 | `AZURE_OPENAI_API_VERSION` | default `2024-08-01-preview` is usually fine |
 
-> **Migrations:** if the Startup Command above is *not* set, Azure falls back
-> to Oryx's auto-generated gunicorn command and `startup.sh` never runs. The
-> repo's `gunicorn.conf.py` (read automatically by gunicorn) runs `migrate`
-> once at master start, so new tables reach the database either way. Look for
-> "Migracje bazy zastosowane" in the Log stream after a deploy.
+> **The Startup Command above is required.** Left empty, Azure falls back to
+> Oryx's auto-generated gunicorn command, `startup.sh` never runs and no
+> migration is ever applied (this is how production ended up without the
+> table behind Inno Session Lab's storage). As a safety net the repo's
+> `gunicorn.conf.py` (read automatically by gunicorn) also runs `migrate` once
+> at master start; look for "Migracje bazy zastosowane" or
+> "Applying ..." in the Log stream after a deploy.
 
 ## 3. Deploy
 
