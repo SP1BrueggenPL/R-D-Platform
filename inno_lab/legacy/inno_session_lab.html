@@ -204,7 +204,7 @@ function plan8(line,prod,fl){var t=[];
  return t;}
 
 /* --- stan i zapis --- */
-var S={tab:'scan',draft:emptyDraft(),draftOwn:emptyDraft(),items:[],plans:[],dec:{},imgs:{},open:null,q:'',katf:[],decf:[],srcf:[],plantf:[],yearf:[],progf:[],busy:false};
+var S={tab:'scan',draft:emptyDraft(),draftOwn:emptyDraft(),items:[],plans:[],dec:{},del:{},imgs:{},open:null,q:'',katf:[],decf:[],srcf:[],plantf:[],yearf:[],progf:[],busy:false};
 var NOPE='Bez Transferu';
 var NP={product:'',line:'Batony',flavour:'',start:'',tmpl:true,dec:[]};
 var NS={};
@@ -216,13 +216,27 @@ var RENAME={'Granola / Musli':'Granola','Owsianka':'Owsianki','Crunch / Ekstruda
 function decOf(p){var v=S.dec[p.id];
  if(v!=null)return (typeof v==='string')?(v?[v]:[]):v.slice();
  return (p.targets&&p.targets.length)?p.targets.slice():[];}
+function usunProjekt(it){var t=Date.now();
+ S.del[it.id]=t;
+ S.plans.filter(function(p){return p.product===it.nazwa;}).forEach(function(p){S.del[p.id]=t;});
+ S.items=S.items.filter(function(x){return x.id!==it.id;});
+ S.plans=S.plans.filter(function(p){return p.product!==it.nazwa;});
+ delete S.dec[it.id];delete S.imgs[it.nazwa];
+ if(S.open===it.nazwa)S.open=null;
+ save();}
 function setDec(id,arr){S.dec[id]=arr;save();S.keepScroll=true;render();}
 function curTargets(id){var it=S.items.filter(function(x){return x.id===id;})[0];return it&&it.targets?it.targets:[];}
 function mergeState(src,tryb){var n={i:0,p:0,d:0,g:0};
+ /* usunięte projekty/plany: znacznik usunięcia (nagrobek) jest scalany i wygrywa z dokładaniem rekordów, inaczej scalanie przywracałoby skasowane wpisy */
+ Object.keys(src.del||{}).forEach(function(k){if(!S.del[k])S.del[k]=src.del[k];});
+ S.items=S.items.filter(function(x){return !S.del[x.id];});
+ S.plans=S.plans.filter(function(x){return !S.del[x.id];});
+ Object.keys(S.dec).forEach(function(k){if(S.del[k])delete S.dec[k];});
  (src.items||[]).forEach(function(it){
-  if(!S.items.some(function(x){return x.id===it.id||(x.nazwa===it.nazwa&&x.data===it.data);})){S.items.push(it);n.i++;}});
+  if(!S.del[it.id]&&!S.items.some(function(x){return x.id===it.id||(x.nazwa===it.nazwa&&x.data===it.data);})){S.items.push(it);n.i++;}});
  (src.plans||[]).forEach(function(pl){
   var ex=S.plans.filter(function(x){return x.product===pl.product;})[0];
+  if(S.del[pl.id])return;
   if(!ex){S.plans.push(pl);n.p++;}
   else if(tryb==='nadrzedna'&&(Number(pl.progress)||0)>(Number(ex.progress)||0)){
    S.plans=S.plans.map(function(x){return x.product===pl.product?pl:x;});n.p++;}});
@@ -241,9 +255,9 @@ function stGet(k){if(ONLINE)return window.storage.get(k,true).then(function(r){r
 function stSet(k,v){if(ONLINE)return window.storage.set(k,v,true).then(function(r){return r!==false;}).catch(function(){return false;});
  try{localStorage.setItem(k,v);return Promise.resolve(true);}catch(e){return Promise.resolve(false);}}
 
-function pack(){return {items:S.items,plans:S.plans,dec:S.dec,rev:SYNC.rev};}
+function pack(){return {items:S.items,plans:S.plans,dec:S.dec,del:S.del,rev:SYNC.rev};}
 function apply(o){if(!o)return;
- S.items=o.items||[];S.plans=o.plans||[];S.dec=o.dec||{};SYNC.rev=Number(o.rev)||0;}
+ S.items=o.items||[];S.plans=o.plans||[];S.dec=o.dec||{};S.del=o.del||{};SYNC.rev=Number(o.rev)||0;}
 
 function pull(cichy){
  return Promise.all([stGet('inno:core'),stGet('inno:imgs')]).then(function(r){
@@ -253,7 +267,7 @@ function pull(cichy){
   if(!core)return false;
   if(core.rev===SYNC.rev&&cichy)return false;
   var przed=S.items.length+S.plans.length;
-  var lokalne={items:S.items,plans:S.plans,dec:S.dec,imgs:{}};
+  var lokalne={items:S.items,plans:S.plans,dec:S.dec,del:S.del,imgs:{}};
   apply(core);
   var n=mergeState(lokalne,'scal');            // wpisy zrobione offline nie przepadają
   if(n.i+n.p+n.d>0)push();
@@ -643,7 +657,7 @@ function baseView(){var kats=KATS.slice();
  '<div class="row" style="margin-top:10px"><span class="note">'+list.length+' pozycji, sortowanie od najwyższej oceny</span>'+
  ((S.katf.length+S.plantf.length+S.srcf.length+S.decf.length+S.progf.length+S.yearf.length)?'<button class="mini" data-act="clearf">Wyczyść filtry</button>':'')+
  '</div></div>'+
- '<div class="card" style="overflow-x:auto"><table><thead><tr><th>Produkt</th><th style="width:110px">Plant</th><th>Grupa produktowa</th><th style="width:120px">Data rozpoczęcia</th><th style="width:120px">Ocena</th><th style="width:150px">Postęp projektu</th><th style="width:190px">Transfer na linię</th></tr></thead><tbody>'+
+ '<div class="card" style="overflow-x:auto"><table><thead><tr><th>Produkt</th><th style="width:110px">Plant</th><th>Grupa produktowa</th><th style="width:120px">Data rozpoczęcia</th><th style="width:120px">Ocena</th><th style="width:150px">Postęp projektu</th><th style="width:190px">Transfer na linię</th><th style="width:70px"></th></tr></thead><tbody>'+
  list.map(function(p){var vv=verdict(Number(p.ocena)||0);var ph=(p.photos&&p.photos.length?p.photos:(S.imgs[p.nazwa]||[]));var dec=decOf(p);var pr=progOf(p);
  return '<tr><td><div class="row" style="gap:8px;align-items:flex-start">'+
  (ph.length?'<img class="tmini" src="'+ph[0].src+'" alt="'+esc(p.nazwa)+'">'
@@ -667,7 +681,8 @@ function baseView(){var kats=KATS.slice();
   '<td>'+(dec.length
   ?'<div class="row" style="gap:5px">'+dec.map(function(l){
     return '<span class="pill" style="background:'+(l===NOPE?C.steel:C.claret)+'">'+esc(l)+'</span>';}).join('')+'</div>'
-  :'<span class="note">'+(p.source==='własna'?'Linię wybierasz przy tworzeniu action planu':'Nie wybrano w Skanerze')+'</span>')+'</td></tr>';}).join('')+
+  :'<span class="note">'+(p.source==='własna'?'Linię wybierasz przy tworzeniu action planu':'Nie wybrano w Skanerze')+'</span>')+'</td>'+
+  '<td style="text-align:right">'+(p.source!=='archiwum'?'<button class="mini" data-del="'+esc(p.id)+'" title="Usuń projekt z Bazy">Usuń</button>':'')+'</td></tr>';}).join('')+
  '</tbody></table></div></div>';}
 
 function newPlanForm(){
@@ -1202,7 +1217,7 @@ document.addEventListener('click',function(e){
  if(dw){var xd=dw.dataset.dw.split('|'),pd=S.plans.filter(function(y){return y.id===xd[0];})[0];
   if(pd){pd.weeks=pd.weeks.filter(function(y){return y.nr!==Number(xd[1]);}).map(function(y,i){return Object.assign(y,{nr:i+1});});
    save();S.keepScroll=true;render();}return;}
- var t=e.target.closest('[data-tab],[data-act],[data-s],[data-tg],[data-dec2],[data-rok],[data-dp],[data-rp]');if(!t)return;
+ var t=e.target.closest('[data-tab],[data-act],[data-s],[data-tg],[data-dec2],[data-rok],[data-del],[data-dp],[data-rp]');if(!t)return;
  var d=D();
  if(t.dataset.rp){d.photos.splice(Number(t.dataset.rp),1);render();return;}
  if(t.dataset.tab){S.tab=t.dataset.tab;render();return;}
@@ -1217,8 +1232,12 @@ document.addEventListener('click',function(e){
    if(wyb.length>=2)return flash('Maksymalnie dwie grupy produktowe. Odznacz jedną, żeby wybrać inną.',1);
    d.targets=wyb.concat([tg]);}
   render();return;}
+ if(t.dataset.del){var itd=S.items.filter(function(x){return x.id===t.dataset.del;})[0];if(!itd)return;
+  var pld=planFor(itd.nazwa);
+  if(!window.confirm('Usunąć projekt „'+itd.nazwa+'”'+(pld?' razem z jego action planem':'')+'?\nZniknie dla wszystkich użytkowników wspólnej bazy i nie da się tego cofnąć. Jeśli masz wątpliwości, zrób najpierw Kopię JSON.'))return;
+  usunProjekt(itd);S.keepScroll=true;render();flash('Projekt usunięty: '+itd.nazwa+'.');return;}
  if(t.dataset.dp){if(!window.confirm(tr('Usunąć cały action plan tego produktu? Kroki, terminy i postęp zostaną skasowane.')))return;
-  S.plans=S.plans.filter(function(x){return x.id!==t.dataset.dp;});save();S.tab='base';S.open=null;render();
+  S.del[t.dataset.dp]=Date.now();S.plans=S.plans.filter(function(x){return x.id!==t.dataset.dp;});save();S.tab='base';S.open=null;render();
   flash('Plan usunięty.');return;}
  var a=t.dataset.act;
  if(a==='pick'){document.getElementById('ph').click();}
