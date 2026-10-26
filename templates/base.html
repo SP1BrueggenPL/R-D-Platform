@@ -13,6 +13,9 @@
   <div><h1>Digital R&amp;D</h1>
   <div class="tagline">#TheCerealFamily</div></div>
   <div class="top-nav">
+    {% if user.is_authenticated and request.resolver_match.view_name != 'core:hub' %}
+      <a href="{% url 'core:hub' %}">{% t 'nav.hub' %}</a>
+    {% endif %}
     {% for code, short, name in LANGUAGES %}
       {# the Inno Session Lab tool keeps its own language in localStorage under the same codes — keep it in step #}
       <a class="lang{% if code == LANG %} on{% endif %}" href="{% url 'core:set_language' code %}?next={{ request.get_full_path|urlencode }}" title="{{ name }}" lang="{{ code }}" onclick="try{localStorage.setItem('inno:lang','{{ code }}')}catch(e){}">{{ short }}</a>

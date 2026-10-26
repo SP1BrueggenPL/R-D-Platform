@@ -28,6 +28,7 @@ def _s(pl, en, de, fr):
 
 STRINGS = {
     # ---- top bar -----------------------------------------------------------
+    'nav.hub': _s('← Procesy', '← Processes', '← Prozesse', '← Processus'),
     'nav.users': _s('Użytkownicy', 'Users', 'Benutzer', 'Utilisateurs'),
     'nav.admin': _s('Admin', 'Admin', 'Admin', 'Admin'),
     'nav.logout': _s('Wyloguj', 'Log out', 'Abmelden', 'Déconnexion'),

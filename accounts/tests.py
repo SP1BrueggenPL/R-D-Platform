@@ -178,3 +178,10 @@ class ResetCodeTests(TestCase):
         r = self.client.get(reverse('accounts:user_list'))
         self.assertContains(r, 'Resetuj kod')
         self.assertContains(r, 'ustawiony')
+
+    def test_users_page_has_a_way_back_to_the_processes_hub(self):
+        self.client.post(LOGIN, {'step': 'code', 'chip_number': '21012', 'auth_code': 'Admin-1234'})
+        for url in (reverse('accounts:user_list'), reverse('accounts:user_create')):
+            r = self.client.get(url)
+            self.assertContains(r, f'<a href="{reverse("core:hub")}">← Procesy</a>', html=True)
+        self.assertNotContains(self.client.get(reverse('core:hub')), '← Procesy')
