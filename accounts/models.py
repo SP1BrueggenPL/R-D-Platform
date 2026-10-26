@@ -9,9 +9,11 @@ from django.utils import timezone
 class Profile(models.Model):
     ROLE_ADMIN = 'admin'
     ROLE_MEMBER = 'member'
+    ROLE_INNOSESSION = 'innosession'
     ROLE_CHOICES = [
         (ROLE_ADMIN, 'Administrator'),
         (ROLE_MEMBER, 'Członek zespołu R&D'),
+        (ROLE_INNOSESSION, 'Innosession'),
     ]
 
     # Authorization code (second factor for chip sign-in).
@@ -25,7 +27,7 @@ class Profile(models.Model):
         help_text='Numer identyfikacyjny karty / chipa pracownika używany do logowania.',
     )
     display_name = models.CharField(max_length=150, blank=True, default='', verbose_name='Nazwa wyświetlana')
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=ROLE_MEMBER, verbose_name='Rola')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_MEMBER, verbose_name='Rola')
     is_active_chip = models.BooleanField(default=True, verbose_name='Chip aktywny')
     created_at = models.DateTimeField(auto_now_add=True)
 

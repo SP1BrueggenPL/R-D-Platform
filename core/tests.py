@@ -1,9 +1,12 @@
+from unittest import mock
+
 from django.contrib.auth.models import User
 from django.test import SimpleTestCase, TestCase, override_settings
 
 from accounts.models import Profile
 
 from .i18n import LANG_CODES, STRINGS, tr
+from .registry import RD_PROCESSES
 
 # Production serves hashed static files from a manifest built by collectstatic;
 # tests render templates without that step, so use the plain storage there.
@@ -78,3 +81,69 @@ class LanguageSwitchingTests(TestCase):
         self.assertEqual(r['Location'], '/')
         r = self.client.get('/jezyk/en/?next=/accounts/login/')
         self.assertEqual(r['Location'], '/accounts/login/')
+
+
+def login_as(client, chip, role):
+    user = User.objects.create(username=f'chip{chip}')
+    Profile.objects.create(user=user, chip_number=chip, display_name=f'U{chip}', role=role)
+    client.force_login(user)
+    return user
+
+
+@override_settings(STORAGES=PLAIN_STORAGES)
+class ProcessAccessTests(TestCase):
+    INNO = '/inno-session-lab/'
+    STORAGE = '/inno-session-lab/api/storage/inno:core/'
+
+    def test_member_and_innosession_roles_see_and_open_the_process(self):
+        for chip, role in (('1', Profile.ROLE_MEMBER), ('2', Profile.ROLE_INNOSESSION)):
+            login_as(self.client, chip, role)
+            self.assertContains(self.client.get('/'), 'Inno Session Lab')
+            self.assertEqual(self.client.get(self.INNO).status_code, 200)
+            self.assertEqual(self.client.get(self.STORAGE).status_code, 200)
+            self.client.logout()
+
+    def test_any_other_role_neither_sees_nor_opens_it(self):
+        login_as(self.client, '3', 'guest')
+        hub = self.client.get('/')
+        self.assertNotContains(hub, 'Inno Session Lab')
+        self.assertContains(hub, 'Twoja rola nie ma dostępu do żadnego procesu')
+        self.assertEqual(self.client.get(self.INNO).status_code, 403)
+
+    def test_the_whole_url_tree_is_guarded_not_just_the_tile(self):
+        login_as(self.client, '3', 'guest')
+        self.assertEqual(self.client.get(self.STORAGE).status_code, 403)
+        self.assertEqual(self.client.post(self.STORAGE, data='{"value":"x"}', content_type='application/json').status_code, 403)
+        self.assertEqual(self.client.post('/inno-session-lab/api/ai-proxy/', data='{}', content_type='application/json').status_code, 403)
+        self.assertEqual(self.client.get('/inno-session-lab/baza/').status_code, 403)
+
+    def test_denied_page_is_translated(self):
+        login_as(self.client, '3', 'guest')
+        self.client.get('/jezyk/de/')
+        self.assertContains(self.client.get(self.INNO), 'Zugriff verweigert', status_code=403)
+
+    def test_admin_and_superuser_always_get_in(self):
+        with mock.patch.dict(RD_PROCESSES[0], {'roles': ['innosession']}):
+            login_as(self.client, '4', Profile.ROLE_ADMIN)
+            self.assertEqual(self.client.get(self.INNO).status_code, 200)
+            self.client.logout()
+            boss = User.objects.create(username='boss', is_superuser=True)
+            self.client.force_login(boss)
+            self.assertEqual(self.client.get(self.INNO).status_code, 200)
+
+    def test_process_can_be_narrowed_to_one_role(self):
+        with mock.patch.dict(RD_PROCESSES[0], {'roles': ['innosession']}):
+            login_as(self.client, '1', Profile.ROLE_MEMBER)
+            self.assertEqual(self.client.get(self.INNO).status_code, 403)
+            self.client.logout()
+            login_as(self.client, '2', Profile.ROLE_INNOSESSION)
+            self.assertEqual(self.client.get(self.INNO).status_code, 200)
+
+    def test_anonymous_is_still_sent_to_login(self):
+        r = self.client.get(self.INNO)
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('/accounts/login/', r['Location'])
+
+    def test_innosession_is_a_selectable_role_with_a_label(self):
+        self.assertIn(('innosession', 'Innosession'), Profile.ROLE_CHOICES)
+        self.assertLessEqual(len(Profile.ROLE_INNOSESSION), Profile._meta.get_field('role').max_length)

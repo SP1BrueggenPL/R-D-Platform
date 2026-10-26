@@ -4,6 +4,11 @@ To add a new process: build it as its own Django app, wire its URLs into
 rdplatform/urls.py, then append one entry here. Nothing else on the hub
 page needs to change. `tagline` and `description` are {lang: text} dicts
 (pl/en/de/fr); the hub picks the visitor's language.
+
+`roles` lists the Profile roles that may see and open the process (it also
+guards the process's whole URL tree, see core.middleware). Administrators and
+superusers always have access, so nobody can lock themselves out by editing a
+list. Leave `roles` out for a process everyone may use.
 """
 
 RD_PROCESSES = [
@@ -27,6 +32,7 @@ RD_PROCESSES = [
                    "ainsi que des plans de transfert de l'inspiration vers les lignes de production."),
         },
         'url_name': 'inno_lab:app',
+        'roles': ['member', 'innosession'],
         'enabled': True,
     },
 ]

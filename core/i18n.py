@@ -131,6 +131,19 @@ STRINGS = {
         'Wählen Sie den Prozess, in dem Sie arbeiten möchten. Neue Prozesse werden hier ergänzt.',
         'Choisissez le processus dans lequel vous souhaitez travailler. De nouveaux processus seront ajoutés ici.',
     ),
+    'hub.none': _s(
+        'Twoja rola nie ma dostępu do żadnego procesu. Skontaktuj się z administratorem.',
+        'Your role has no access to any process. Contact an administrator.',
+        'Ihre Rolle hat auf keinen Prozess Zugriff. Wenden Sie sich an einen Administrator.',
+        "Votre rôle n'a accès à aucun processus. Contactez un administrateur.",
+    ),
+    'denied.title': _s('Brak dostępu', 'Access denied', 'Zugriff verweigert', 'Accès refusé'),
+    'denied.text': _s(
+        'Twoja rola nie ma dostępu do tej sekcji. Jeśli powinna, skontaktuj się z administratorem.',
+        'Your role has no access to this section. If it should, contact an administrator.',
+        'Ihre Rolle hat keinen Zugriff auf diesen Bereich. Falls doch, wenden Sie sich an einen Administrator.',
+        "Votre rôle n'a pas accès à cette section. Si c'est une erreur, contactez un administrateur.",
+    ),
     'hub.soon': _s('Wkrótce', 'Coming soon', 'Demnächst', 'Bientôt'),
 }
 

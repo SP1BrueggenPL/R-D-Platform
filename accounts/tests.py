@@ -185,3 +185,11 @@ class ResetCodeTests(TestCase):
             r = self.client.get(url)
             self.assertContains(r, f'<a href="{reverse("core:hub")}">← Procesy</a>', html=True)
         self.assertNotContains(self.client.get(reverse('core:hub')), '← Procesy')
+
+    def test_admin_can_create_a_user_with_the_innosession_role(self):
+        self.client.post(LOGIN, {'step': 'code', 'chip_number': '21012', 'auth_code': 'Admin-1234'})
+        r = self.client.post(reverse('accounts:user_create'), {
+            'display_name': 'Ewa Inno', 'chip_number': '55555', 'role': 'innosession', 'is_active_chip': 'on'})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(Profile.objects.get(chip_number='55555').role, Profile.ROLE_INNOSESSION)
+        self.assertContains(self.client.get(reverse('accounts:user_list')), 'Innosession')
