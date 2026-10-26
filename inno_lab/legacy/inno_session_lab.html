@@ -723,6 +723,14 @@ function grupaBlock(nazwa){var it=itemByName(nazwa);
  PLANTS.map(function(pl){return '<option value="'+esc(pl)+'"'+(pl===(it.plant||PLANTS[0])?' selected':'')+'>'+esc(pl)+'</option>';}).join('')+'</select></div></div>'+
  '<div class="note" style="margin-top:6px">Zmiana zapisuje się od razu i jest widoczna w Bazie oraz na Dashboardzie.</div></div>';}
 
+function skladBlock(nazwa){var it=itemByName(nazwa);
+ if(!it)return '';
+ return '<div style="margin-top:14px;padding-top:14px;border-top:1px solid #EEE8EA"><div class="eyebrow" style="text-transform:uppercase">Skład</div>'+
+ '<textarea data-isk="'+esc(nazwa)+'" style="min-height:96px">'+esc(it.sklad||'')+'</textarea>'+
+ ((it.oryginal&&it.oryginal.sklad)?'<details style="margin-top:8px"><summary class="note" style="cursor:pointer">Transkrypcja dosłowna z etykiety (do weryfikacji)</summary>'+
+   '<div class="note notr" style="margin-top:6px;padding:8px 10px;background:#FAF7F8;border-radius:10px">'+esc(it.oryginal.sklad)+'</div></details>':'')+
+ '<div class="note" style="margin-top:6px">Zmiana zapisuje się od razu i jest widoczna w Bazie oraz na Dashboardzie.</div></div>';}
+
 function nutriBlock(nazwa){var it=itemByName(nazwa);
  if(!it)return '';
  var nu=it.nutri||{},nIss=nutriIssues(nu);
@@ -790,7 +798,7 @@ function planCard(p){var f=p.weeks.filter(function(w){return w.initials;}).lengt
  '<span class="pill" style="background:'+C.steel+'">Właściciele: '+f+'/'+p.weeks.length+'</span>'+
  (p.weeks[0]&&p.weeks[0].date?'<span class="pill" style="background:'+C.pink+'">'+plDate(p.weeks[0].date)+' — '+plDate(p.weeks[p.weeks.length-1].date)+'</span>':'')+'</div></div>'+
  '</div>'+
- grupaBlock(p.product)+nutriBlock(p.product)+photoBlock(p.product)+attBlock(p.product)+prooBlock(p.product)+
+ grupaBlock(p.product)+skladBlock(p.product)+nutriBlock(p.product)+photoBlock(p.product)+attBlock(p.product)+prooBlock(p.product)+
  '<div class="g2" style="gap:12px;margin-top:14px"><div><label>Start projektu — data</label><input type="date" data-ps="'+p.id+'" value="'+esc(p.start||'')+'"></div>'+
  '<div><label>Linia docelowa</label><select data-pl="'+p.id+'">'+LINES.map(function(l){return '<option value="'+esc(l)+'"'+(l===p.line?' selected':'')+'>'+esc(l)+'</option>';}).join('')+'</select></div></div>'+
  '<div class="g2" style="gap:12px"><div><label>Postęp projektu</label><div class="row" style="gap:8px"><select data-pg="'+p.id+'" style="max-width:130px">'+
@@ -834,7 +842,8 @@ function planView(){
   (itemByName(S.open)?'<div class="row" style="gap:6px;margin-top:6px"><span class="pill" style="background:'+(itemByName(S.open).source==='własna'?C.pink:C.steel)+'">'+esc(srcLabel(itemByName(S.open)))+'</span>'+
    (itemByName(S.open).plant?'<span class="pill" style="background:'+C.claret+'">Plant: '+esc(itemByName(S.open).plant)+'</span>':'')+'</div>':'')+
   '<p class="note" style="margin-top:8px">Ten produkt nie ma jeszcze action planu. Utwórz go w formularzu pod spodem.</p>'+
-  grupaBlock(S.open)+nutriBlock(S.open)+photoBlock(S.open)+attBlock(S.open)+prooBlock(S.open)+'</div>'+newPlanForm()+'</div>';
+  grupaBlock(S.open)+skladBlock(S.open)+nutriBlock(S.open)+photoBlock(S.open)+attBlock(S.open)+prooBlock(S.open)+'</div>'+
+  '<div style="height:5px;background:'+C.claret+';border-radius:3px;margin:24px 0"></div>'+newPlanForm()+'</div>';
  return '<div class="body">'+back+planCard(p)+'</div>';}
 
 function critFilterCard(){
@@ -1355,6 +1364,8 @@ document.addEventListener('change',function(e){var el=e.target;
   if(ik){ik.kat=el.value;save();S.keepScroll=true;render();flash('Grupa produktowa zmieniona na: '+el.value+'.');}}
  else if(el.dataset.iplant){var ip2=itemByName(el.dataset.iplant);
   if(ip2){ip2.plant=el.value;save();S.keepScroll=true;render();flash('Plant zmieniony na: '+el.value+'.');}}
+ else if(el.dataset.isk!=null){var its=itemByName(el.dataset.isk);
+  if(its&&its.sklad!==el.value){its.sklad=el.value;save();}}
  else if(el.dataset.in!=null&&el.dataset.ink){var itn=itemByName(el.dataset.in);
   if(itn){if(!itn.nutri)itn.nutri={};itn.nutri[el.dataset.ink]=el.value;save();S.keepScroll=true;render();flash('Wartości odżywcze zaktualizowane.');}}
  else if(el.dataset.pt2){photosFor(S.open)[Number(el.dataset.pt2)].type=el.value;save();}

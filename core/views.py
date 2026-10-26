@@ -4,12 +4,12 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from .i18n import LANG_CODES, LANG_COOKIE, LANG_COOKIE_MAX_AGE
-from .registry import RD_PROCESSES
+from .access import accessible_processes
 
 
 @login_required
 def hub(request):
-    return render(request, 'core/hub.html', {'processes': RD_PROCESSES})
+    return render(request, 'core/hub.html', {'processes': accessible_processes(request.user)})
 
 
 def set_language(request, code):
