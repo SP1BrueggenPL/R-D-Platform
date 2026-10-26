@@ -13,4 +13,5 @@ urlpatterns = [
     path('uzytkownicy/<int:pk>/edytuj/', views.user_edit, name='user_edit'),
     path('uzytkownicy/<int:pk>/status/', views.user_toggle_active, name='user_toggle_active'),
     path('uzytkownicy/<int:pk>/usun/', views.user_delete, name='user_delete'),
+    path('uzytkownicy/<int:pk>/reset-kodu/', views.user_reset_code, name='user_reset_code'),
 ]

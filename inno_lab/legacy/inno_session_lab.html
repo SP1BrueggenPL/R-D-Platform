@@ -140,7 +140,10 @@ var CLAIMS=['Źródło białka','Wysoka zawartość białka','Niska wartość en
 function claimsTekst(d){var l=(d.claimsList||[]).filter(function(x){return x!=='Inne';});
  if((d.claimsList||[]).indexOf('Inne')>-1&&String(d.claimsInne||'').trim())l=l.concat([String(d.claimsInne).trim()]);
  return l.join(', ');}
-var PLANTS=['Wilga','Lübbeck','Thiers'];
+var PLANTS=['Wilga','Lübeck','Thiers'];
+/* wcześniej błędnie „Lübbeck” — poprawiamy też wpisy już zapisane w bazie i szkice */
+var PLANT_FIX={'Lübbeck':'Lübeck'};
+function fixPlants(){var n=0;S.items.forEach(function(it){if(PLANT_FIX[it.plant]){it.plant=PLANT_FIX[it.plant];n++;}});return n;}
 var ROLES=['R&D','Technolog/Expert','Sales','QA'];
 var ROLEMAP={'R&D Manager':'R&D','Technolog R&D':'Technolog/Expert','Specjalista sensoryki':'Technolog/Expert',
  'Zakupy / Sourcing':'R&D','Produkcja / Linia':'Technolog/Expert','Jakość (QA)':'QA','Marketing':'Sales'};
@@ -269,8 +272,10 @@ function pull(cichy){
   var przed=S.items.length+S.plans.length;
   var lokalne={items:S.items,plans:S.plans,dec:S.dec,del:S.del,imgs:{}};
   apply(core);
+  var fx=fixPlants();
   var n=mergeState(lokalne,'scal');            // wpisy zrobione offline nie przepadają
-  if(n.i+n.p+n.d>0)push();
+  fx+=fixPlants();
+  if(n.i+n.p+n.d+fx>0)push();
   if(!cichy||S.items.length+S.plans.length!==przed)return true;
   return false;});}
 
@@ -287,6 +292,7 @@ function push(){
   if(raw===STFAIL)throw new Error('odczyt wspólnej bazy nie powiódł się');   // nie nadpisujemy bazy stanem lokalnym, gdy nie wiemy, co w niej jest
   var zdalne=null;try{zdalne=raw?JSON.parse(raw):null;}catch(e){}
   if(zdalne)mergeState(zdalne,'scal');          // scalamy cudze zmiany przed zapisem
+  fixPlants();
   SYNC.rev=Math.max(SYNC.rev,(zdalne&&Number(zdalne.rev))||0)+1;
   SYNC.dirty=false;                              // stan, który za chwilę wysyłamy; zmiany w trakcie ustawią dirty ponownie
   return stSet('inno:core',JSON.stringify(pack()));})
@@ -316,7 +322,8 @@ function load(){
   S.dec[k]=v.map(function(x){return RENAME[x]||x;});});
  S.plans.forEach(function(p){if(RENAME[p.line])p.line=RENAME[p.line];
   (p.weeks||[]).forEach(function(w){w.role=rolaOk(w.role);});});
- S.items.forEach(function(it){it.kat=katOk(it.kat);(it.kroki||[]).forEach(function(k){k.rola=rolaOk(k.rola);});});}
+ S.items.forEach(function(it){it.kat=katOk(it.kat);(it.kroki||[]).forEach(function(k){k.rola=rolaOk(k.rola);});});
+ fixPlants();}
 
 /* wgrywanie zdjęć: skalowanie do 1400 px, żeby zapis i odczyt AI były szybkie */
 function addPhotos(files,arr){
@@ -354,7 +361,8 @@ function saveDrafts(){clearTimeout(draftT);draftT=setTimeout(function(){
 function loadDrafts(){try{var v=localStorage.getItem('inno:drafts');if(!v)return;
  var j=JSON.parse(v);
  if(j.draft)S.draft=Object.assign(emptyDraft(),j.draft);
- if(j.draftOwn)S.draftOwn=Object.assign(emptyDraft(),j.draftOwn);}catch(e){}}
+ if(j.draftOwn)S.draftOwn=Object.assign(emptyDraft(),j.draftOwn);
+ [S.draft,S.draftOwn].forEach(function(d){if(PLANT_FIX[d.plant])d.plant=PLANT_FIX[d.plant];});}catch(e){}}
 function zapisano(txt){var el=document.getElementById('autoz');if(!el)return;
  el.textContent=txt||'zapisano';el.style.opacity='1';
  clearTimeout(autoT);autoT=setTimeout(function(){el.style.opacity='0';},1600);}

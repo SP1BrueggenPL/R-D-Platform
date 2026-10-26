@@ -74,6 +74,17 @@ python manage.py seed_inno_lab
 python manage.py create_admin_chip --chip 21012 --name "Administrator"
 ```
 
+**Chip sign-in needs an authorization code.** Everyone signs in with chip
+number + a personal code. The first time a chip is used (or after an admin
+resets it under *Użytkownicy → Resetuj kod*, or in Django admin → Profile
+→ action "Resetuj kod autoryzacyjny") the user is asked to choose a code
+(min. 6 characters); only its hash is stored, and 5 wrong tries lock that
+chip for 15 minutes. After deploying this change **every existing user —
+admin included — sets their code at their next sign-in**; until they do,
+anyone who knows a not-yet-enrolled chip number could claim it, so have the
+team sign in promptly. The migration (`accounts.0003`) is applied at startup
+like every other one.
+
 ## The standalone Inno Session Lab file
 
 `/inno-session-lab/` serves `inno_lab/legacy/inno_session_lab.html`.

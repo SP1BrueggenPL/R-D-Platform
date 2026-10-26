@@ -1,5 +1,5 @@
 {% load static core_extras %}<!doctype html>
-<html lang="pl">
+<html lang="{{ LANG }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -13,13 +13,17 @@
   <div><h1>Digital R&amp;D</h1>
   <div class="tagline">#TheCerealFamily</div></div>
   <div class="top-nav">
+    {% for code, short, name in LANGUAGES %}
+      {# the Inno Session Lab tool keeps its own language in localStorage under the same codes — keep it in step #}
+      <a class="lang{% if code == LANG %} on{% endif %}" href="{% url 'core:set_language' code %}?next={{ request.get_full_path|urlencode }}" title="{{ name }}" lang="{{ code }}" onclick="try{localStorage.setItem('inno:lang','{{ code }}')}catch(e){}">{{ short }}</a>
+    {% endfor %}
     {% if user.is_authenticated %}
       <span class="whoami">{{ user.profile.display_name|default:user.username }}{% if user.profile.chip_number %} · chip {{ user.profile.chip_number }}{% endif %}</span>
-      {% if user.profile.is_admin %}<a href="{% url 'accounts:user_list' %}">Użytkownicy</a>{% endif %}
-      {% if user|has_group:"helpdesk" %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
+      {% if user.profile.is_admin %}<a href="{% url 'accounts:user_list' %}">{% t 'nav.users' %}</a>{% endif %}
+      {% if user|has_group:"helpdesk" %}<a href="{% url 'admin:index' %}">{% t 'nav.admin' %}</a>{% endif %}
       <form method="post" action="{% url 'accounts:logout' %}" style="margin:0">
         {% csrf_token %}
-        <button type="submit">Wyloguj</button>
+        <button type="submit">{% t 'nav.logout' %}</button>
       </form>
     {% endif %}
   </div>

@@ -1,19 +1,55 @@
 {% extends "base.html" %}
-{% block title %}Logowanie{% endblock %}
+{% load core_extras %}
+{% block title %}{% t 'login.title' %}{% endblock %}
 {% block content %}
 <div class="wrap" style="max-width:420px">
   <div class="card">
     <div class="eyebrow">Digital R&amp;D · Brüggen</div>
-    <h2 style="margin-bottom:6px">Logowanie chipem</h2>
-    <p class="note">Wpisz swój numer chip, aby zalogować się do platformy.</p>
-    <form method="post">
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ next }}">
-      <label for="id_chip_number">{{ form.chip_number.label }}</label>
-      {{ form.chip_number }}
-      {% if form.chip_number.errors %}<p class="note" style="color:var(--coral)">{{ form.chip_number.errors|join:', ' }}</p>{% endif %}
-      <button class="btn primary" style="width:100%;margin-top:16px" type="submit">Zaloguj</button>
-    </form>
+
+    {% if stage == 'chip' %}
+      <h2 style="margin-bottom:6px">{% t 'login.heading' %}</h2>
+      <p class="note">{% t 'login.intro' %}</p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <input type="hidden" name="step" value="chip">
+        <label for="id_chip_number">{% t 'login.chip_label' %}</label>
+        <input id="id_chip_number" name="chip_number" type="text" inputmode="numeric" maxlength="20"
+               autocomplete="off" autofocus placeholder="40071" value="{{ chip }}">
+        <button class="btn primary" style="width:100%;margin-top:16px" type="submit">{% t 'login.continue' %}</button>
+      </form>
+
+    {% elif stage == 'code' %}
+      <h2 style="margin-bottom:6px">{% t 'login.code.heading' %}</h2>
+      <p class="note">{% t 'login.code.intro' chip=chip %}</p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <input type="hidden" name="step" value="code">
+        <input type="hidden" name="chip_number" value="{{ chip }}">
+        <label for="id_auth_code">{% t 'login.code.label' %}</label>
+        <input id="id_auth_code" name="auth_code" type="password" autocomplete="current-password" autofocus>
+        <button class="btn primary" style="width:100%;margin-top:16px" type="submit">{% t 'login.code.submit' %}</button>
+      </form>
+      <p class="note" style="margin-top:12px">{% t 'login.code.forgot' %}</p>
+      <p class="note"><a href="{% url 'accounts:login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">{% t 'login.other_chip' %}</a></p>
+
+    {% else %}
+      <h2 style="margin-bottom:6px">{% t 'login.setup.heading' %}</h2>
+      <p class="note">{% t 'login.setup.intro' chip=chip %}</p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <input type="hidden" name="step" value="setup">
+        <input type="hidden" name="chip_number" value="{{ chip }}">
+        <label for="id_new_code">{% t 'login.setup.new' min=min_code %}</label>
+        <input id="id_new_code" name="new_code" type="password" autocomplete="new-password" minlength="{{ min_code }}" autofocus>
+        <label for="id_new_code_confirm">{% t 'login.setup.confirm' %}</label>
+        <input id="id_new_code_confirm" name="new_code_confirm" type="password" autocomplete="new-password" minlength="{{ min_code }}">
+        <button class="btn primary" style="width:100%;margin-top:16px" type="submit">{% t 'login.setup.submit' %}</button>
+      </form>
+      <p class="note" style="margin-top:12px"><a href="{% url 'accounts:login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">{% t 'login.other_chip' %}</a></p>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

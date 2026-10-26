@@ -3,19 +3,6 @@ from django import forms
 from .models import Profile
 
 
-class ChipLoginForm(forms.Form):
-    chip_number = forms.CharField(
-        label='Numer chip',
-        max_length=20,
-        widget=forms.TextInput(attrs={
-            'autofocus': True,
-            'inputmode': 'numeric',
-            'placeholder': 'np. 40071',
-            'autocomplete': 'off',
-        }),
-    )
-
-
 class UserAccountForm(forms.Form):
     display_name = forms.CharField(label='Nazwa wyświetlana', max_length=150)
     chip_number = forms.CharField(
