@@ -11,7 +11,7 @@
   <div class="card" style="overflow-x:auto">
     <table>
       <thead>
-        <tr><th>Nazwa</th><th>Numer chip</th><th>Rola</th><th>Status</th><th></th></tr>
+        <tr><th>Nazwa</th><th>Numer chip</th><th>Rola</th><th>Status</th><th>Kod autoryzacyjny</th><th></th></tr>
       </thead>
       <tbody>
         {% for profile in profiles %}
@@ -24,8 +24,17 @@
             {% else %}<span class="pill" style="background:var(--char)">nieaktywny</span>{% endif %}
           </td>
           <td>
+            {% if profile.is_code_locked %}<span class="pill" style="background:var(--coral)">zablokowany (jeszcze {{ profile.lock_minutes_left }} min)</span>
+            {% elif profile.has_auth_code %}<span class="pill" style="background:var(--steel)">ustawiony</span>
+            {% else %}<span class="note">nie ustawiony — ustawi przy pierwszym logowaniu</span>{% endif %}
+          </td>
+          <td>
             <div class="row">
               <a class="mini" href="{% url 'accounts:user_edit' profile.pk %}">Edytuj</a>
+              <form method="post" action="{% url 'accounts:user_reset_code' profile.pk %}" onsubmit="return confirm('Zresetować kod autoryzacyjny użytkownika {{ profile.display_name|default:profile.user.username|escapejs }}? Przy następnym logowaniu chipem ustawi nowy.');">
+                {% csrf_token %}
+                <button type="submit" class="mini">Resetuj kod</button>
+              </form>
               {% if profile.user_id != request.user.id %}
                 <form method="post" action="{% url 'accounts:user_toggle_active' profile.pk %}">
                   {% csrf_token %}
@@ -40,7 +49,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="5" class="note">Brak użytkowników.</td></tr>
+        <tr><td colspan="6" class="note">Brak użytkowników.</td></tr>
         {% endfor %}
       </tbody>
     </table>

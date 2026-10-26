@@ -6,27 +6,82 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
-from .forms import ChipLoginForm, UserAccountForm
+from core.i18n import tr
+
+from .forms import UserAccountForm
 from .models import Profile
 
 
+def _safe_next(request):
+    target = request.POST.get('next') or request.GET.get('next') or ''
+    if target and url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()},
+                                                  require_https=request.is_secure()):
+        return target
+    return 'core:hub'
+
+
 def chip_login(request):
+    """Chip sign-in in up to two steps.
+
+    1. chip number
+    2. either the user's authorization code, or — on the very first sign-in
+       (or after an admin reset) — choosing one.
+    The chip is carried between steps in a hidden field; every step re-checks
+    everything server-side, so nothing the browser sends is trusted.
+    """
     if request.user.is_authenticated:
         return redirect('core:hub')
 
-    form = ChipLoginForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        chip_number = form.cleaned_data['chip_number']
-        user = authenticate(request, chip_number=chip_number)
-        if user is not None:
-            login(request, user)
-            next_url = request.POST.get('next') or request.GET.get('next') or 'core:hub'
-            return redirect(next_url)
-        messages.error(request, 'Nieznany lub nieaktywny numer chip. Sprawdź numer albo skontaktuj się z administratorem.')
+    lang = request.LANG
+    ctx = {'stage': 'chip', 'chip': '', 'next': request.POST.get('next') or request.GET.get('next', ''),
+           'min_code': Profile.MIN_CODE_LENGTH}
 
-    return render(request, 'accounts/login.html', {'form': form, 'next': request.GET.get('next', '')})
+    if request.method == 'POST':
+        step = request.POST.get('step', 'chip')
+        chip = (request.POST.get('chip_number') or '').strip()
+        profile = (Profile.objects.select_related('user')
+                   .filter(chip_number=chip, is_active_chip=True).first()) if chip else None
+
+        if profile is None:
+            messages.error(request, tr(lang, 'login.err.unknown_chip'))
+            ctx['chip'] = chip
+        elif not profile.has_auth_code:
+            ctx.update(stage='setup', chip=chip)
+            if step == 'setup':
+                code = request.POST.get('new_code') or ''
+                again = request.POST.get('new_code_confirm') or ''
+                if len(code) < Profile.MIN_CODE_LENGTH:
+                    messages.error(request, tr(lang, 'login.err.code_short', min=Profile.MIN_CODE_LENGTH))
+                elif code != again:
+                    messages.error(request, tr(lang, 'login.err.code_mismatch'))
+                elif code == chip:
+                    messages.error(request, tr(lang, 'login.err.code_is_chip'))
+                else:
+                    profile.set_auth_code(code)
+                    user = authenticate(request, chip_number=chip, auth_code=code)
+                    if user is not None:
+                        login(request, user)
+                        return redirect(_safe_next(request))
+        else:
+            ctx.update(stage='code', chip=chip)
+            if step == 'code':
+                if profile.is_code_locked:
+                    messages.error(request, tr(lang, 'login.err.code_locked', min=profile.lock_minutes_left))
+                else:
+                    user = authenticate(request, chip_number=chip, auth_code=request.POST.get('auth_code') or '')
+                    if user is not None:
+                        login(request, user)
+                        return redirect(_safe_next(request))
+                    profile.refresh_from_db()
+                    if profile.is_code_locked:
+                        messages.error(request, tr(lang, 'login.err.code_locked', min=profile.lock_minutes_left))
+                    else:
+                        messages.error(request, tr(lang, 'login.err.code_wrong', left=profile.attempts_left))
+
+    return render(request, 'accounts/login.html', ctx)
 
 
 @require_POST
@@ -73,7 +128,8 @@ def user_create(request):
             role=form.cleaned_data['role'],
             is_active_chip=form.cleaned_data['is_active_chip'],
         )
-        messages.success(request, f"Konto \"{form.cleaned_data['display_name']}\" (chip {chip_number}) utworzone.")
+        messages.success(request, f"Konto \"{form.cleaned_data['display_name']}\" (chip {chip_number}) utworzone. "
+                                  "Przy pierwszym logowaniu użytkownik ustawi własny kod autoryzacyjny.")
         return redirect('accounts:user_list')
     return render(request, 'accounts/user_form.html', {'form': form, 'profile': None})
 
@@ -116,4 +172,15 @@ def user_delete(request, pk):
         display = f'{profile.display_name} (chip {profile.chip_number})'
         profile.user.delete()
         messages.success(request, f'Konto {display} usunięte.')
+    return redirect('accounts:user_list')
+
+
+@admin_required
+@require_POST
+def user_reset_code(request, pk):
+    """Forgotten authorization code: clear it so the user picks a new one at their next chip sign-in."""
+    profile = get_object_or_404(Profile, pk=pk)
+    profile.reset_auth_code()
+    messages.success(request, f'Kod autoryzacyjny użytkownika {profile.display_name or profile.user.username} '
+                              f'(chip {profile.chip_number}) zresetowany — przy następnym logowaniu ustawi nowy.')
     return redirect('accounts:user_list')

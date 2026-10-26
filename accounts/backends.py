@@ -5,21 +5,24 @@ from .models import Profile
 
 
 class ChipNumberBackend(BaseBackend):
-    """Authenticates purely by chip number — no password.
+    """Authenticates by chip number plus the user's own authorization code.
 
-    Mirrors the badge/chip-scan login used on the shop floor: an employee
-    (or the admin account) types their chip number and is signed in as the
-    matching user, provided the chip is marked active.
+    Mirrors the badge/chip-scan login used on the shop floor: the employee
+    types the chip number and then confirms with the personal code they chose
+    at their first sign-in. Both must match, the chip must be active and not
+    locked after repeated wrong codes (see Profile.check_auth_code).
     """
 
-    def authenticate(self, request, chip_number=None, **kwargs):
-        if not chip_number:
+    def authenticate(self, request, chip_number=None, auth_code=None, **kwargs):
+        if not chip_number or not auth_code:
             return None
         try:
             profile = Profile.objects.select_related('user').get(
                 chip_number=chip_number.strip(), is_active_chip=True,
             )
         except Profile.DoesNotExist:
+            return None
+        if not profile.check_auth_code(auth_code):
             return None
         return profile.user
 
