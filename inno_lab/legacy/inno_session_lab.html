@@ -799,8 +799,8 @@ function planCard(p){var f=p.weeks.filter(function(w){return w.initials;}).lengt
  '<span class="pill" style="background:'+C.steel+'">Właściciele: '+f+'/'+p.weeks.length+'</span>'+
  (p.weeks[0]&&p.weeks[0].date?'<span class="pill" style="background:'+C.pink+'">'+plDate(p.weeks[0].date)+' — '+plDate(p.weeks[p.weeks.length-1].date)+'</span>':'')+'</div></div>'+
  '</div>'+
- '<div style="margin-top:14px"><label style="margin-top:0">Nazwa nowego projektu</label><input data-pn="'+p.id+'" value="'+esc(p.pname||'')+'" placeholder="np. Baton piernikowy"></div>'+
  grupaBlock(p.product)+skladBlock(p.product)+nutriBlock(p.product)+photoBlock(p.product)+attBlock(p.product)+prooBlock(p.product)+
+ '<div style="margin-top:14px"><label style="margin-top:0">Nazwa nowego projektu</label><input data-pn="'+p.id+'" value="'+esc(p.pname||'')+'" placeholder="np. Baton piernikowy"></div>'+
  '<div class="g2" style="gap:12px;margin-top:14px"><div><label>Start projektu — data</label><input type="date" data-ps="'+p.id+'" value="'+esc(p.start||'')+'"></div>'+
  '<div><label>Linia docelowa</label><select data-pl="'+p.id+'">'+LINES.map(function(l){return '<option value="'+esc(l)+'"'+(l===p.line?' selected':'')+'>'+esc(l)+'</option>';}).join('')+'</select></div></div>'+
  '<div class="g2" style="gap:12px"><div><label>Postęp projektu</label><div class="row" style="gap:8px"><select data-pg="'+p.id+'" style="max-width:130px">'+
